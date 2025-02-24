@@ -1,18 +1,15 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.scss'
+import "./App.scss";
+import AppRoutes from "./AppRoutes";
+import ScrollToTop from "./Other/ScrollToTop";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <h1 class="text-3xl font-bold underline">
-        Hello world!
-      </h1>
+      <ScrollToTop>
+        <AppRoutes />
+      </ScrollToTop>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
