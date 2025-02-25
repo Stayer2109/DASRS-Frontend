@@ -4,6 +4,7 @@
 @theme {
   --color-blue-100: #ebf8ff;
   --color-gray-main: #535353;
+  --color-gray-main-hover: #383838;
 
   /* Font Size */
   --text-h1: 32px;

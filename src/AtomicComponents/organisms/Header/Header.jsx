@@ -17,16 +17,19 @@ export default function Header() {
       {/* Right Side: Lumpy Nav + Circle Icon */}
       <div className="flex items-center group">
         {/* First Item */}
-        <div className="item-container hidden group-hover:flex group-hover:gap-2">
+        <div
+          className="item-container flex w-auto translate-x-[100px] opacity-0 translate-y-[2px] gap-2 transition 
+          duration-300 ease-in-out group-hover:translate-x-0 group-hover:opacity-100">
           <ul>
             <li
               className={`relative bg-gray-main text-white px-standard-x py-standard-y rounded-3xl z-1 after:content-[''] right-[8px]
               after:absolute after:w-14 after:h-8 after:top-1/2 after:-translate-y-1/2 after:z-[-1]
               after:right-[-32px]
               after:bg-[url(/src/assets/icon/connector.png)] after:bg-cover after:bg-center 
-              after:bg-no-repeat after:bg-transparent`}
-            >
-              <Link>Kamehameha</Link>
+              after:bg-no-repeat after:bg-transparent`}>
+              <Link className="py-1 px-5 hover:bg-gray-main-hover rounded-3xl trasition ease-in-out duration-150">
+                Kamehameha
+              </Link>
             </li>
           </ul>
 
@@ -37,9 +40,10 @@ export default function Header() {
               after:absolute after:w-16 after:h-8 after:top-1/2 after:-translate-y-1/2 after:z-[-1]
               after:right-[-36px]
               after:bg-[url(/src/assets/icon/connector.png)] after:bg-cover after:bg-center 
-              after:bg-no-repeat after:bg-transparent`}
-            >
-              <Link>Rasengan</Link>
+              after:bg-no-repeat after:bg-transparent`}>
+              <Link className="py-1 px-5 hover:bg-gray-main-hover rounded-3xl trasition ease-in-out duration-150">
+                Rasengan
+              </Link>
             </li>
           </ul>
 
@@ -50,9 +54,10 @@ export default function Header() {
               after:absolute after:w-16 after:h-8 after:top-1/2 after:-translate-y-1/2 after:z-[-1]
               after:right-[-36px]
               after:bg-[url(/src/assets/icon/connector.png)] after:bg-cover after:bg-center 
-              after:bg-no-repeat after:bg-transparent`}
-            >
-              <Link>Boom</Link>
+              after:bg-no-repeat after:bg-transparent`}>
+              <Link className="py-1 px-5 hover:bg-gray-main-hover rounded-3xl trasition ease-in-out duration-150">
+                Boom
+              </Link>
             </li>
           </ul>
         </div>
@@ -60,9 +65,8 @@ export default function Header() {
         {/* Circle button with the icon. Offset to overlap the last pill */}
         <button
           type="button"
-          className="bg-gray-main w-14 h-14 rounded-full flex items-center justify-center z-1"
-        >
-          <SidebarIcon className="w-6 h-6" color={"white"} />
+          className="bg-gray-main w-18 h-18 rounded-full flex items-center justify-center z-1">
+          <SidebarIcon className="w-9 h-9" color={"white"} />
         </button>
       </div>
     </div>
