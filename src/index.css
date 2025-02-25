@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Define custom theme here */
+@theme {
+  --color-blue-100: #ebf8ff;
+
+  /* Font Size */
+  --text-h1: 32px;
+  --text-h2: 24px;
+  --text-h3: 20px;
+  --text-h4: 18px;
+  --text-h5: 16px;
+  --text-h6: 14px;
+
+  /* Padding and Margin */
+  --spacing-standard-x: 12px;
+  --spacing-standard-y: 8px;
+}
