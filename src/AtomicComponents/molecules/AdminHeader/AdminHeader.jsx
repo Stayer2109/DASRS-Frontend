@@ -2,8 +2,8 @@ import {
   MagnifyingGlassIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import { Input } from "@/AtomicComponents/atoms/shadcn/input";
 
 export const AdminHeader = ({ activeTab }) => {
   const getBreadcrumbs = () => {

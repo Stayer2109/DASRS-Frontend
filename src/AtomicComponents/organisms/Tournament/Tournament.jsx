@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/AtomicComponents/atoms/shadcn/table";
 
 export const Tournament = () => {
   const [tournaments, setTournaments] = useState([
@@ -83,9 +83,7 @@ export const Tournament = () => {
           <TableBody>
             {tournaments.map((tournament) => (
               <TableRow key={tournament.id}>
-                <TableCell className="font-medium">
-                  {tournament.name}
-                </TableCell>
+                <TableCell className="font-medium">{tournament.name}</TableCell>
                 <TableCell>{tournament.startDate}</TableCell>
                 <TableCell>{tournament.endDate}</TableCell>
                 <TableCell>
