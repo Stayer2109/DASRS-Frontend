@@ -5,8 +5,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from "@/AtomicComponents/atoms/shadcn/table";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 
 export const UserManagement = () => {
   const users = [

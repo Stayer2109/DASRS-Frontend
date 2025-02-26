@@ -1,6 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/AtomicComponents/atoms/shadcn/card";
+import { Label } from "@/AtomicComponents/atoms/shadcn/label";
+import { Switch } from "@/AtomicComponents/atoms/shadcn/switch";
 
 export const Settings = () => {
   return (
