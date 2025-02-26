@@ -10,13 +10,13 @@ import {
   CircleDot,
 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import { Separator } from "@/AtomicComponents/atoms/shadcn/separator";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/AtomicComponents/atoms/shadcn/collapsible";
 
 export const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isExpanded, setIsExpanded] = useState(true);
