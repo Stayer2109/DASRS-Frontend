@@ -1,15 +1,16 @@
-import "./App.scss";
+/** @format */
+
 import AppRoutes from "./AppRoutes";
 import ScrollToTop from "./Other/ScrollToTop";
 
 function App() {
-  return (
-    <>
-      <ScrollToTop>
-        <AppRoutes />
-      </ScrollToTop>
-    </>
-  );
+	return (
+		<>
+			<ScrollToTop>
+				<AppRoutes />
+			</ScrollToTop>
+		</>
+	);
 }
 
 export default App;
