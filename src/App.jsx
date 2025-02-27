@@ -1,4 +1,5 @@
 /** @format */
+import "./App.scss";
 
 import AppRoutes from "./AppRoutes";
 import ScrollToTop from "./Other/ScrollToTop";

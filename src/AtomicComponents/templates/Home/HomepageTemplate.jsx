@@ -1,5 +1,9 @@
+/** @format */
+
+import CurrentRaces from "@/AtomicComponents/organisms/HomePage/CurrentRaces";
+
 const HomepageTemplate = () => {
-  return <h1 className="text-red-500">Hello world!</h1>;
+	return <CurrentRaces />;
 };
 
 export default HomepageTemplate;
