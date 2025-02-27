@@ -5,7 +5,8 @@
 /* Define custom theme here */
 @theme {
 	--color-blue-100: #ebf8ff;
-	--color-gray-main: #535353;
+	--color-gray-main: #323232;
+	--color-gray-nav: #535353;
 	--color-gray-main-hover: #383838;
 
 	/* Font Size */
