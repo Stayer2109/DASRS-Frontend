@@ -6,3 +6,27 @@ body {
 * {
   --HOVER-COLOR: #f2f2f2;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #262626; /* Dark track background */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #3b82f6, #9333ea); /* Gradient thumb */
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    45deg,
+    #2563eb,
+    #7e22ce
+  ); /* Brighter gradient on hover */
+}
