@@ -4,7 +4,6 @@
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
 import CommonLayout from "./AtomicComponents/pages/CommonLayout";
 import { Routes, Route } from "react-router-dom";
-import HomePage from "./AtomicComponents/pages/Home";
 
 const AppRoutes = () => {
 	return (
@@ -16,7 +15,7 @@ const AppRoutes = () => {
 			>
 				<Route
 					index
-					element={<HomePage />}
+					element={<AdminPage />}
 				/>
 			</Route>
 			<Route
