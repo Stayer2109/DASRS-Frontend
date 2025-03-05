@@ -2,9 +2,9 @@
 
 // import React from "react";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
-import { Routes, Route } from "react-router-dom";
-import CommonLayout from "./AtomicComponents/pages/CommonLayout";
 import HomePage from "./AtomicComponents/pages/Home/HomePage";
+import CommonLayout from "./AtomicComponents/pages/CommonLayout";
+import { Routes, Route } from "react-router-dom";
 
 const AppRoutes = () => {
 	return (
