@@ -1,0 +1,30 @@
+/** @format */
+
+.button-container {
+	&:hover {
+		.right-icon {
+			animation: arrowSlide 0.5s ease-in-out forwards;
+		}
+	}
+}
+
+@keyframes arrowSlide {
+	0% {
+		transform: translateX(0);
+	}
+
+	50% {
+		transform: translateX(30px); // Move fully off-screen to the right
+		opacity: 0; // Hide while moving out
+	}
+
+	51% {
+		transform: translateX(-30px); // Instantly reappear off-screen left
+		opacity: 0; // Still hidden
+	}
+
+	100% {
+		transform: translateX(0); // Move back to original position
+		opacity: 1; // Show again
+	}
+}
