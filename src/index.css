@@ -5,6 +5,7 @@
 /* Define custom theme here */
 @theme {
   --color-gray-main: #323232;
+  --color-main-blue: #2650FF;
   --color-darkgray-main: #1a1a1a;
   --color-gray-nav: #535353;
   --color-gray-main-hover: #383838;
