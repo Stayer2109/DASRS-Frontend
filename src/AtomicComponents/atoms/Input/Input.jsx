@@ -42,6 +42,7 @@ const Input = ({
 	placeholder = "",
 	className = "",
 	autoComplete = "off",
+	onChange = () => {},
 }) => {
 	const commonInputClass = `input-container ${className} px-standard-x py-standard-y 
       rounded-xl border-gray-main border-1 focus:border-main-blue focus:outline-none 
@@ -52,6 +53,7 @@ const Input = ({
 			type={type}
 			placeholder={placeholder}
 			className={commonInputClass}
+			onChange={onChange}
 			autoComplete={
 				VALID_AUTOCOMPLETE_VALUES.includes(autoComplete) ? autoComplete : "off"
 			}
@@ -64,6 +66,7 @@ Input.propTypes = {
 	placeholder: PropTypes.string,
 	className: PropTypes.string,
 	autoComplete: PropTypes.oneOf(VALID_AUTOCOMPLETE_VALUES),
+	onChange: PropTypes.func,
 };
 
 export default Input;

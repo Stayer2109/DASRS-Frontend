@@ -10,10 +10,19 @@ import { Modal, ModalBody, ModalHeader } from "../organisms/Modal/Modal";
 import Input from "../atoms/Input/Input";
 import "./CommonLayout.scss";
 import Button from "../atoms/Button/Button";
+import { LoginValidation } from "@/utils/Validation";
 
 const CommonLayout = () => {
 	const [loginModalShow, setLoginModalShow] = useState(false);
 	const [forgetPasswordModalShow, setForgetPasswordModalShow] = useState(false);
+	const inputCommonClassname = "w-full mb-1";
+
+	// INPUT ERRORS
+	const [errors, setErrors] = useState({});
+	const [loginData, setLoginData] = useState({
+		email: "",
+		password: "",
+	});
 
 	//#region LOGIN MODAL CONTROL
 	// HANDLE SHOW LOGIN MODAL
@@ -40,9 +49,22 @@ const CommonLayout = () => {
 	//#endregion
 
 	// HANDLE LOGIN FORM SUBMIT
+	const handleLoginValidation = (data) => {
+		const errors = LoginValidation(data);
+		setErrors(errors);
+	};
+
+	// SUBMIT LOGIN FORM
 	const handleLoginsSubmit = (e) => {
 		e.preventDefault();
-		console.log("Login form submitted");
+
+		if (Object.keys(errors).length > 0) return;
+
+		try {
+			
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (
@@ -80,20 +102,46 @@ const CommonLayout = () => {
 									className='inf-input-container grid grid-cols-[1fr_3fr] 
 							gap-y-5 items-center mb-5'
 								>
-									{/* Username */}
-									<label htmlFor='username'>Email</label>
-									<Input
-										type='text'
-										placeholder='Input your email here ...'
-										autoComplete=''
-									/>
+									{/* Email */}
+									<label htmlFor='email'>Email</label>
+									<div>
+										<Input
+											className={inputCommonClassname}
+											type='text'
+											placeholder='Input your email here ...'
+											autoComplete=''
+											onChange={(e) => {
+												setLoginData({
+													...loginData,
+													email: e.target.value,
+												});
+											}}
+										/>
+
+										{errors.email && loginData.email == "" && (
+											<p className='text-red-500 text-xs'>{errors.email}</p>
+										)}
+									</div>
 
 									{/* Password */}
 									<label htmlFor='password'>Password</label>
-									<Input
-										type='password'
-										placeholder='Input your password here ...'
-									/>
+									<div className=''>
+										<Input
+											className={inputCommonClassname}
+											type='password'
+											placeholder='Input your password here ...'
+											onChange={(e) => {
+												setLoginData({
+													...loginData,
+													password: e.target.value,
+												});
+											}}
+										/>
+
+										{errors.password && loginData.password == "" && (
+											<p className='text-red-500 text-xs'>{errors.password}</p>
+										)}
+									</div>
 								</div>
 
 								<div className='forget-pwd-container'>
@@ -112,6 +160,7 @@ const CommonLayout = () => {
 								<div className='flex justify-center'>
 									<Button
 										content='Login'
+										onClick={() => handleLoginValidation(loginData)}
 										type='submit'
 									/>
 								</div>
