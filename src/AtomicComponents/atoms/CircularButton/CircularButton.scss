@@ -1,0 +1,23 @@
+.circular-btn {
+  &:hover > p {
+    animation: LoginMoving 0.45s ease-in-out alternate;
+  }
+}
+
+@keyframes LoginMoving {
+  0% {
+    transform: translateX(0px); // Start from right
+  }
+  50% {
+    transform: translateX(50px); // Center position
+    opacity: 0; // Hide while moving out
+  }
+  51% {
+    transform: translateX(-20px); // Center position
+    opacity: 0; // Still hidden
+  }
+  100% {
+    transform: translateX(0); // Move to left
+    opacity: 1; // Show again
+  }
+}

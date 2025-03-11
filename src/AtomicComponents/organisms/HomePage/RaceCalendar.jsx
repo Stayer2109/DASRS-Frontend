@@ -3,7 +3,7 @@
 import { useState } from "react";
 import TeamCard from "@/AtomicComponents/molecules/TeamCard/TeamCard";
 import InformationCard from "../../molecules/InformationCard/InformationCard";
-import ButtonWithIcon from "@/AtomicComponents/atoms/Button/ButtonWithIcon";
+import ButtonWithIcon from "@/AtomicComponents/atoms/ButtonWithIcon/ButtonWithIcon";
 
 const RaceCalendar = () => {
   const [activeIndex, setActiveIndex] = useState(null); // Store the active card index
