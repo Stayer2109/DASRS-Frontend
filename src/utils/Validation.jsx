@@ -16,17 +16,15 @@ export const LoginValidation = (data) => {
 
 	if (data.password === "") {
 		errors.password = "Password is required";
+	} else {
+		if (!PWD_REGEX.test(data.password)) {
+			errors.password =
+				"Password must contain at least 8 characters, 1 number, 1 uppercase and 1 lowercase";
+		}
 	}
-
-	if (!PWD_REGEX.test(data.password)) {
-		errors.password =
-			"Password must contain at least 8 characters, 1 number, 1 uppercase and 1 lowercase";
-	}
-
 	console.log(data.password);
-	
+
 	console.log("LoginValidation errors: ", errors);
-	
+
 	return errors;
 };
-
