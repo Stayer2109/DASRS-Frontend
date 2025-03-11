@@ -61,9 +61,14 @@ const CommonLayout = () => {
 		if (Object.keys(errors).length > 0) return;
 
 		try {
-			
+			null;
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setLoginData({
+				email: "",
+				password: "",
+			});
 		}
 	};
 
@@ -107,7 +112,7 @@ const CommonLayout = () => {
 									<div>
 										<Input
 											className={inputCommonClassname}
-											type='text'
+											type='email'
 											placeholder='Input your email here ...'
 											autoComplete=''
 											onChange={(e) => {
@@ -118,7 +123,7 @@ const CommonLayout = () => {
 											}}
 										/>
 
-										{errors.email && loginData.email == "" && (
+										{errors.email && (
 											<p className='text-red-500 text-xs'>{errors.email}</p>
 										)}
 									</div>
@@ -138,7 +143,7 @@ const CommonLayout = () => {
 											}}
 										/>
 
-										{errors.password && loginData.password == "" && (
+										{errors.password && (
 											<p className='text-red-500 text-xs'>{errors.password}</p>
 										)}
 									</div>
