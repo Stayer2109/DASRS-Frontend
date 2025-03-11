@@ -7,9 +7,9 @@ import App from "./App.jsx";
 import { AuthProvider } from "./config/provider/AuthProvider";
 
 createRoot(document.getElementById("root")).render(
-	<AuthProvider>
-		<StrictMode>
-			<App />
-		</StrictMode>
-	</AuthProvider>
+  <StrictMode>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </StrictMode>
 );
