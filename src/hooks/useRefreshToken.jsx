@@ -2,20 +2,39 @@
 
 import React from "react";
 import useAuth from "./useAuth";
-import Cookies from "js-cookie";
 import { apiAuth } from "@/config/axios/axios";
+import Cookies from "js-cookie";
 
 const useRefreshToken = () => {
-	const { setAuth } = useAuth();
+  const { setAuth } = useAuth();
 
-	const refresh = async () => {
-		const refreshToken = apiAuth.post("auth/refresh-token", {});
-		console.log(refreshToken);
+  const refresh = async () => {
+    // Retrieve refresh token from cookies
+    const refreshToken = Cookies.get("refreshToken");
 
-		return refreshToken;
-	};
+    // Get refresh token using axios
+    const response = await apiAuth.post(
+      "auth/refresh-token",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      }
+    );
 
-	return refresh;
+    const newRefreshToken = response.data.data.refresh_token;
+
+    // Set access token by new refresh token
+    setAuth((prev) => ({
+      prev,
+      accessToken: newRefreshToken,
+    }));
+
+    return refreshToken;
+  };
+
+  return refresh;
 };
 
 export default useRefreshToken;

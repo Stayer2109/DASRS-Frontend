@@ -5,7 +5,6 @@ import { Routes, Route } from "react-router-dom";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
 import CommonLayout from "./AtomicComponents/pages/CommonLayout";
 import HomePage from "./AtomicComponents/pages/Home/Homepage";
-import RequireAuth from "./config/provider/RequireAuth";
 import useAuth from "./hooks/useAuth";
 
 const AppRoutes = () => {
@@ -15,13 +14,13 @@ const AppRoutes = () => {
     // MAIN ROUTE IN HERE
     <Routes>
       {/* Unauthenticated Roles */}
-      {!auth?.roles && (
+      {!auth?.role && (
         <Route path="/" element={<CommonLayout />}>
           <Route index element={<HomePage />} />
         </Route>
       )}
 
-      {auth?.roles === "ADMIN" && (
+      {auth?.role === "ADMIN" && (
         <Route path="/">
           <Route index element={<AdminPage />} />
         </Route>
