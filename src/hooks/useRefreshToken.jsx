@@ -1,40 +1,41 @@
 /** @format */
 
-import React from "react";
 import useAuth from "./useAuth";
 import { apiAuth } from "@/config/axios/axios";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 
 const useRefreshToken = () => {
-  const { setAuth } = useAuth();
+	const { setAuth } = useAuth();
+	const refreshToken = Cookies.get("refreshToken");
 
-  const refresh = async () => {
-    // Retrieve refresh token from cookies
-    const refreshToken = Cookies.get("refreshToken");
+	const refresh = async () => {
+		// Get refresh token using axios
+		const response = await apiAuth.post(
+			"auth/refresh-token",
+			{},
+			{
+				headers: { Authorization: `Bearer ${refreshToken}` },
+				withCredentials: true,
+			}
+		);
 
-    // Get refresh token using axios
-    const response = await apiAuth.post(
-      "auth/refresh-token",
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-        },
-      }
-    );
+		const decodedJwt = jwtDecode(response.data.data.access_token);
+		Cookies.set("refreshToken", response.data.data.refresh_token);
 
-    const newRefreshToken = response.data.data.refresh_token;
+		// Set access token by new refresh token
+		setAuth((prev) => {
+			return {
+				...prev,
+				role: decodedJwt.role,
+				accessToken: response.data.data.access_token,
+			};
+		});
 
-    // Set access token by new refresh token
-    setAuth((prev) => ({
-      prev,
-      accessToken: newRefreshToken,
-    }));
+		return response.data.data.access_token;
+	};
 
-    return refreshToken;
-  };
-
-  return refresh;
+	return refresh;
 };
 
 export default useRefreshToken;

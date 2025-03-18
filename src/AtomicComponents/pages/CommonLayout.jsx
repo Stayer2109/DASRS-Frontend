@@ -86,10 +86,10 @@ const CommonLayout = () => {
         secure: true,
         sameSite: "Strict", // Prvent CSRF attack
       });
+      Cookies.set("accessToken", accessToken);
 
       // Decode jwt token
       const decodedToken = jwtDecode(accessToken);
-      console.log(decodedToken);
 
       // Get information
       const role = decodedToken.role;
@@ -105,7 +105,6 @@ const CommonLayout = () => {
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);
-    } finally {
     }
   };
 
