@@ -5,18 +5,18 @@ import "./Spinner.scss";
 
 const Spinner = () => {
 	useEffect(() => {
-		// Disable scrolling when the spinner is mounted
-		document.body.style.overflow = "hidden";
+		// Add the "loading" class to the body when the spinner mounts
+		document.body.classList.add("loading");
 
 		return () => {
-			// Enable scrolling when the spinner is unmounted
-			document.body.style.overflow = "auto";
+			// Remove the "loading" class when the spinner unmounts
+			document.body.classList.remove("loading");
 		};
 	}, []);
 
 	return (
 		<div className='loader-container'>
-			<div className='loader'></div>
+			<div className='loader' />
 		</div>
 	);
 };
