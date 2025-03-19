@@ -2,9 +2,12 @@
 
 // import React from "react";
 import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
 import CommonLayout from "./AtomicComponents/pages/CommonLayout";
 import HomePage from "./AtomicComponents/pages/Home/Homepage";
+import useAuth from "./hooks/useAuth";
+import PersistLogin from "./config/provider/PersistLogin";
 import useAuth from "./hooks/useAuth";
 import PersistLogin from "./config/provider/PersistLogin";
 import RequireAuth from "./config/provider/RequireAuth";
@@ -12,7 +15,7 @@ import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPasswo
 import ScrollToTop from "./others/ScrollToTop";
 
 const AppRoutes = () => {
-  const { auth } = useAuth();
+	const { auth } = useAuth();
 
   return (
     // MAIN ROUTE IN HERE
