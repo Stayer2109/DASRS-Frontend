@@ -1,9 +1,15 @@
 /** @format */
 
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { CancelIcon, LeftArrowIcon, LoginIcon } from "@/assets/icon-svg";
+import {
+	CancelIcon,
+	EyeCloseIcon,
+	EyeOpenIcon,
+	LeftArrowIcon,
+	LoginIcon,
+} from "@/assets/icon-svg";
 import { useState } from "react";
-import { LoginValidation } from "@/utils/Validation";
+import { ForgetPasswordValidation, LoginValidation } from "@/utils/Validation";
 import { Modal, ModalBody, ModalHeader } from "../organisms/Modal/Modal";
 import { jwtDecode } from "jwt-decode";
 import Input from "../atoms/Input/Input";
@@ -15,12 +21,13 @@ import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import "./CommonLayout.scss";
 import { apiAuth } from "@/config/axios/axios";
-import { encryptToken } from "@/utils/CryptoUtils"
+import { encryptToken } from "@/utils/CryptoUtils";
 import Spinner from "../atoms/Spinner/Spinner";
 
 const CommonLayout = () => {
 	const { setAuth } = useAuth();
 	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const from = location.state?.from?.pathname || "/";
@@ -29,11 +36,14 @@ const CommonLayout = () => {
 	const inputCommonClassname = "w-full mb-1";
 
 	// INPUT ERRORS
-	const [errors, setErrors] = useState({});
+	const [loginErrors, setLoginErrors] = useState({});
+	const [forgetPasswordErrors, setForgetPasswordErrors] = useState("");
+	const [successMessage, setSuccessMessage] = useState("");
 	const [loginData, setLoginData] = useState({
 		email: "",
 		password: "",
 	});
+	const [emailForForgetPassword, setEmailForForgetPassword] = useState("");
 
 	//#region LOGIN MODAL CONTROL
 	// HANDLE SHOW LOGIN MODAL
@@ -59,20 +69,29 @@ const CommonLayout = () => {
 	};
 	//#endregion
 
-	// HANDLE LOGIN FORM SUBMIT
+	//#region HANDLE FORM VALIDATION
+	// HANDLE LOGIN FORM VALIDATION
 	const handleLoginValidation = (data) => {
 		const errors = LoginValidation(data);
-		setErrors(errors);
+		setLoginErrors(errors);
 	};
+
+	// HANDLE FORGET PASSWORD FORM VALIDATION
+	const handleForgetPasswordValidation = (data) => {
+		const errors = ForgetPasswordValidation(data);
+		setForgetPasswordErrors(errors);
+		setSuccessMessage("");
+	};
+	//#endregion
 
 	// SUBMIT LOGIN FORM
 	const handleLoginsSubmit = async (e) => {
 		e.preventDefault();
 
-		setIsLoading(true);
-		if (Object.keys(errors).length > 0) return;
+		if (Object.keys(loginErrors).length > 0) return;
 
 		try {
+			setIsLoading(true);
 			const response = await apiAuth.post("auth/login", loginData, {
 				headers: {
 					"Content-Type": "application/json",
@@ -109,6 +128,31 @@ const CommonLayout = () => {
 			navigate(from, { replace: true });
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	// SUBMIT FORGET PASSWORD FORM
+	const handleForgetPassword = async (e) => {
+		e.preventDefault();
+
+		if (Object.keys(forgetPasswordErrors).length > 0) return;
+
+		try {
+			setIsLoading(true);
+			const response = await apiAuth.post(
+				`auth/forgot-password?email=${emailForForgetPassword}`
+			);
+
+			if (response.status === 200) {
+				setSuccessMessage(response.data.message);
+			}
+
+			console.log(response);
+		} catch (error) {
+			console.log(error);
+			setForgetPasswordErrors(error.response.data.error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -166,17 +210,19 @@ const CommonLayout = () => {
 											}}
 										/>
 
-										{errors.email && (
-											<p className='text-red-500 text-xs'>{errors.email}</p>
+										{loginErrors.email && (
+											<p className='text-red-500 text-xs'>
+												{loginErrors.email}
+											</p>
 										)}
 									</div>
 
 									{/* Password */}
 									<label htmlFor='password'>Password</label>
-									<div className=''>
+									<div className='relative'>
 										<Input
-											className={inputCommonClassname}
-											type='password'
+											className={`${inputCommonClassname} pr-15`}
+											type={showPassword ? "text" : "password"}
 											placeholder='Input your password here ...'
 											onChange={(e) => {
 												setLoginData({
@@ -185,9 +231,21 @@ const CommonLayout = () => {
 												});
 											}}
 										/>
+										<div
+											className='absolute top-0 right-0 -translate-x-2 translate-y-[5px] cursor-pointer active:scale-92 active:translate-y-[6px]'
+											onClick={() => setShowPassword(!showPassword)}
+										>
+											{showPassword ? (
+												<EyeOpenIcon width={28} />
+											) : (
+												<EyeCloseIcon width={28} />
+											)}
+										</div>
 
-										{errors.password && (
-											<p className='text-red-500 text-xs'>{errors.password}</p>
+										{loginErrors.password && (
+											<p className='text-red-500 text-xs'>
+												{loginErrors.password}
+											</p>
 										)}
 									</div>
 								</div>
@@ -244,21 +302,47 @@ const CommonLayout = () => {
 							</h1>
 						</div>
 						<div className='flex flex-col items-center justify-center h-full'>
-							<form className='w-full'>
+							<form
+								className='w-full'
+								onSubmit={handleForgetPassword}
+							>
+								{
+									// Show success message
+									successMessage && (
+										<h6 className='text-center text-green-500 font-bold mb-3'>
+											{successMessage}
+										</h6>
+									)
+								}
 								<div className='inf-input-container grid grid-cols-[1fr_3fr] gap-y-5 items-center mb-5'>
 									{/* Email */}
 									<label htmlFor='email'>Email</label>
-									<Input
-										type='email'
-										placeholder='Email'
-										autoComplete='email'
-									/>
+									<div>
+										<Input
+											type='email'
+											placeholder='Email'
+											autoComplete='email'
+											className={inputCommonClassname}
+											onChange={(e) =>
+												setEmailForForgetPassword(e.target.value)
+											}
+										/>
+
+										{forgetPasswordErrors && (
+											<p className='text-red-500 text-xs'>
+												{forgetPasswordErrors}
+											</p>
+										)}
+									</div>
 								</div>
 
 								<div className='flex justify-center'>
 									<Button
 										content='Send'
 										type='submit'
+										onClick={() =>
+											handleForgetPasswordValidation(emailForForgetPassword)
+										}
 									/>
 								</div>
 							</form>
