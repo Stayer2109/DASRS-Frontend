@@ -16,9 +16,11 @@ import Cookies from "js-cookie";
 import "./CommonLayout.scss";
 import { apiAuth } from "@/config/axios/axios";
 import { encryptToken } from "@/utils/CryptoUtils";
+import Spinner from "../atoms/Spinner/Spinner";
 
 const CommonLayout = () => {
 	const { setAuth } = useAuth();
+	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const from = location.state?.from?.pathname || "/";
@@ -67,6 +69,7 @@ const CommonLayout = () => {
 	const handleLoginsSubmit = async (e) => {
 		e.preventDefault();
 
+		setIsLoading(true);
 		if (Object.keys(errors).length > 0) return;
 
 		try {
@@ -106,11 +109,14 @@ const CommonLayout = () => {
 			navigate(from, { replace: true });
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
 	return (
 		<>
+			{isLoading && <Spinner />}
 			<Header />
 			<div className='page-layout-body px-standard-x py-standard-y'>
 				<Outlet />
