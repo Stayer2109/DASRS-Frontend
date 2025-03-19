@@ -15,7 +15,7 @@ import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import "./CommonLayout.scss";
 import { apiAuth } from "@/config/axios/axios";
-import { encryptToken } from "@/utils/CryptoUtils";
+import { encryptToken } from "@/utils/CryptoUtils"
 import Spinner from "../atoms/Spinner/Spinner";
 
 const CommonLayout = () => {
