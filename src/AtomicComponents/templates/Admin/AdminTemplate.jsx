@@ -1,3 +1,5 @@
+/** @format */
+
 import { useState } from "react";
 import { MainContent } from "@/AtomicComponents/organisms/MainContent/MainContent";
 import { AdminHeader } from "@/AtomicComponents/molecules/AdminHeader/AdminHeader";
