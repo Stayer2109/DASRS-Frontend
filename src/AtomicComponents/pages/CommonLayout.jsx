@@ -20,7 +20,7 @@ import Spinner from "../atoms/Spinner/Spinner";
 
 const CommonLayout = () => {
 	const { setAuth } = useAuth();
-	const [isLoading, setIsLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
 	const from = location.state?.from?.pathname || "/";
