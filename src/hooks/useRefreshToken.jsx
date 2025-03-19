@@ -2,12 +2,14 @@
 
 import useAuth from "./useAuth";
 import { apiAuth } from "@/config/axios/axios";
+import { decryptToken } from "@/utils/CryptoUtils";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
 const useRefreshToken = () => {
 	const { setAuth } = useAuth();
-	const refreshToken = Cookies.get("refreshToken");
+	const encryptedToken = Cookies.get("refreshToken");
+	const refreshToken = decryptToken(encryptedToken);
 
 	const refresh = async () => {
 		// Get refresh token using axios
@@ -21,7 +23,10 @@ const useRefreshToken = () => {
 		);
 
 		const decodedJwt = jwtDecode(response.data.data.access_token);
-		Cookies.set("refreshToken", response.data.data.refresh_token);
+		Cookies.set(
+			"refreshToken",
+			encryptedToken(response.data.data.refresh_token)
+		);
 
 		// Set access token by new refresh token
 		setAuth((prev) => {

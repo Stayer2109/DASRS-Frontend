@@ -1,5 +1,6 @@
 /** @format */
 
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
 import useRefreshToken from "@/hooks/useRefreshToken";
 import { useEffect, useState } from "react";
@@ -26,14 +27,12 @@ const PersistLogin = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	useEffect(() => {
-		console.log("isLoading: ", isLoading);
-		console.log(`aToken: ${JSON.stringify(auth?.accessToken)}`);
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isLoading]);
-
-	return <>{isLoading ? <p>Loading...</p> : <Outlet />}</>;
+	return (
+		<>
+			{isLoading && <Spinner />}
+			: <Outlet />
+		</>
+	);
 };
 
 export default PersistLogin;
