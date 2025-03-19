@@ -1,5 +1,12 @@
 /** @format */
 
+// Prevent scrolling when loader is active
+body.loading {
+	overflow: hidden !important;
+	height: 100vh !important;
+}
+
+// Loader container styles
 .loader-container {
 	position: fixed;
 	top: 0;
@@ -39,6 +46,7 @@
 	}
 }
 
+// Keyframes animations
 @keyframes scaleUp {
 	0% {
 		transform: translate(-50%, -50%) scale(0);
