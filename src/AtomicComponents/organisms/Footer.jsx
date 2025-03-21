@@ -46,7 +46,7 @@ const Footer = () => {
 	const navHoverStyle = "hover:text-lime-300";
 
 	return (
-		<footer className="w-screen max-w-none bg-gray-main text-white px-0 py-6">
+		<footer className="w-full max-w-none bg-gray-main text-white px-0 py-6">
 
 			{/* Sponsor Container */}
 			<div
@@ -69,7 +69,6 @@ const Footer = () => {
 
 				{/* Using a semantic section or nav could help screen readers */}
 				<nav className='flex items-center justify-between flex-col sm:flex-row'>
-
 					{/* Information */}
 					<div className='information grid grid-rows-[auto_auto]'>
 						<div className='sm:row-start-1 grid gap-x-10 grid-cols-2 sm:gap-x-50 gap-y-10'>
@@ -94,15 +93,14 @@ const Footer = () => {
 						</div>
 
 						<div className="row-start-2 mt-8 h-auto flex justify-center">
-  <ul className="flex flex-wrap justify-center gap-4 sm:gap-8">
-    {footerLinks.map((item, index) => (
-      <li key={index}>
-        <Link to="#" className={`${navHoverStyle} text-h4`}>{item}</Link>
-      </li>
-    ))}
-  </ul>
-</div>
-
+							<ul className="flex flex-wrap justify-center gap-4 sm:gap-8">
+								{footerLinks.map((item, index) => (
+									<li key={index}>
+										<Link to="#" className={`${navHoverStyle} text-h4`}>{item}</Link>
+									</li>
+								))}
+							</ul>
+						</div>
 					</div>
 
 					{/* Divine Line*/}
