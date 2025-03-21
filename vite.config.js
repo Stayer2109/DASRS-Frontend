@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     open: true,
+    host: "0.0.0.0", // 👈 This exposes it to your network
+    port: 5173, // or whatever port you want
   },
   resolve: {
     alias: {
