@@ -8,9 +8,21 @@ import { PropTypes } from "prop-types";
 const InformationCard = ({ className, teamName, team }) => {
 	const H2Style = "text-h2";
 
+	// Example competition data - you can pass it via props if needed
+	const competitionData = [
+		{
+			dayType: "Qualifying: 1st day",
+			competitors: ["Goku", "Vegeta", "Piccolo"],
+		},
+		{
+			dayType: "Final Winner: 2nd day",
+			competitors: ["Goku", "Frieza", "Cell"],
+		},
+	];
+
 	return (
 		<div
-			className={`${className} w-9 bg-blue-500 rounded-[8px] p-1 grid grid-cols-2 gap-5`}
+			className={`${className} team-racing-schedule-information-container sm:w-auto bg-blue-500 rounded-[8px] p-1 sm:grid grid-cols-2 gap-5`}
 		>
 			<img
 				src={RaceImage}
@@ -18,10 +30,10 @@ const InformationCard = ({ className, teamName, team }) => {
 				className='columns-1 rounded-[8px]'
 			/>
 
-			<div className='team-information'>
+			<div className='team-information sm:p-0 px-4'>
 				{/* Team Name */}
 				<h1 className='text-h1 pushdown-class'>
-					a{teamName ? teamName : "Team name"}
+					{teamName || "Team name"}
 				</h1>
 
 				<DevineLine />
@@ -34,64 +46,22 @@ const InformationCard = ({ className, teamName, team }) => {
 
 				<DevineLine />
 
-				{/* Team Competition Record */}
-				<div className='team-competition-record-contanier'>
-					<div className='pushdown-class'>
-						<p className='paragraph-bold'>Qualifying: 1st day</p>
-						<div className='status flex items-center'>
-							<RightArrowIcon
-								width={50}
-								height={50}
-							/>
-							<h2 className={H2Style}>Competitor&apos;s name</h2>
+				{/* Competition Info Loop */}
+				{competitionData.map((stage, idx) => (
+					<div key={idx}>
+						<div className='pushdown-class'>
+							<p className='paragraph-bold'>{stage.dayType}</p>
+							{stage.competitors.map((name, i) => (
+								<div className='status flex items-center' key={i}>
+									<RightArrowIcon className={"right-arrow-icon"} width={30} height={30} />
+									<h2 className={`${H2Style} ml-1`}>{name}</h2>
+								</div>
+							))}
 						</div>
-
-						<div className='status flex items-center'>
-							<RightArrowIcon
-								width={50}
-								height={50}
-							/>
-							<h2 className={H2Style}>Competitor&apos;s name</h2>
-						</div>
-
-						<div className='status flex items-center'>
-							<RightArrowIcon
-								width={50}
-								height={50}
-							/>
-							<h2 className={H2Style}>Competitor&apos;s name</h2>
-						</div>
+						{/* Only add divider between blocks */}
+						{idx < competitionData.length - 1 && <DevineLine />}
 					</div>
-
-					<DevineLine />
-
-					<div className='pushdown-class'>
-						<p className='paragraph-bold'>Final Winner: 2nd day</p>
-						<div className='status flex items-center'>
-							<RightArrowIcon
-								width={50}
-								height={50}
-							/>
-							<h2 className={H2Style}>Competitor&apos;s name</h2>
-						</div>
-
-						<div className='status flex items-center'>
-							<RightArrowIcon
-								width={50}
-								height={50}
-							/>
-							<h2 className={H2Style}>Competitor&apos;s name</h2>
-						</div>
-
-						<div className='status flex items-center'>
-							<RightArrowIcon
-								width={50}
-								height={50}
-							/>
-							<h2 className={H2Style}>Competitor&apos;s name</h2>
-						</div>
-					</div>
-				</div>
+				))}
 			</div>
 		</div>
 	);
@@ -105,10 +75,6 @@ InformationCard.propTypes = {
 
 export default InformationCard;
 
-const DevineLine = () => {
-	return (
-		<>
-			<div className='w-full h-[1px] bg-[#2650FF]' />
-		</>
-	);
-};
+const DevineLine = () => (
+	<div className='w-full h-[1px] bg-[#2650FF]' />
+);

@@ -23,8 +23,25 @@ const TeamCard = ({
         <h4 className="text-h4 flex items-center">
           {teamName ? teamName : "Team name"}
         </h4>
-        <div className="status bg-darkgray-main p-2 px-4 rounded-full">
-          <p className="text-small">{status}</p>
+        <div className={`status p-2 px-4 rounded-full ${
+            status.toLowerCase() === "upcoming"
+              ? "bg-blue-500"
+              : status.toLowerCase() === "finished"
+              ? "bg-green-600"
+              : status.toLowerCase() === "live"
+              ? "bg-red-500"
+              : "bg-[#1f1f1f]"
+          }`}>
+          {
+            // Render status based on the status prop
+            status.toLocaleLowerCase() === "upcoming" ? (
+              <span className="text-small">Upcoming</span>
+            ) : status.toLocaleLowerCase() === "finished" ? (
+              <span className="text-small">Finished</span>
+            ) : (
+              <span className="text-small">Live</span>
+            )
+          }
         </div>
       </div>
     </div>

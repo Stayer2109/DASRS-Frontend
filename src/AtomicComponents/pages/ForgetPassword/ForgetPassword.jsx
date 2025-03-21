@@ -82,16 +82,15 @@ const ForgetPassword = () => {
   return (
     <>
       {isLoading && <Spinner />}
-
       <div className="reset-password-container h-dvh flex justify-center items-center">
         <form
-          className="bg-[#FAF9F6] w-[40%] max-h-[70%] h-auto rounded-2xl px-standard-x py-standard-y relative overflow-auto"
+          className="bg-[#FAF9F6] w-[95%] sm:w-[40%] max-h-[70%] h-auto rounded-2xl px-standard-x py-standard-y relative overflow-auto"
           onSubmit={handleResetPasswordSubmit}>
           <div
-            className="absolute flex items-end justify-center cursor-pointer group"
+            className="absolute flex items-end justify-center cursor-pointer group translate-y-[20%]"
             onClick={() => navigate("/")}>
             <HomeIcon className="" />
-            <h5 className="text-h5 group-hover:text-main-blue">Home</h5>
+            <h5 className="text-h5 group-hover:text-main-blue sm:block hidden">Home</h5>
           </div>
 
           <h1 className="text-h1 text-center text-main-blue">Reset Password</h1>
