@@ -33,7 +33,7 @@ const ButtonWithIcon = ({
 	return (
 		<div className='cursor-pointer button-container flex items-center gap-2 relative group z-1'>
 			<button
-				className={`${className} px-4 py-3 rounded-3xl cursor-pointer hover:`}
+				className={`${className} px-3 py-2 sm:px-4 sm:py-3 rounded-3xl cursor-pointer text-h6 sm:text-h5`}
 				onClick={onClick}
 				style={{ backgroundColor: bgColor }}
 				onMouseEnter={handleHover}
@@ -42,10 +42,11 @@ const ButtonWithIcon = ({
 				{content}
 			</button>
 
-			<div className='absolute left-[53%] translate-x-[65%] z-0'>
+			<div className='hidden sm:block absolute sm:left-[54%] translate-x-[65%] z-0'>
 				<RightConnector
+				className={"connector-icon"}
 					color={bgColor}
-					width={64}
+					width={50}
 				/>
 			</div>
 
@@ -55,7 +56,7 @@ const ButtonWithIcon = ({
 					backgroundColor: bgColor, // Keep original background color
 					transition: "background-color 0.3s ease-in-out",
 				}}
-				className='rounded-full p-1 flex items-center justify-center icon-container z-1'
+				className='hidden rounded-full p-1 sm:flex items-center justify-center icon-container z-1'
 				onMouseEnter={handleHover}
 				onMouseLeave={handleLeave}
 			>
@@ -72,8 +73,8 @@ const ButtonWithIcon = ({
 							transition: "fill 0.5s ease-in-out",
 						}}
 						className='right-icon p-1 rounded-full'
-						width={40}
-						height={40}
+						width={32}
+						height={32}
 					/>
 				</div>
 			</div>

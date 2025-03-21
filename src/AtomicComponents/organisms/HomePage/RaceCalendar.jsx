@@ -9,11 +9,11 @@ const RaceCalendar = () => {
   const [activeIndex, setActiveIndex] = useState(null); // Store the active card index
 
   return (
-    <div className="race-calendar">
-      <div className="title-navigation flex justify-between items-center">
-        <h1 className="text-mega text-white">Race Calendar</h1>
+    <div className="race-calendar sm:mb-0 mb-5">
+      <div className="title-navigation flex justify-between items-center sm:mt-0 sm:mb-0 mt-5 mb-5">
+        <h1 className="text-h2 sm:text-mega text-white">Race Calendar</h1>
         <div>
-          <ButtonWithIcon content={"View Race Calendar"} bgColor={"#C0F14A"} />
+          <ButtonWithIcon content={"View Race Calendar"} bgColor={"#C0F14A"}/>
         </div>
       </div>
 
@@ -27,7 +27,7 @@ const RaceCalendar = () => {
             />
           ))}
         </div>
-        <InformationCard className={"flex-1/2"} />
+        {/* <InformationCard className={"flex-1/2"} /> */}
       </div>
     </div>
   );

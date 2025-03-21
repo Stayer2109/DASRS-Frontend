@@ -28,3 +28,14 @@
 		opacity: 1; // Show again
 	}
 }
+
+@media (min-width: 40rem) {
+  .right-icon {
+    width: 40xp !important;
+    height: 40xp !important;
+  }
+
+	.connector-icon {
+		width: 64px !important;
+	}
+}

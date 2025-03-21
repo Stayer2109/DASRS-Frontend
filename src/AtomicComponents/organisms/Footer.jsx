@@ -39,16 +39,15 @@ const Footer = () => {
 	const footerLinks = [
 		"Contact",
 		"FAQs",
-		"How to watch",
 		"Media",
 		"Partners",
-		"Store",
 	];
 
 	const navHoverStyle = "hover:text-lime-300";
 
 	return (
-		<footer className='h-auto w-full py-6 px-standard-x bg-gray-main text-white'>
+		<footer className="w-screen max-w-none bg-gray-main text-white px-0 py-6">
+
 			{/* Sponsor Container */}
 			<div
 				id='sponsor-container'
@@ -73,10 +72,10 @@ const Footer = () => {
 
 					{/* Information */}
 					<div className='information grid grid-rows-[auto_auto]'>
-						<div className='sm:row-start-1 grid grid-cols-2 gap-x-50 gap-y-10'>
+						<div className='sm:row-start-1 grid gap-x-10 grid-cols-2 sm:gap-x-50 gap-y-10'>
 							{infoLinks.map(({ title, links }) => (
 								<ul key={title}>
-									<h1 className='text-3xl text-lime-300 mb-3'>{title}</h1>
+									<h1 className='text-2xl sm:text-3xl text-lime-300 mb-3 font-bold'>{title}</h1>
 									{links.map(({ text, path }) => (
 										<li
 											key={text}
@@ -84,7 +83,7 @@ const Footer = () => {
 										>
 											<Link
 												to={path}
-												className='text-h4'
+												className='text-h3'
 											>
 												{text}
 											</Link>
@@ -93,19 +92,21 @@ const Footer = () => {
 								</ul>
 							))}
 						</div>
-						<div className='row-start-2 mt-8 h-auto'>
-							<ul className='flex gap-5'>
-								{footerLinks.map((item, index) => (
-									<li key={index}>
-										<Link className={`${navHoverStyle} text-h4`}>{item}</Link>
-									</li>
-								))}
-							</ul>
-						</div>
+
+						<div className="row-start-2 mt-8 h-auto flex justify-center">
+  <ul className="flex flex-wrap justify-center gap-4 sm:gap-8">
+    {footerLinks.map((item, index) => (
+      <li key={index}>
+        <Link to="#" className={`${navHoverStyle} text-h4`}>{item}</Link>
+      </li>
+    ))}
+  </ul>
+</div>
+
 					</div>
 
 					{/* Divine Line*/}
-					<div className='divine-line self-stretch mt-6 sm:mt-0 h-1 sm:h-[0.5px] bg-[#464646]' />
+					<div className='hidden sm:block divine-line self-stretch w-[0.5px] bg-[#464646]' />
 
 					{/* Image */}
 					<div className='images-show flex flex-col items-start'>
@@ -114,7 +115,7 @@ const Footer = () => {
 							className='h-80 w-auto rounded-[12px]'
 							alt='Logo'
 						/>
-						<h2 className='text-h2 w-[500px]'>
+						<h2 className='text-h2 sm:text-h3 sm:w-[500px] text-center'>
 							<strong>Dive into exclusive insights </strong>
 							and unparalleled experiences
 						</h2>
@@ -123,16 +124,16 @@ const Footer = () => {
 			</div>
 
 			{/* Divider */}
-			<div className='w-full h-[0.5px] bg-[#464646]' />
+			<div className='w-full mt-6 sm:mt-0 h-1 sm:h-[0.5px] bg-[#464646]' />
 
 			{/* Logo and Socials*/}
 			<div className='flex justify-between pt-6'>
-				<div className=''>
+				<div className='flex items-center flex-col sm:flex-row sm:gap-5 sm:m-0 m-auto'>
 					<img
 						src={Logo}
 						className='w-32 bg-blue-500 rounded-full p-2'
 					/>
-					<p className='text-[12px] mt-8'>
+					<p className='text-h5 sm:text-[12px] sm:mt-3 mt-4'>
 						Copyright © 2025 DASRS, All rights reserved.
 					</p>
 				</div>

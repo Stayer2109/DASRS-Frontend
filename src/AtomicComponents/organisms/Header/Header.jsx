@@ -112,7 +112,7 @@ export default function Header() {
 
   return (
     <header
-      className={`header-container fixed left-0 right-0 top-0 z-50 flex justify-between sm:items-center px-8 py-5 sm:px-standard-x sm:py-standard-y
+      className={`header-container fixed left-0 right-0 top-0 z-50 flex justify-between sm:items-center px-5 py-3 sm:px-standard-x sm:py-standard-y
         transition-all duration-500 ease-in-out
         ${isTop ? "bg-transparent backdrop-blur-none" : "bg-blue-500"}`}
       style={{
@@ -124,7 +124,7 @@ export default function Header() {
         <img
           src={Logo}
           alt="DASRS Logo"
-          className="h-20 sm:h-20 bg-lime-300 rounded-full p-3 sm:p-2"
+          className="h-15 sm:h-20 bg-lime-300 rounded-full p-2 sm:p-2"
         />
         <h3 className="hidden sm:block text-h6 sm:text-h5 bg-lime-300 text-black px-standard-x py-standard-y rounded-lg">
           Driving Assistant Support Racing System
@@ -153,12 +153,12 @@ export default function Header() {
         {/* Circle button with the icon (overlaps the last pill) */}
         <button
           type="button"
-          className="bg-gray-nav w-20 h-20 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
+          className="bg-gray-nav w-15 h-15 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
           onClick={() => {
             toggleSidebar();
           }}>
           <SidebarIcon
-            className="w-8 h-8 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
+            className="w-7 h-7 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
             transition ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)] duration-700"
             color="white"
           />
