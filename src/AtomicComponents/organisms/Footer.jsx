@@ -48,7 +48,7 @@ const Footer = () => {
 	const navHoverStyle = "hover:text-lime-300";
 
 	return (
-		<footer className='h-auto py-6 px-standard-x bg-gray-main text-white'>
+		<footer className='h-auto w-full py-6 px-standard-x bg-gray-main text-white'>
 			{/* Sponsor Container */}
 			<div
 				id='sponsor-container'
@@ -58,20 +58,22 @@ const Footer = () => {
 				<img
 					src={FPTSponsorLogo}
 					alt='FPT Sponsor Logo'
-					className='w-xl bg-gray-100 rounded-[8px]'
+					className='w-[80%] sm:w-xl bg-gray-100 rounded-[8px]'
 				/>
 			</div>
 
 			{/* Divider */}
-			<div className='w-full h-[0.5px] bg-[#464646]' />
+			<div className='w-full mt-6 sm:mt-0 h-1 sm:h-[0.5px] bg-[#464646]' />
 
 			{/* Information Section */}
-			<div className='information-container py-2'>
+			<div className='information-container p-4 sm:py-2'>
+
 				{/* Using a semantic section or nav could help screen readers */}
-				<nav className='grid-container flex items-center justify-between'>
+				<nav className='flex items-center justify-between flex-col sm:flex-row'>
+
 					{/* Information */}
 					<div className='information grid grid-rows-[auto_auto]'>
-						<div className='row-start-1 grid grid-cols-2 gap-x-50 gap-y-10'>
+						<div className='sm:row-start-1 grid grid-cols-2 gap-x-50 gap-y-10'>
 							{infoLinks.map(({ title, links }) => (
 								<ul key={title}>
 									<h1 className='text-3xl text-lime-300 mb-3'>{title}</h1>
@@ -91,7 +93,6 @@ const Footer = () => {
 								</ul>
 							))}
 						</div>
-
 						<div className='row-start-2 mt-8 h-auto'>
 							<ul className='flex gap-5'>
 								{footerLinks.map((item, index) => (
@@ -104,8 +105,9 @@ const Footer = () => {
 					</div>
 
 					{/* Divine Line*/}
-					<div className='divine-line self-stretch w-[0.5px] bg-[#464646]' />
+					<div className='divine-line self-stretch mt-6 sm:mt-0 h-1 sm:h-[0.5px] bg-[#464646]' />
 
+					{/* Image */}
 					<div className='images-show flex flex-col items-start'>
 						<img
 							src={RacingThunder}

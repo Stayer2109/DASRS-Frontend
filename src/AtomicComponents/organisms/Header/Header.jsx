@@ -10,6 +10,7 @@ export default function Header() {
   const [isTop, setIsTop] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar toggle state
   const [isClosedClicked, setIsClosedClicked] = useState(true); // Close button state
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +20,10 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+
+  }, [])
 
   // NAV ITEMS
   const navItems = [
@@ -107,7 +112,7 @@ export default function Header() {
 
   return (
     <header
-      className={`header-container fixed left-0 right-0 top-0 z-50 flex justify-between items-center px-8 py-5 sm:px-standard-x sm:py-standard-y
+      className={`header-container fixed left-0 right-0 top-0 z-50 flex justify-between sm:items-center px-8 py-5 sm:px-standard-x sm:py-standard-y
         transition-all duration-500 ease-in-out
         ${isTop ? "bg-transparent backdrop-blur-none" : "bg-blue-500"}`}
       style={{
@@ -119,7 +124,7 @@ export default function Header() {
         <img
           src={Logo}
           alt="DASRS Logo"
-          className="h-40 sm:h-20 bg-lime-300 rounded-full p-3 sm:p-2"
+          className="h-20 sm:h-20 bg-lime-300 rounded-full p-3 sm:p-2"
         />
         <h3 className="hidden sm:block text-h6 sm:text-h5 bg-lime-300 text-black px-standard-x py-standard-y rounded-lg">
           Driving Assistant Support Racing System
@@ -127,34 +132,33 @@ export default function Header() {
       </div>
 
       {/* Right Side: Lumpy Nav + Circle Icon */}
-      <nav className="flex items-center group">
-        {/* Sliding Nav Items */}
-        <div
-          className={`${
-            !isClosedClicked ? "hidden" : ""
-          } item-container w-auto translate-y-[2px] scale-0 translate-x-80 opacity-0
-             transition duration-450 ease-in-out group-hover:translate-x-0 group-hover:scale-100
-             group-hover:opacity-100`}>
-          <ul className="flex gap-2">
-            {navItems.map((item, index) => (
-              <li className={pillClass} key={index}>
-                <Link to={item.url} className={linkClass}>
-                  {item.navLink}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <nav className="flex items-center group relative"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+		{/* Sliding nav items */}
+        <ul className={`${!isClosedClicked ? "hidden" : ""} flex gap-2 absolute item-container w-[480px] transition-all duration-450 ease-in-out 
+          flex-nowrap opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 right-0 transform translate-x-[400px] 
+          group-hover:-translate-x-[60px]`}
+        >
+			{navItems.map((item, index) => (
+				<li className={pillClass} key={index}>
+				<Link to={item.url} className={linkClass}>
+					{item.navLink}
+				</Link>
+				</li>
+			))}
+        </ul>
 
         {/* Circle button with the icon (overlaps the last pill) */}
         <button
           type="button"
-          className="bg-gray-nav w-30 h-30 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
+          className="bg-gray-nav w-20 h-20 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
           onClick={() => {
             toggleSidebar();
           }}>
           <SidebarIcon
-            className="w-12 h-12 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
+            className="w-8 h-8 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
             transition ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)] duration-700"
             color="white"
           />
@@ -182,8 +186,10 @@ export default function Header() {
             className="absolute top-10 right-10 sm:top-4 sm:right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
             onClick={() => toggleSidebar()}>
             <CancelIcon
+              height={54}
+              width={54}
               color={"white"}
-              className="close-icon transitions duration-150 ease-linear hover:scale-120 p-6 sm:p-2"
+              className="close-icon transitions duration-150 ease-linear hover:scale-120 p-3 sm:p-2"
             />
           </button>
 
@@ -193,7 +199,7 @@ export default function Header() {
               <li key={index}>
                 <Link
                   to={item.url}
-                  className="sidebar-items block px-10 py-8 sm:px-standard-x sm:py-4 text-mobile-h1 sm:text-h3">
+                  className="sidebar-items block px-10 py-8 sm:px-standard-x sm:py-4 text-mobile-h5 sm:text-h3">
                   {item.navLink}
                 </Link>
               </li>
