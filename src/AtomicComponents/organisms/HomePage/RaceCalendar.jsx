@@ -17,17 +17,19 @@ const RaceCalendar = () => {
         </div>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex flex-col sm:flex-row gap-8">
         <div className={"flex-1/12 gap flex flex-col gap-y-5"}>
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 3 }).map((_, index) => (
             <TeamCard
+              status="upcoming"
               key={index}
               isActive={activeIndex === index} // Pass isActive state
               onClick={() => setActiveIndex(index)} // Set active card
             />
           ))}
         </div>
-        {/* <InformationCard className={"flex-1/2"} /> */}
+
+        <InformationCard className={"flex-1/2"} />
       </div>
     </div>
   );

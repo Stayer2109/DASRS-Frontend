@@ -11,7 +11,7 @@ import {
 function Toast({ type, title, message }) {
   type = type || "info";
   message = message || "This is a default message";
-  title = title || "";
+  title = title || "This is a default title";
 
   const customMessage = () => {
     return toast.custom(
@@ -22,10 +22,10 @@ function Toast({ type, title, message }) {
           } ${type}`}
           onClick={() => toast.dismiss(t.id)}>
           <div className="header-line" />
-          {type.toLowerCase() === "success" && <SuccessIcon />}
-          {type.toLowerCase() === "error" && <ErrorIcon />}
-          {type.toLowerCase() === "warning" && <WarningIcon />}
-          {type.toLowerCase() === "info" && <InfoIcon />}
+          {type.toLowerCase() === "success" && <SuccessIcon className={`sm:block hidden`}/>}
+          {type.toLowerCase() === "error" && <ErrorIcon className={`sm:block hidden`}/>}
+          {type.toLowerCase() === "warning" && <WarningIcon className={`sm:block hidden`}/>}
+          {type.toLowerCase() === "info" && <InfoIcon className={`sm:block hidden`}/>}
           <div className="toast-text-container">
             <h5 className={"toast-title text-h5"}>{title}</h5>
             <h6 className={"toast-content text-h6"}>{message}</h6>
@@ -33,7 +33,7 @@ function Toast({ type, title, message }) {
         </div>
       ),
       {
-        duration: 2500,
+        duration: 2200,
       }
     );
   };

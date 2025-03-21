@@ -12,14 +12,31 @@ import RequireAuth from "./config/provider/RequireAuth";
 import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPassword";
 import ScrollToTop from "./others/ScrollToTop";
 import { Toaster } from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
+  const [toastPosition, setToastPosition] = useState("top-right");
+
+  // Detect screen size
+  useEffect(() => {
+    const checkScreen = () => {
+      if (window.innerWidth <= 480) {
+        setToastPosition("top-center");
+      } else {
+        setToastPosition("top-right");
+      }
+    };
+
+    checkScreen(); // check on load
+    window.addEventListener("resize", checkScreen); // check on resize
+
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
   return (
-    // MAIN ROUTE IN HERE
     <ScrollToTop>
-      <Toaster position="top-right" />
+      <Toaster position={toastPosition} />
       <Routes>
         <Route path="reset-password/:token" element={<ForgetPassword />} />
 
@@ -42,9 +59,7 @@ const AppRoutes = () => {
         <Route
           path="*"
           element={
-            <>
-              <h1 className="text-h1 text-red-500">Adu Ang Seng</h1>
-            </>
+            <h1 className="text-h1 text-red-500">Adu Ang Seng</h1>
           }
         />
       </Routes>

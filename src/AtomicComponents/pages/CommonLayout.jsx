@@ -183,17 +183,17 @@ const CommonLayout = () => {
         <Modal show={loginModalShow} size="sm" onHide={handleLoginModalHide}>
           <ModalHeader content={"Login to website"} icon={<CancelIcon />} />
           <ModalBody>
-            <h1 className="text-h1 text-center italic mb-10">
-              Get into the speedy world!
+            <h1 className="text-mobile-h6 sm:text-h1 text-center italic mb-10">
+              Get into the <strong>speedy world!</strong>
             </h1>
             <div className="flex items-center justify-center h-full">
               <form className="w-full" onSubmit={handleLoginsSubmit}>
                 <div
-                  className="inf-input-container grid grid-cols-[1fr_3fr] 
-							gap-y-5 items-center mb-5">
+                  className="inf-input-container sm:grid grid-cols-[1fr_3fr] 
+							gap-y-5 items-center sm:mb-5 mb-3">
                   {/* Email */}
                   <label htmlFor="email">Email</label>
-                  <div>
+                  <div className="sm:mb-0 mb-3">
                     <Input
                       className={inputCommonClassname}
                       type="email"
@@ -249,7 +249,7 @@ const CommonLayout = () => {
                 <div className="forget-pwd-container">
                   <h3
                     className="text-h5 text-main-blue 
-									cursor-pointer hover:text-main-blue-hover inline-block"
+									cursor-pointer hover:text-main-blue-hover inline-block sm:mb-0 mb-3"
                     onClick={() => {
                       handleForgetPasswordModalShow();
                       handleLoginModalHide();
@@ -281,14 +281,7 @@ const CommonLayout = () => {
           <ModalHeader content={"Forget password"} icon={<CancelIcon />} />
           <ModalBody>
             <div className="modal-desc static">
-              <LeftArrowIcon
-                className="absolute translate-y-[25%] cursor-pointer"
-                onClick={() => {
-                  handleForgetPasswordModalHide();
-                  handleLoginModalShow();
-                }}
-              />
-              <h1 className="text-h1 text-center mb-10">
+              <h1 className="text-mobile-h6 sm:text-h1 text-center mb-10">
                 Type your email to get a new password
               </h1>
             </div>
@@ -297,7 +290,7 @@ const CommonLayout = () => {
                 {
                   // Show success message
                   successMessage && (
-                    <h6 className="text-center text-green-500 font-bold mb-3">
+                    <h6 className="text-h6 sm:text-h5 text-center text-green-600 font-bold mb-3">
                       {successMessage}
                     </h6>
                   )

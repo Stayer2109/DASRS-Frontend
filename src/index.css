@@ -25,7 +25,8 @@
   --text-small: 12px;
 
   --text-mobile-h1: 50px;
-  --text-mobile-h5: 32px;
+  --text-mobile-h5: 30px;
+  --text-mobile-h6: 22px;
 
   /* Padding and Margin */
   --spacing-standard-x: 12px;
