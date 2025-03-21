@@ -18,7 +18,7 @@ const AppRoutes = () => {
     // MAIN ROUTE IN HERE
     <ScrollToTop>
       <Routes>
-        <Route path="reset-password" element={<ForgetPassword />} />
+        <Route path="reset-password/:=token" element={<ForgetPassword />} />
 
         {/* Unauthenticated Roles */}
         {!auth?.role && (
