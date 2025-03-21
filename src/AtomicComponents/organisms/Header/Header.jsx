@@ -119,7 +119,7 @@ export default function Header() {
         <img
           src={Logo}
           alt="DASRS Logo"
-          className="h-40 sm:h-20 bg-lime-300 rounded-full sm:p-2"
+          className="h-40 sm:h-20 bg-lime-300 rounded-full p-3 sm:p-2"
         />
         <h3 className="hidden sm:block text-h6 sm:text-h5 bg-lime-300 text-black px-standard-x py-standard-y rounded-lg">
           Driving Assistant Support Racing System
