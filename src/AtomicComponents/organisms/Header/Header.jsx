@@ -112,8 +112,7 @@ export default function Header() {
         ${isTop ? "bg-transparent backdrop-blur-none" : "bg-blue-500"}`}
       style={{
         transition: "background-color 0.5s ease, backdrop-filter 0.5s ease",
-      }}
-    >
+      }}>
       {/* Left Side: Logo + Title */}
       <div className="logo-container flex items-center gap-4">
         {/* Alt text for accessibility */}
@@ -135,8 +134,7 @@ export default function Header() {
             !isClosedClicked ? "hidden" : ""
           } item-container w-auto translate-y-[2px] scale-0 translate-x-80 opacity-0
              transition duration-450 ease-in-out group-hover:translate-x-0 group-hover:scale-100
-             group-hover:opacity-100`}
-        >
+             group-hover:opacity-100`}>
           <ul className="flex gap-2">
             {navItems.map((item, index) => (
               <li className={pillClass} key={index}>
@@ -154,8 +152,7 @@ export default function Header() {
           className="bg-gray-nav w-18 h-18 rounded-full flex items-center justify-center z-1 group cursor-pointer"
           onClick={() => {
             toggleSidebar();
-          }}
-        >
+          }}>
           <SidebarIcon
             className="w-6 h-6 group-hover:rotate-360 group-hover:scale-150
             transition ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)] duration-700"
@@ -179,13 +176,11 @@ export default function Header() {
           className={`fixed top-0 right-0 h-full w-[22%] bg-gray-900 text-white shadow-lg 
             transform transition-transform duration-500 overflow-y-auto z-2 ${
               isSidebarOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-        >
+            }`}>
           {/* Close Button */}
           <button
             className="absolute top-4 right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
-            onClick={() => toggleSidebar()}
-          >
+            onClick={() => toggleSidebar()}>
             <CancelIcon
               width={36}
               height={36}
@@ -200,8 +195,7 @@ export default function Header() {
               <li key={index}>
                 <Link
                   to={item.url}
-                  className="sidebar-items block px-4 px-standard-x py-4 text-h3"
-                >
+                  className="sidebar-items block px-4 px-standard-x py-4 text-h3">
                   {item.navLink}
                 </Link>
               </li>
