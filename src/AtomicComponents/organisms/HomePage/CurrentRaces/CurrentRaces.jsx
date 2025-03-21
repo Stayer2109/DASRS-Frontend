@@ -1,9 +1,10 @@
 /** @format */
 import { LeftArrowIcon, RightArrowIcon } from "@/assets/icon-svg";
-import F1Racers from "../../../assets/img/f1-racers.jpg";
-import Racing1 from "../../../assets/img/racing-cinematic1.jpg";
-import Racing2 from "../../../assets/img/racing-cinematic2.jpg";
-import Racing3 from "../../../assets/img/racing-cinematic3.jpg";
+import F1Racers from "../../../../assets/img/f1-racers.jpg";
+import Racing1 from "../../../../assets/img/racing-cinematic1.jpg";
+import Racing2 from "../../../../assets/img/racing-cinematic2.jpg";
+import Racing3 from "../../../../assets/img/racing-cinematic3.jpg";
+import './CurrentRaces.scss';
 import { useCallback, useEffect, useState } from "react";
 
 const CurrentRaces = () => {
@@ -72,7 +73,7 @@ const CurrentRaces = () => {
   }, [handleNextImage, isClickable]); // dependency can be adjusted based on your needs
 
   return (
-    <div className="current-races-container pt-3 relative select-none h-[900px] flex justify-center items-center overflow-hidden w-full">
+    <div className="current-races-container pt-3 relative select-none h-[250px] sm:h-[900px] flex justify-center items-center overflow-hidden w-full">
       {/* Image Slider */}
       <div
         className={`flex w-full h-full transition-transform ${
@@ -94,7 +95,7 @@ const CurrentRaces = () => {
 
       {/* Left Arrow */}
       <button
-        className={`absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-main p-2 rounded-full group ${
+        className={`absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-main sm:p-1 rounded-full group ${
           !isClickable
             ? "opacity-50 cursor-not-allowed"
             : "cursor-pointer hover:bg-lightgray-main-hover"
@@ -104,15 +105,15 @@ const CurrentRaces = () => {
       >
         <RightArrowIcon
           color="white"
-          width={50}
-          height={50}
-          className={imagesChangeStyle}
+          width={40}
+          height={40}
+          className={`${imagesChangeStyle} left-arrow-icon`}
         />
       </button>
 
       {/* Right Arrow */}
       <button
-        className={`absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-main p-2 rounded-full group ${
+        className={`absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-main sm:p-1 rounded-full group ${
           !isClickable
             ? "opacity-50 cursor-not-allowed"
             : "cursor-pointer hover:bg-lightgray-main-hover"
@@ -122,9 +123,9 @@ const CurrentRaces = () => {
       >
         <LeftArrowIcon
           color="white"
-          width={50}
-          height={50}
-          className={imagesChangeStyle}
+          width={40}
+          height={40}
+          className={`${imagesChangeStyle} right-arrow-icon`}
         />
       </button>
 
@@ -134,8 +135,8 @@ const CurrentRaces = () => {
           <button
             key={index}
             onClick={() => goToImage(index)}
-            className={`w-4 h-4 rounded-full transition-all duration-300 ${
-              currentImage === index + 1 ? "bg-blue-600 w-5" : "bg-gray-400"
+            className={`w-2 h-2 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${
+              currentImage === index + 1 ? "bg-blue-600" : "bg-gray-400"
             }`}
           />
         ))}

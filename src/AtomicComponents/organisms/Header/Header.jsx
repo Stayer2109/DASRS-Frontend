@@ -5,12 +5,12 @@ import { CancelIcon, SidebarIcon } from "../../../assets/icon-svg";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Header.scss";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export default function Header() {
   const [isTop, setIsTop] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar toggle state
   const [isClosedClicked, setIsClosedClicked] = useState(true); // Close button state
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -115,27 +115,26 @@ export default function Header() {
       className={`header-container fixed left-0 right-0 top-0 z-50 flex justify-between sm:items-center px-5 py-3 sm:px-standard-x sm:py-standard-y
         transition-all duration-500 ease-in-out
         ${isTop ? "bg-transparent backdrop-blur-none" : "bg-blue-500"}`}
-      style={{
-        transition: "background-color 0.5s ease, backdrop-filter 0.5s ease",
-      }}>
+        style={{transition: "background-color 0.5s ease, backdrop-filter 0.5s ease"}}>
+
       {/* Left Side: Logo + Title */}
       <div className="logo-container sm:flex items-center gap-4">
+
         {/* Alt text for accessibility */}
         <img
           src={Logo}
           alt="DASRS Logo"
-          className="h-15 sm:h-20 bg-lime-300 rounded-full p-2 sm:p-2"
+          className="h-13 sm:h-20 bg-lime-300 rounded-full p-2 sm:p-2"
         />
-        <h3 className="hidden sm:block text-h6 sm:text-h5 bg-lime-300 text-black px-standard-x py-standard-y rounded-lg">
+        <h3 className="hidden sm:block text-h6 sm:text-h5 bg-lime-300 text-black 
+          px-standard-x py-standard-y rounded-lg"
+        >
           Driving Assistant Support Racing System
         </h3>
       </div>
 
       {/* Right Side: Lumpy Nav + Circle Icon */}
-      <nav className="flex items-center group relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <nav className="flex items-center group relative">
 		{/* Sliding nav items */}
         <ul className={`${!isClosedClicked ? "hidden" : ""} flex gap-2 absolute item-container w-[480px] transition-all duration-450 ease-in-out 
           flex-nowrap opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 right-0 transform translate-x-[400px] 
@@ -153,7 +152,7 @@ export default function Header() {
         {/* Circle button with the icon (overlaps the last pill) */}
         <button
           type="button"
-          className="bg-gray-nav w-15 h-15 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
+          className="bg-gray-nav w-13 h-13 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
           onClick={() => {
             toggleSidebar();
           }}>
@@ -183,7 +182,7 @@ export default function Header() {
             }`}>
           {/* Close Button */}
           <button
-            className="absolute top-10 right-10 sm:top-4 sm:right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
+            className="absolute top-3 right-6 sm:top-4 sm:right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
             onClick={() => toggleSidebar()}>
             <CancelIcon
               height={54}
@@ -194,12 +193,12 @@ export default function Header() {
           </button>
 
           {/* Nav Items */}
-          <ul className="flex flex-col gap-8 sm:gap-3 mt-8">
+          <ul className="flex flex-col gap-5 sm:gap-3 mt-8">
             {navFullItems.map((item, index) => (
               <li key={index}>
                 <Link
                   to={item.url}
-                  className="sidebar-items block px-10 py-8 sm:px-standard-x sm:py-4 text-mobile-h5 sm:text-h3">
+                  className="sidebar-items block px-8 py-4 sm:px-standard-x sm:py-4 text-mobile-h6 sm:text-h3">
                   {item.navLink}
                 </Link>
               </li>

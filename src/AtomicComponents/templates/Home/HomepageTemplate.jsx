@@ -1,6 +1,6 @@
 /** @format */
 
-import CurrentRaces from "@/AtomicComponents/organisms/HomePage/CurrentRaces";
+import CurrentRaces from "@/AtomicComponents/organisms/HomePage/CurrentRaces/CurrentRaces";
 import RaceCalendar from "@/AtomicComponents/organisms/HomePage/RaceCalendar";
 
 const HomepageTemplate = () => {
