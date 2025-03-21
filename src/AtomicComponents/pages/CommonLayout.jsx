@@ -6,7 +6,7 @@ import {
   LeftArrowIcon,
   LoginIcon,
 } from "@/assets/icon-svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ForgetPasswordValidation, LoginValidation } from "@/utils/Validation";
 import { Modal, ModalBody, ModalHeader } from "../organisms/Modal/Modal";
 import { jwtDecode } from "jwt-decode";
@@ -21,6 +21,7 @@ import { apiAuth } from "@/config/axios/axios";
 import { encryptToken } from "@/utils/CryptoUtils";
 import Spinner from "../atoms/Spinner/Spinner";
 import "./CommonLayout.scss";
+import Toast from "../molecules/Toaster/Toaster";
 
 const CommonLayout = () => {
   const { setAuth } = useAuth();
@@ -155,6 +156,15 @@ const CommonLayout = () => {
       setIsLoading(false);
     }
   };
+
+  // SHOW SUCCESS MESSAGE
+  useEffect(() => {
+    const successMessage = sessionStorage.getItem("successMessage");
+    if (successMessage) {
+      Toast({ message: successMessage, type: "success", title: "Success" });
+      sessionStorage.removeItem("successMessage");
+    }
+  }, []);
 
   return (
     <>

@@ -7,16 +7,19 @@ import CommonLayout from "./AtomicComponents/pages/CommonLayout";
 import HomePage from "./AtomicComponents/pages/Home/Homepage";
 import useAuth from "./hooks/useAuth";
 import PersistLogin from "./config/provider/PersistLogin";
+import "react-tooltip/dist/react-tooltip.css";
 import RequireAuth from "./config/provider/RequireAuth";
 import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPassword";
 import ScrollToTop from "./others/ScrollToTop";
+import { Toaster } from "react-hot-toast";
 
 const AppRoutes = () => {
-	const { auth } = useAuth();
+  const { auth } = useAuth();
 
   return (
     // MAIN ROUTE IN HERE
     <ScrollToTop>
+      <Toaster position="top-right" />
       <Routes>
         <Route path="reset-password/:token" element={<ForgetPassword />} />
 
