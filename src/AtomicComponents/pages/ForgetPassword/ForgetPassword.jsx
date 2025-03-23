@@ -10,6 +10,7 @@ import Button from "@/AtomicComponents/atoms/Button/Button";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { apiAuth } from "@/config/axios/axios";
+import { trimText } from "@/utils/InputProces";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -111,7 +112,7 @@ const ForgetPassword = () => {
                 placeholder="Password"
                 type={showPassword ? "text" : "password"}
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e) => setNewPassword(trimText(e.target.value))}
               />
 
               <div

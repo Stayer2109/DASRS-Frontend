@@ -1,44 +1,25 @@
 import { HomeIcon, LogoutIcon, SidebarIcon, UserIcon } from "@/assets/icon-svg";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import { apiAuth } from "@/config/axios/axios";
-import useAuth from "@/hooks/useAuth";
+import useLogout from "@/hooks/useLogout";
 import { AnimatePresence, motion } from "framer-motion";
-import Cookies from "js-cookie";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
-  const { setAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navBarIconClass =
     "navbar-icon group-hover:stroke-black transition-color duration-300 ease-in-out";
   const navBarIconColor = "#FAF9F6";
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const jwtToken = Cookies.get("accessToken");
-  const navigate = useNavigate();
+  const logOut = useLogout();
 
   // HANDLE LOGOUT
   const handleLogout = async () => {
     try {
       setIsLoading(true);
-      const response = await apiAuth.post(
-        "auth/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        }
-      );
-
-      if (response.data.http_status === 200) {
-        setAuth(null); // 👈 Clear the auth context
-        Cookies.remove("accessToken");
-        Cookies.remove("refreshToken");
-        navigate("/");
-      }
+      await logOut();
     } catch (error) {
       console.error(error);
     } finally {
