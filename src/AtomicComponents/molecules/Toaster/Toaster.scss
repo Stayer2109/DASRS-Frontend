@@ -95,8 +95,10 @@
   opacity: 1;
 }
 
+/* #region FOR MOBILE */
 @media screen and (max-width: 768px) {
   .toast-content-container {
+    position: fixed;
     display: block;
     height: auto;
     padding: 4px 6px;
@@ -139,3 +141,4 @@
     }
   }
 }
+/* #endregion */ 
