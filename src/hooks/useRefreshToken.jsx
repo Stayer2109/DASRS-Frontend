@@ -1,8 +1,6 @@
-/** @format */
-
 import useAuth from "./useAuth";
 import { apiAuth } from "@/config/axios/axios";
-import { decryptToken, encryptToken } from "@/utils/CryptoUtils";
+import { decryptToken } from "@/utils/CryptoUtils";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
@@ -12,10 +10,8 @@ const useRefreshToken = () => {
   const refreshToken = decryptToken(tokenFromCookies);
 
   const refresh = async () => {
-    // Get refresh token using axios
-    var response;
     try {
-      response = await apiAuth.post(
+      const response = await apiAuth.post(
         "auth/refresh-token",
         {},
         {
@@ -26,25 +22,30 @@ const useRefreshToken = () => {
 
       const decodedJwt = jwtDecode(response.data.data.access_token);
 
-      // Set access token by new refresh token
-      setAuth((prev) => {
-        return {
-          ...prev,
-          role: decodedJwt.role,
-          accessToken: response.data.data.access_token,
-        };
-      });
+      // Save new token
+      setAuth((prev) => ({
+        ...prev,
+        role: decodedJwt.role,
+        accessToken: response.data.data.access_token,
+      }));
 
       Cookies.set("accessToken", response.data.data.access_token);
       Cookies.set(
         "refreshToken",
         encryptToken(response.data.data.refresh_token)
       );
-    } catch (error) {
-      console.log("Error: ", error);
-    }
 
-    return response.data.data.access_token;
+      return response.data.data.access_token;
+    } catch (error) {
+      console.error("Refresh token failed:", error);
+
+      // Auto logout here
+      Cookies.remove("accessToken");
+      Cookies.remove("refreshToken");
+      setAuth(null); // <- this kicks them out
+
+      throw error; // still throw so components know
+    }
   };
 
   return refresh;

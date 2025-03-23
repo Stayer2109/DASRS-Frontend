@@ -3,7 +3,6 @@ import {
   CancelIcon,
   EyeCloseIcon,
   EyeOpenIcon,
-  LeftArrowIcon,
   LoginIcon,
 } from "@/assets/icon-svg";
 import { useEffect, useState } from "react";
@@ -22,6 +21,7 @@ import { encryptToken } from "@/utils/CryptoUtils";
 import Spinner from "../../../atoms/Spinner/Spinner";
 import "./CommonLayout.scss";
 import Toast from "../../../molecules/Toaster/Toaster";
+import { trimText } from "@/utils/InputProces";
 
 const CommonLayout = () => {
   const { setAuth } = useAuth();
@@ -116,7 +116,6 @@ const CommonLayout = () => {
       // Get information
       const role = decodedToken.role;
       console.log(decodedToken);
-      
 
       // Save to auth
       setAuth({
@@ -129,7 +128,11 @@ const CommonLayout = () => {
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);
-      Toast({message: error.response.data.message, type: "error", title: "Error"});
+      Toast({
+        message: error.response.data.message,
+        type: "error",
+        title: "Error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -193,7 +196,8 @@ const CommonLayout = () => {
               <form className="w-full" onSubmit={handleLoginsSubmit}>
                 <div
                   className="inf-input-container sm:grid grid-cols-[1fr_3fr] 
-							gap-y-5 items-center sm:mb-5 mb-3">
+							gap-y-5 items-center sm:mb-5 mb-3"
+                >
                   {/* Email */}
                   <label htmlFor="email">Email</label>
                   <div className="sm:mb-0 mb-3">
@@ -205,7 +209,7 @@ const CommonLayout = () => {
                       onChange={(e) => {
                         setLoginData({
                           ...loginData,
-                          email: e.target.value,
+                          email: trimText(e.target.value),
                         });
                       }}
                     />
@@ -227,13 +231,14 @@ const CommonLayout = () => {
                       onChange={(e) => {
                         setLoginData({
                           ...loginData,
-                          password: e.target.value,
+                          password: trimText(e.target.value),
                         });
                       }}
                     />
                     <div
                       className="absolute top-0 right-0 -translate-x-2 translate-y-[5px] cursor-pointer active:scale-92 active:translate-y-[6px]"
-                      onClick={() => setShowPassword(!showPassword)}>
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
                       {showPassword ? (
                         <EyeOpenIcon width={28} />
                       ) : (
@@ -256,7 +261,8 @@ const CommonLayout = () => {
                     onClick={() => {
                       handleForgetPasswordModalShow();
                       handleLoginModalHide();
-                    }}>
+                    }}
+                  >
                     Forget password?
                   </h3>
                 </div>
@@ -280,7 +286,8 @@ const CommonLayout = () => {
           onHide={() => {
             handleForgetPasswordModalHide();
             handleLoginModalShow();
-          }}>
+          }}
+        >
           <ModalHeader content={"Forget password"} icon={<CancelIcon />} />
           <ModalBody>
             <div className="modal-desc static">
@@ -308,7 +315,7 @@ const CommonLayout = () => {
                       autoComplete="email"
                       className={inputCommonClassname}
                       onChange={(e) =>
-                        setEmailForForgetPassword(e.target.value)
+                        setEmailForForgetPassword(trimText(e.target.value))
                       }
                     />
 
