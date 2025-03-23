@@ -8,6 +8,7 @@ import {
   Trophy,
   ChevronDown,
   CircleDot,
+  CircuitBoard,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
@@ -17,10 +18,21 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/AtomicComponents/atoms/shadcn/collapsible";
+import useLogout from "@/hooks/useLogout";
 
 export const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isTournamentOpen, setIsTournamentOpen] = useState(false);
+  const logOut = useLogout();
+
+  // HANDLE LOGOUT
+  const handleLogout = async () => {
+    try {
+      await logOut();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const tournamentItems = [
     { id: "tournament", label: "Overview" },
@@ -69,6 +81,15 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
         >
           <Users size={20} />
           <span className={`ml-3 ${!isExpanded && "hidden"}`}>Users</span>
+        </Button>
+
+        <Button
+          variant={activeTab === "scenes" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => setActiveTab("scenes")}
+        >
+          <CircuitBoard size={20} />
+          <span className={`ml-3 ${!isExpanded && "hidden"}`}>Scene</span>
         </Button>
 
         <Collapsible
@@ -127,7 +148,11 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
 
       <div className="mt-auto space-y-4">
         <Separator className="my-4 bg-gray-800" />
-        <Button variant="ghost" className="w-full justify-start">
+        <Button
+          variant="ghost"
+          className="w-full justify-start"
+          onClick={handleLogout}
+        >
           <LogOut size={20} />
           <span className={`ml-3 ${!isExpanded && "hidden"}`}>Logout</span>
         </Button>

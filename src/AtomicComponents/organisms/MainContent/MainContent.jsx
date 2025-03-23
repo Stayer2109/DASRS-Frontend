@@ -2,6 +2,7 @@ import { Overview } from "../Overview/Overview";
 import { UserManagement } from "../UserManagement/UserManagement";
 import { Settings } from "../Settings/Settings";
 import { Tournament } from "../Tournament/Tournament";
+import Scene from "../Scene/Scene";
 
 export const MainContent = ({ activeTab }) => {
   const renderContent = () => {
@@ -18,6 +19,8 @@ export const MainContent = ({ activeTab }) => {
         return <div>Matches Content</div>;
       case "settings":
         return <Settings />;
+      case "scenes":
+        return <Scene />;
       default:
         return <Overview />;
     }
