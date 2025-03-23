@@ -46,7 +46,7 @@ const Footer = () => {
 	const navHoverStyle = "hover:text-lime-300";
 
 	return (
-		<footer className="w-screen max-w-none bg-gray-main text-white px-0 py-6">
+		<footer className="w-full max-w-none bg-gray-main text-white px-0 py-6">
 
 			{/* Sponsor Container */}
 			<div
