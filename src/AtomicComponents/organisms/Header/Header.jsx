@@ -5,7 +5,6 @@ import { CancelIcon, SidebarIcon } from "../../../assets/icon-svg";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Header.scss";
-import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export default function Header() {
   const [isTop, setIsTop] = useState(true);
@@ -132,12 +131,6 @@ export default function Header() {
           Driving Assistant Support Racing System
         </h3>
       </div>
-
-      <button
-        onClick={() => Toast({ message: "Test", title: "Hello", type: "" })}
-      >
-        Click me
-      </button>
 
       {/* Right Side: Lumpy Nav + Circle Icon */}
       <nav className="flex items-center group relative">

@@ -100,6 +100,9 @@
   .toast-content-container {
     position: fixed;
     display: block;
+    min-width: 100px;
+    width: auto;
+    max-width: 100%;
     height: auto;
     padding: 4px 6px;
 
@@ -141,4 +144,4 @@
     }
   }
 }
-/* #endregion */ 
+/* #endregion */
