@@ -8,20 +8,20 @@ import {
 } from "@/assets/icon-svg";
 import { useEffect, useState } from "react";
 import { ForgetPasswordValidation, LoginValidation } from "@/utils/Validation";
-import { Modal, ModalBody, ModalHeader } from "../organisms/Modal/Modal";
+import { Modal, ModalBody, ModalHeader } from "../../../organisms/Modal/Modal";
 import { jwtDecode } from "jwt-decode";
-import Input from "../atoms/Input/Input";
-import Footer from "../organisms/Footer";
-import Header from "../organisms/Header/Header";
-import CircularButton from "../atoms/CircularButton/CircularButton";
-import Button from "../atoms/Button/Button";
+import Input from "../../../atoms/Input/Input";
+import Footer from "../../../organisms/Footer";
+import Header from "../../../organisms/Header/Header";
+import CircularButton from "../../../atoms/CircularButton/CircularButton";
+import Button from "../../../atoms/Button/Button";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import { apiAuth } from "@/config/axios/axios";
 import { encryptToken } from "@/utils/CryptoUtils";
-import Spinner from "../atoms/Spinner/Spinner";
+import Spinner from "../../../atoms/Spinner/Spinner";
 import "./CommonLayout.scss";
-import Toast from "../molecules/Toaster/Toaster";
+import Toast from "../../../molecules/Toaster/Toaster";
 
 const CommonLayout = () => {
   const { setAuth } = useAuth();
@@ -115,6 +115,8 @@ const CommonLayout = () => {
 
       // Get information
       const role = decodedToken.role;
+      console.log(decodedToken);
+      
 
       // Save to auth
       setAuth({
@@ -127,6 +129,7 @@ const CommonLayout = () => {
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);
+      Toast({message: error.response.data.message, type: "error", title: "Error"});
     } finally {
       setIsLoading(false);
     }

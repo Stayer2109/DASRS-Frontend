@@ -7,12 +7,14 @@
   --color-gray-main: #323232;
   --color-main-green: #bbf451;
   --color-main-blue: #2650ff;
-  --color-darkgray-main: #1a1a1a;
-  --color-gray-nav: #535353;
   --color-border-line: #bfbfbf;
-  --color-main-blue-hover: #345cfe;
+  --color-gray-nav: #535353;
   --color-gray-main-hover: #383838;
+  --color-main-blue-hover: #345cfe;
   --color-lightgray-main-hover: #555555;
+  --color-darkgray-main: #1a1a1a;
+  --color-off-white: #FAF9F6;
+  --color-navbar-color: #101828;
 
   /* Font Size */
   --text-h1: 32px;
@@ -30,5 +32,5 @@
 
   /* Padding and Margin */
   --spacing-standard-x: 12px;
-  --spacing-standard-y: 8px;
+  --spacing-standard-y: 10px;
 }
