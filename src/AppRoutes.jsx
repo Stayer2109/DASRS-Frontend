@@ -3,7 +3,6 @@
 // import React from "react";
 import { Route, Routes } from "react-router-dom";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
-import CommonLayout from "./AtomicComponents/pages/CommonLayout";
 import HomePage from "./AtomicComponents/pages/Home/Homepage";
 import useAuth from "./hooks/useAuth";
 import PersistLogin from "./config/provider/PersistLogin";
@@ -13,54 +12,72 @@ import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPasswo
 import ScrollToTop from "./others/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
+import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
+import CommonLayout from "./AtomicComponents/pages/CommonLayouts/GuestCommonLayout/CommonLayout";
+import PlayerHomePage from "./AtomicComponents/pages/Player/HomePage/PlayerHomePage";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
   const [toastPosition, setToastPosition] = useState("top-right");
 
-  // Detect screen size
   useEffect(() => {
     const checkScreen = () => {
-      if (window.innerWidth <= 480) {
-        setToastPosition("top-center");
-      } else {
-        setToastPosition("top-right");
-      }
+      setToastPosition(window.innerWidth <= 480 ? "top-center" : "top-right");
     };
 
-    checkScreen(); // check on load
-    window.addEventListener("resize", checkScreen); // check on resize
-
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
+
+  const renderRoutesByRole = () => {
+    const role = auth?.role;
+
+    switch (role) {
+      case undefined:
+        return (
+          <Route path="/" element={<CommonLayout />}>
+            <Route index element={<HomePage />} />
+          </Route>
+        );
+
+      case "PLAYER":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
+              <Route path="/" element={<PlayerCommonLayout />}>
+                <Route index element={<PlayerHomePage />} />
+                <Route path="my-profile" element={<h1>Profile</h1>} />
+              </Route>
+            </Route>
+          </Route>
+        );
+
+      case "ADMIN":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
+              <Route path="/" element={<AdminPage />}>
+                <Route index element={<h1>close</h1>} />
+              </Route>
+            </Route>
+          </Route>
+        );
+
+      default:
+        return <Route path="/" element={<h1>Not yet</h1>} />;
+    }
+  };
 
   return (
     <ScrollToTop>
       <Toaster position={toastPosition} />
       <Routes>
+        {renderRoutesByRole()}
         <Route path="reset-password/:token" element={<ForgetPassword />} />
-
-        {/* Unauthenticated Roles */}
-        {!auth?.role && (
-          <Route path="/" element={<CommonLayout />}>
-            <Route index element={<HomePage />} />
-          </Route>
-        )}
-
-        {/* Authenticated Roles */}
-        <Route element={<PersistLogin />}>
-          <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
-            <Route path="/">
-              <Route index element={<AdminPage />} />
-            </Route>
-          </Route>
-        </Route>
-
         <Route
           path="*"
-          element={
-            <h1 className="text-h1 text-red-500">Adu Ang Seng</h1>
-          }
+          element={<h1 className="text-h1 text-red-500">Adu Ang Seng</h1>}
         />
       </Routes>
     </ScrollToTop>
