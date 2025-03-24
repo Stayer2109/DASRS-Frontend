@@ -1,10 +1,4 @@
-import {
-  HomeIcon,
-  ListIcon,
-  LogoutIcon,
-  SidebarIcon,
-  UserIcon,
-} from "@/assets/icon-svg";
+import { LogoutIcon, SidebarIcon } from "@/assets/icon-svg";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useLogout from "@/hooks/useLogout";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,14 +7,19 @@ import { useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Link } from "react-router-dom";
 
-const StaffSidebar = ({ isOpened = false, onToggle = () => {} }) => {
+const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
+  const [expandedItem, setExpandedItem] = useState(null);
+  const toggleExpand = (itemKey) => {
+    setExpandedItem((prev) => (prev === itemKey ? null : itemKey));
+  };
+
   const [isLoading, setIsLoading] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const logOut = useLogout();
   const navBarIconClass = `navbar-icon transition-colors duration-300 ease-in-out ${
     isOpened ? "group-hover:stroke-black" : ""
   }`;
   const navBarIconColor = "#FAF9F6";
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-  const logOut = useLogout();
   const iconWidth = 24;
 
   // HANDLE LOGOUT
@@ -34,55 +33,6 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {} }) => {
       setIsLoading(false);
     }
   };
-
-  const sideBarItems = [
-    {
-      item: "Home",
-      icon: (
-        <HomeIcon
-          className={navBarIconClass}
-          color={navBarIconColor}
-          width={iconWidth}
-        />
-      ),
-      link: "/",
-    },
-    {
-      item: "Profile",
-      icon: (
-        <UserIcon
-          className={navBarIconClass}
-          color={navBarIconColor}
-          width={iconWidth}
-        />
-      ),
-      link: "/my-profile",
-    },
-    {
-      item: "Player List",
-      icon: (
-        <ListIcon
-          className={navBarIconClass}
-          color={navBarIconColor}
-          width={iconWidth}
-        />
-      ),
-      link: "/player-list",
-    },
-    {
-      item: "Logout",
-      icon: (
-        <LogoutIcon
-          className={navBarIconClass}
-          color={navBarIconColor}
-          width={iconWidth}
-        />
-      ),
-      onclick: () => {
-        handleLogout();
-      },
-    },
-  ];
 
   return (
     <>
@@ -125,58 +75,101 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {} }) => {
         </div>
 
         {/* Sidebar items */}
-        <ul className="flex flex-col gap-6">
-          {sideBarItems.map((item) => (
-            <>
-              <AnimatePresence>
-                <Link to={item.link} key={item.item}>
-                  <motion.li
-                    key={item.item}
-                    initial={{ opacity: 0, x: 0 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    onClick={item.onclick}
-                    transition={{ duration: 0.25 }}
-                    className={`relative group flex items-center leading-normal gap-3 justify-start overflow-hidden cursor-pointer hover:text-black ${
-                      isOpened ? "px-4 py-2" : ""
-                    } transition-text duration-300 ease-in-out`}
-                  >
-                    {/* Icon wrapper with fixed width */}
-                    <div className="-translate-x-[2px] sm:translate-x-0 w-[40px] flex items-center">
-                      {item.icon}
-                    </div>
-                    {/* Animate text in/out */}
-                    <AnimatePresence>
-                      {isOpened && (
-                        <motion.span
-                          key="text"
-                          initial={{ opacity: 0, maxWidth: 0 }}
-                          animate={{ opacity: 1, maxWidth: 200 }}
-                          exit={{ opacity: 0, maxWidth: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden whitespace-nowrap inline-block font-bold text-medium"
-                        >
-                          {item.item}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>{" "}
+        <ul className="flex flex-col gap-6 flex-grow">
+          {(data || []).map((item) => (
+            <AnimatePresence key={item.item}>
+              <Link to={item.link}>
+                <motion.li
+                  key={item.item}
+                  initial={{ opacity: 0, x: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  onClick={item.onclick}
+                  transition={{ duration: 0.25 }}
+                  className={`relative group flex items-center leading-normal gap-3 justify-start overflow-hidden cursor-pointer hover:text-black ${
+                    isOpened ? "px-4 py-2" : ""
+                  } transition-text duration-300 ease-in-out`}
+                >
+                  <div className="-translate-x-[2px] sm:translate-x-0 w-[40px] flex items-center">
+                    {item.icon}
+                  </div>
+                  <AnimatePresence>
                     {isOpened && (
-                      <span className="absolute left-0 top-0 h-full w-0 bg-off-white transition-all duration-300 group-hover:w-full -z-1" />
+                      <motion.span
+                        key="text"
+                        initial={{ opacity: 0, maxWidth: 0 }}
+                        animate={{ opacity: 1, maxWidth: 200 }}
+                        exit={{ opacity: 0, maxWidth: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden whitespace-nowrap inline-block font-bold text-medium"
+                      >
+                        {item.item}
+                      </motion.span>
                     )}
-                  </motion.li>
-                </Link>
-              </AnimatePresence>
-            </>
+                  </AnimatePresence>
+                  {isOpened && (
+                    <span className="absolute left-0 top-0 h-full w-0 bg-off-white transition-all duration-300 group-hover:w-full -z-1" />
+                  )}
+                </motion.li>
+              </Link>
+            </AnimatePresence>
           ))}
+
+          {/* 👇 Fixed Logout Button */}
+          <AnimatePresence>
+            <motion.li
+              key="logout"
+              initial={{ opacity: 0, x: 0 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              onClick={handleLogout}
+              transition={{ duration: 0.25 }}
+              className={`relative group flex items-center leading-normal gap-3 justify-start overflow-hidden cursor-pointer hover:text-black ${
+                isOpened ? "px-4 py-2" : ""
+              } transition-text duration-300 ease-in-out`}
+            >
+              <div className="-translate-x-[2px] sm:translate-x-0 w-[40px] flex items-center">
+                <LogoutIcon
+                  className={navBarIconClass}
+                  color={navBarIconColor}
+                  width={iconWidth}
+                />
+              </div>
+              {isOpened && (
+                <motion.span
+                  key="logout-text"
+                  initial={{ opacity: 0, maxWidth: 0 }}
+                  animate={{ opacity: 1, maxWidth: 200 }}
+                  exit={{ opacity: 0, maxWidth: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden whitespace-nowrap inline-block font-bold text-medium"
+                >
+                  Logout
+                </motion.span>
+              )}
+              {isOpened && (
+                <span className="absolute left-0 top-0 h-full w-0 bg-off-white transition-all duration-300 group-hover:w-full -z-1" />
+              )}
+            </motion.li>
+          </AnimatePresence>
         </ul>
       </motion.nav>
     </>
   );
 };
 
+// Inside your component file (below the component)
 StaffSidebar.propTypes = {
   isOpened: PropTypes.bool,
   onToggle: PropTypes.func,
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      item: PropTypes.string,
+      icon: PropTypes.element,
+      link: PropTypes.string,
+      onclick: PropTypes.func,
+    })
+  ),
 };
 
 export default StaffSidebar;

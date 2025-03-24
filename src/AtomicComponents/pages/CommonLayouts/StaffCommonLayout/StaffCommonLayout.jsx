@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "./StaffCommonLayout.scss";
 import { motion, useAnimation } from "framer-motion";
 import { useMediaQuery } from "react-responsive";
-import { SidebarIcon } from "@/assets/icon-svg";
+import { HomeIcon, ListIcon, SidebarIcon, UserIcon } from "@/assets/icon-svg";
 import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
 import StaffSidebar from "@/AtomicComponents/organisms/Sidebar/PlayerSideBar/StaffSidebar";
@@ -10,6 +10,13 @@ import StaffSidebar from "@/AtomicComponents/organisms/Sidebar/PlayerSideBar/Sta
 const StaffCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const navBarIconClass = `navbar-icon transition-colors duration-300 ease-in-out ${
+    isSidebarOpen ? "group-hover:stroke-black" : ""
+  }`;
+
+  const navBarIconColor = "#FAF9F6";
+  const iconWidth = 24;
 
   useEffect(() => {
     // Collapse sidebar on mobile only on first load
@@ -42,6 +49,42 @@ const StaffCommonLayout = () => {
     }
   }, [isMobile, isSidebarOpen]);
 
+  const sidebarData = [
+    {
+      item: "Home",
+      icon: (
+        <HomeIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
+      link: "/",
+    },
+    {
+      item: "Profile",
+      icon: (
+        <UserIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
+      link: "/my-profile",
+    },
+    {
+      item: "Player List",
+      icon: (
+        <ListIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
+      link: "/player-list",
+    },
+  ];
+
   return (
     <div className="flex relative">
       {isMobile && isSidebarOpen && (
@@ -57,6 +100,7 @@ const StaffCommonLayout = () => {
 
       {typeof isMobile !== "undefined" && (
         <StaffSidebar
+          data={sidebarData}
           isOpened={isSidebarOpen}
           isMobile={isMobile}
           onToggle={() => setIsSidebarOpen((prev) => !prev)}
