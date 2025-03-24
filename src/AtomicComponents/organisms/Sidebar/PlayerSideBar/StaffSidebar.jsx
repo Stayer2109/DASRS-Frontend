@@ -1,4 +1,10 @@
-import { HomeIcon, LogoutIcon, SidebarIcon, UserIcon } from "@/assets/icon-svg";
+import {
+  HomeIcon,
+  ListIcon,
+  LogoutIcon,
+  SidebarIcon,
+  UserIcon,
+} from "@/assets/icon-svg";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useLogout from "@/hooks/useLogout";
 import { AnimatePresence, motion } from "framer-motion";
@@ -7,13 +13,15 @@ import { useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Link } from "react-router-dom";
 
-const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
+const StaffSidebar = ({ isOpened = false, onToggle = () => {} }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const navBarIconClass =
-    "navbar-icon group-hover:stroke-black transition-color duration-300 ease-in-out";
+  const navBarIconClass = `navbar-icon transition-colors duration-300 ease-in-out ${
+    isOpened ? "group-hover:stroke-black" : ""
+  }`;
   const navBarIconColor = "#FAF9F6";
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const logOut = useLogout();
+  const iconWidth = 24;
 
   // HANDLE LOGOUT
   const handleLogout = async () => {
@@ -30,17 +38,46 @@ const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
   const sideBarItems = [
     {
       item: "Home",
-      icon: <HomeIcon className={navBarIconClass} color={navBarIconColor} />,
+      icon: (
+        <HomeIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
       link: "/",
     },
     {
       item: "Profile",
-      icon: <UserIcon className={navBarIconClass} color={navBarIconColor} />,
+      icon: (
+        <UserIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
       link: "/my-profile",
     },
     {
+      item: "Player List",
+      icon: (
+        <ListIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
+      link: "/player-list",
+    },
+    {
       item: "Logout",
-      icon: <LogoutIcon className={navBarIconClass} color={navBarIconColor} />,
+      icon: (
+        <LogoutIcon
+          className={navBarIconClass}
+          color={navBarIconColor}
+          width={iconWidth}
+        />
+      ),
       onclick: () => {
         handleLogout();
       },
@@ -52,10 +89,10 @@ const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
       {isLoading && <Spinner />}
       <motion.nav
         animate={{
-          width: isOpened ? (isMobile ? "70dvw" : 300) : isMobile ? 0 : 82,
+          width: isOpened ? (isMobile ? "70dvw" : 260) : isMobile ? 0 : 82,
           x: isOpened || !isMobile ? 0 : "-150px",
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}
         className={`playersidebar-container bg-navbar-color text-off-white h-dvh p-4 z-50 ${
           isMobile ? "fixed top-0 left-0" : ""
         }`}
@@ -67,7 +104,7 @@ const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
             animate={{
               scaleX: isOpened ? 1 : 0.85,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}
             className="origin-left"
           >
             <h1 className="text-h1 font-bold">
@@ -100,12 +137,12 @@ const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
                     exit={{ opacity: 0, x: -10 }}
                     onClick={item.onclick}
                     transition={{ duration: 0.25 }}
-                    className={`relative group flex items-end justify-start overflow-hidden cursor-pointer hover:text-black ${
+                    className={`relative group flex items-center leading-normal gap-3 justify-start overflow-hidden cursor-pointer hover:text-black ${
                       isOpened ? "px-4 py-2" : ""
                     } transition-text duration-300 ease-in-out`}
                   >
                     {/* Icon wrapper with fixed width */}
-                    <div className="-translate-x-[2px] sm:translate-x-0 w-[40px] flex justify-center">
+                    <div className="-translate-x-[2px] sm:translate-x-0 w-[40px] flex items-center">
                       {item.icon}
                     </div>
                     {/* Animate text in/out */}
@@ -117,13 +154,15 @@ const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
                           animate={{ opacity: 1, maxWidth: 200 }}
                           exit={{ opacity: 0, maxWidth: 0 }}
                           transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden whitespace-nowrap inline-block font-bold"
+                          className="overflow-hidden whitespace-nowrap inline-block font-bold text-medium"
                         >
                           {item.item}
                         </motion.span>
                       )}
                     </AnimatePresence>{" "}
-                    <span className="absolute left-0 top-0 h-full w-0 bg-off-white transition-all duration-300 group-hover:w-full -z-1" />
+                    {isOpened && (
+                      <span className="absolute left-0 top-0 h-full w-0 bg-off-white transition-all duration-300 group-hover:w-full -z-1" />
+                    )}
                   </motion.li>
                 </Link>
               </AnimatePresence>
@@ -135,12 +174,12 @@ const PlayerSidebar = ({ isOpened = false, onToggle = () => {} }) => {
   );
 };
 
-PlayerSidebar.propTypes = {
+StaffSidebar.propTypes = {
   isOpened: PropTypes.bool,
   onToggle: PropTypes.func,
 };
 
-export default PlayerSidebar;
+export default StaffSidebar;
 
 const TypingText = ({ text, isVisible }) => {
   return (

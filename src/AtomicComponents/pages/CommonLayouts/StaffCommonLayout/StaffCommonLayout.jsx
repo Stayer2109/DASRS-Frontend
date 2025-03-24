@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import "./PlayerCommonLayout.scss";
-import PlayerSidebar from "@/AtomicComponents/organisms/Sidebar/PlayerSideBar/PlayerSidebar";
+import "./StaffCommonLayout.scss";
 import { motion, useAnimation } from "framer-motion";
 import { useMediaQuery } from "react-responsive";
 import { SidebarIcon } from "@/assets/icon-svg";
 import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
+import StaffSidebar from "@/AtomicComponents/organisms/Sidebar/PlayerSideBar/StaffSidebar";
 
-const PlayerCommonLayout = () => {
+const StaffCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -56,7 +56,7 @@ const PlayerCommonLayout = () => {
       )}
 
       {typeof isMobile !== "undefined" && (
-        <PlayerSidebar
+        <StaffSidebar
           isOpened={isSidebarOpen}
           isMobile={isMobile}
           onToggle={() => setIsSidebarOpen((prev) => !prev)}
@@ -75,7 +75,7 @@ const PlayerCommonLayout = () => {
   );
 };
 
-export default PlayerCommonLayout;
+export default StaffCommonLayout;
 
 const DraggableSidebarToggle = ({ onClick }) => {
   const controls = useAnimation();
