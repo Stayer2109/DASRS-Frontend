@@ -5,15 +5,21 @@ import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useLogout from "@/hooks/useLogout";
 import { AnimatePresence, motion } from "framer-motion";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 	const [activeSubmenu, setActiveSubmenu] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [selectedItem, setSelectedItem] = useState(null);
+	const location = useLocation();
 	const isMobile = useMediaQuery({ maxWidth: 768 });
 	const logOut = useLogout();
+
+	const isItemActive = (item) =>
+		selectedItem === item.item ||
+		item.subMenu?.some((sub) => location.pathname.includes(sub.link));
 
 	const navBarIconHoverClass = `navbar-icon transition-colors duration-300 ease-in-out ${
 		isOpened ? "group-hover:stroke-black" : ""
@@ -25,6 +31,11 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 	const navBarIconColor = "#FAF9F6";
 
 	const iconWidth = 24;
+	const [hasMounted, setHasMounted] = useState(false);
+
+	useEffect(() => {
+		setHasMounted(true); // triggers after first render
+	}, []);
 
 	// HANDLE LOGOUT
 	const handleLogout = async () => {
@@ -38,10 +49,26 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 		}
 	};
 
+	// HANDLE ACTIVE MENU ITEM
+	useEffect(() => {
+		let activeItem = location.pathname.split("/")[1];
+		if (activeItem === "my-profile") activeItem = "profile";
+		setSelectedItem(activeItem);
+
+		// Auto-expand submenu if current route matches any submenu item
+		const matchedParent = data.find((item) =>
+			item.subMenu?.some((sub) => location.pathname.includes(sub.link))
+		);
+		if (matchedParent) {
+			setActiveSubmenu(matchedParent.item);
+		}
+	}, [location.pathname, data]);
+
 	return (
 		<>
 			{isLoading && <Spinner />}
 			<motion.nav
+				initial={hasMounted ? { opacity: 0 } : false}
 				animate={{
 					width: isOpened ? (isMobile ? "70dvw" : 280) : isMobile ? 0 : 73,
 					x: isOpened || !isMobile ? 0 : "-150px",
@@ -89,18 +116,17 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 								{/* Main menu */}
 								<motion.li
 									key={item.item}
-									initial={{ opacity: 0, x: 0 }}
+									initial={hasMounted ? { opacity: 0, x: 0 } : false}
 									animate={{ opacity: 1, x: 0 }}
 									exit={{ opacity: 0, x: -10 }}
 									onClick={() => {
 										item.onclick?.();
 										if (item.subMenu) {
-											setActiveSubmenu((prev) => (prev === item.item ? null : item.item));
+											setActiveSubmenu(item.item); // 🔥 no toggling, always stays open
 										} else {
-											setActiveSubmenu(item.item); // always apply the active style for non-submenu items
+											setActiveSubmenu(item.item);
 										}
 									}}
-									
 									transition={{ duration: 0.25 }}
 									className={`relative group leading-normal gap-3 justify-start overflow-hidden cursor-pointer transition-text duration-300 ease-in-out rounded-xl ${
 										item.item === activeSubmenu ? "" : ""
@@ -110,7 +136,6 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 											: ""
 									}`}
 								>
-									{/* Main menu items */}
 									<div
 										className={`relative flex items-center rounded-xl ${
 											item.item === activeSubmenu
@@ -143,7 +168,9 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 											{isOpened && (
 												<motion.span
 													key='text'
-													initial={{ opacity: 0, maxWidth: 0 }}
+													initial={
+														hasMounted ? { opacity: 0, maxWidth: 0 } : false
+													}
 													animate={{ opacity: 1, maxWidth: 200 }}
 													exit={{ opacity: 0, maxWidth: 0 }}
 													transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -160,7 +187,9 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 										<AnimatePresence>
 											{item.subMenu && activeSubmenu === item.item && (
 												<motion.ul
-													initial={{ opacity: 0, height: 0 }}
+													initial={
+														!hasMounted ? { opacity: 0, height: 0 } : false
+													}
 													animate={{ opacity: 1, height: "auto" }}
 													exit={{ opacity: 0, height: 0 }}
 													transition={{ duration: 0.3 }}
@@ -189,7 +218,7 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 					<AnimatePresence>
 						<motion.li
 							key='logout'
-							initial={{ opacity: 0, x: 0 }}
+							initial={hasMounted ? { opacity: 0, x: 0 } : false}
 							animate={{ opacity: 1, x: 0 }}
 							exit={{ opacity: 0, x: -10 }}
 							onClick={handleLogout}
@@ -214,7 +243,7 @@ const StaffSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 									{isOpened && (
 										<motion.span
 											key='logout-text'
-											initial={{ opacity: 0, maxWidth: 0 }}
+											initial={hasMounted ? { opacity: 0, maxWidth: 0 } : false}
 											animate={{ opacity: 1, maxWidth: 200 }}
 											exit={{ opacity: 0, maxWidth: 0 }}
 											transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -250,13 +279,19 @@ StaffSidebar.propTypes = {
 export default StaffSidebar;
 
 const TypingText = ({ text, isVisible }) => {
+	const [hasMounted, setHasMounted] = useState(false);
+
+	useEffect(() => {
+		setHasMounted(true);
+	}, []);
+
 	return (
 		<AnimatePresence mode='wait'>
 			{isVisible && (
 				<motion.span
 					key='typing'
 					className='inline-flex overflow-hidden'
-					initial='hidden'
+					initial={hasMounted ? "hidden" : false}
 					animate='visible'
 					exit='hidden'
 					variants={{
