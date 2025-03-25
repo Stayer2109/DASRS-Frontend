@@ -7,7 +7,7 @@ import { useMediaQuery } from "react-responsive";
 import { HomeIcon, ListIcon, SidebarIcon, UserIcon } from "@/assets/icon-svg";
 import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
-import StaffSidebar from "@/AtomicComponents/organisms/Sidebar/PlayerSideBar/StaffSidebar";
+import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 
 const StaffCommonLayout = () => {
 	const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -139,7 +139,7 @@ const StaffCommonLayout = () => {
 			)}
 
 			{typeof isMobile !== "undefined" && (
-				<StaffSidebar
+				<DasrsSidebar
 					data={sidebarData}
 					isOpened={isSidebarOpen}
 					isMobile={isMobile}
