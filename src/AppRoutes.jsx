@@ -12,76 +12,115 @@ import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPasswo
 import ScrollToTop from "./others/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
-import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
 import CommonLayout from "./AtomicComponents/pages/CommonLayouts/GuestCommonLayout/CommonLayout";
-import PlayerHomePage from "./AtomicComponents/pages/Player/HomePage/PlayerHomePage";
+import StaffCommonLayout from "./AtomicComponents/pages/CommonLayouts/StaffCommonLayout/StaffCommonLayout";
+import StaffHomePage from "./AtomicComponents/pages/Staff/HomePage/StaffHomePage";
 
 const AppRoutes = () => {
-  const { auth } = useAuth();
-  const [toastPosition, setToastPosition] = useState("top-right");
+	const { auth } = useAuth();
+	const [toastPosition, setToastPosition] = useState("top-right");
 
-  useEffect(() => {
-    const checkScreen = () => {
-      setToastPosition(window.innerWidth <= 480 ? "top-center" : "top-right");
-    };
+	useEffect(() => {
+		const checkScreen = () => {
+			setToastPosition(window.innerWidth <= 480 ? "top-center" : "top-right");
+		};
 
-    checkScreen();
-    window.addEventListener("resize", checkScreen);
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
+		checkScreen();
+		window.addEventListener("resize", checkScreen);
+		return () => window.removeEventListener("resize", checkScreen);
+	}, []);
 
-  const renderRoutesByRole = () => {
-    const role = auth?.role;
+	const renderRoutesByRole = () => {
+		const role = auth?.role;
 
-    switch (role) {
-      case undefined:
-        return (
-          <Route path="/" element={<CommonLayout />}>
-            <Route index element={<HomePage />} />
-          </Route>
-        );
+		switch (role) {
+			case undefined:
+				return (
+					<Route
+						path='/'
+						element={<CommonLayout />}
+					>
+						<Route
+							index
+							element={<HomePage />}
+						/>
+					</Route>
+				);
 
-      case "PLAYER":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
-              <Route path="/" element={<PlayerCommonLayout />}>
-                <Route index element={<PlayerHomePage />} />
-                <Route path="my-profile" element={<h1>Profile</h1>} />
-              </Route>
-            </Route>
-          </Route>
-        );
+			case "STAFF":
+				return (
+					<Route element={<PersistLogin />}>
+						<Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
+							<Route
+								path='/'
+								element={<StaffCommonLayout />}
+							>
+								<Route
+									index
+									element={<StaffHomePage />}
+								/>
+								<Route path='my-profile'>
+									<Route
+										path='submenu1'
+										element={<h1>Submenu 1</h1>}
+									/>
+									<Route
+										path='submenu2'
+										element={<h1>Submenu 2</h1>}
+									/>
+								</Route>
+								<Route
+									path='player-list'
+									element={<h1>Player List</h1>}
+								/>
+							</Route>
+						</Route>
+					</Route>
+				);
 
-      case "ADMIN":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
-              <Route path="/" element={<AdminPage />}>
-                <Route index element={<h1>close</h1>} />
-              </Route>
-            </Route>
-          </Route>
-        );
+			case "ADMIN":
+				return (
+					<Route element={<PersistLogin />}>
+						<Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
+							<Route
+								path='/'
+								element={<AdminPage />}
+							>
+								<Route
+									index
+									element={<h1>close</h1>}
+								/>
+							</Route>
+						</Route>
+					</Route>
+				);
 
-      default:
-        return <Route path="/" element={<h1>Not yet</h1>} />;
-    }
-  };
+			default:
+				return (
+					<Route
+						path='/'
+						element={<h1>Not yet</h1>}
+					/>
+				);
+		}
+	};
 
-  return (
-    <ScrollToTop>
-      <Toaster position={toastPosition} />
-      <Routes>
-        {renderRoutesByRole()}
-        <Route path="reset-password/:token" element={<ForgetPassword />} />
-        <Route
-          path="*"
-          element={<h1 className="text-h1 text-red-500">Adu Ang Seng</h1>}
-        />
-      </Routes>
-    </ScrollToTop>
-  );
+	return (
+		<ScrollToTop>
+			<Toaster position={toastPosition} />
+			<Routes>
+				{renderRoutesByRole()}
+				<Route
+					path='reset-password/:token'
+					element={<ForgetPassword />}
+				/>
+				<Route
+					path='*'
+					element={<h1 className='text-h1 text-red-500'>Adu Ang Seng</h1>}
+				/>
+			</Routes>
+		</ScrollToTop>
+	);
 };
 
 export default AppRoutes;

@@ -14,9 +14,6 @@ export const AuthProvider = ({ children }) => {
     const accessToken = Cookies.get("accessToken");
     const decodeAccessToken = accessToken ? jwtDecode(accessToken) : null;
 
-    console.log("decodeAccessToken", decodeAccessToken);
-    console.log("accessToken", accessToken);
-
     if (decodeAccessToken) {
       setAuth({
         role: decodeAccessToken.role,
