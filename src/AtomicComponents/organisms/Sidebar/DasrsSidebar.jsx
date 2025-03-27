@@ -21,7 +21,10 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
   const navBarIconHoverClass = `navbar-icon transition-colors duration-300 ease-in-out ${
     isOpened ? "group-hover:stroke-black" : ""
   }`;
+
+  // Sidebar Icon Classes
   const navBarIconClass = `navbar-icon stroke-black`;
+  const navBarSubIconClass = `navbar-icon stroke-black`;
 
   const menuItemHoverClass = `before:content-[''] before:absolute before:left-0 before:top-0 before:h-full before:w-0 before:bg-off-white before:transition-all before:duration-180 group-hover:before:w-full before:-z-10`;
   const openMenuItemHoverClass = `px-2 py-2 bg-off-white text-black`;
@@ -49,7 +52,6 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
   // HANDLE ACTIVE MENU ITEM
   useEffect(() => {
     let activeItem = location.pathname.split("/")[1];
-    if (activeItem === "") activeItem = "";
     if (activeItem === "my-profile") activeItem = "my-profile";
     setSelectedItem("/" + activeItem);
 
@@ -62,7 +64,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       setActiveSubmenu(matchedParent.item);
       setSelectedItem(matchedParent.item);
     }
-  }, [location.pathname, data]);
+  }, []);
 
   return (
     <>
@@ -140,7 +142,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                 >
                   <div
                     className={`relative flex items-center rounded-xl ${
-                      selectedItem == item.link
+                      selectedItem === item.link
                         ? openMenuItemHoverClass
                         : "px-2 py-2"
                     } ${
@@ -189,7 +191,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                       {item.subMenu && activeSubmenu === item.item && (
                         <motion.ul
                           initial={
-                            !hasMounted
+                            hasMounted
                               ? { opacity: 0, height: 0, y: -5 }
                               : false
                           }
@@ -199,7 +201,9 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                             duration: 0.25,
                             ease: "easeInOut",
                           }}
-                          className="ml-[52px] mt-1 flex flex-col gap-1 text-sm text-gray-300 overflow-hidden"
+                          className={`${
+                            isOpened ? "ml-[52px]" : "ml-[10px]"
+                          } mt-1 flex flex-col gap-1 text-sm text-gray-300 overflow-hidden`}
                         >
                           {item.subMenu?.map((subItem, index) => {
                             const isSubActive =
@@ -207,16 +211,29 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 
                             return (
                               <li key={index}>
-                                <Link
-                                  to={subItem.link}
-                                  className={`block py-1 px-2 rounded transition-colors duration-200 ${
-                                    isSubActive
-                                      ? "bg-white/20 text-white"
-                                      : "hover:bg-white/10"
-                                  }`}
-                                >
-                                  {subItem.item}
-                                </Link>
+                                {isOpened ? (
+                                  <Link
+                                    to={subItem.link}
+                                    className={`block py-1 px-2 rounded transition-colors duration-200 ${
+                                      isSubActive
+                                        ? "bg-white/20 text-white"
+                                        : "hover:bg-white/10"
+                                    }`}
+                                  >
+                                    {subItem.item}
+                                  </Link>
+                                ) : (
+                                  <>
+                                    {subItem.item === activeSubmenu ||
+                                    subItem.link === selectedItem
+                                      ? React.cloneElement(subItem.icon, {
+                                          className: navBarSubIconClass,
+                                        })
+                                      : React.cloneElement(subItem.icon, {
+                                          className: navBarIconHoverClass,
+                                        })}
+                                  </>
+                                )}
                               </li>
                             );
                           })}
