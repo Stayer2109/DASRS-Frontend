@@ -59,20 +59,22 @@ const AppRoutes = () => {
 									index
 									element={<StaffHomePage />}
 								/>
-								<Route path='my-profile'>
+								<Route
+									path='my-profile'
+									element={<h1>My Profile</h1>}
+								/>
+
+								<Route path='player-management'>
 									<Route
-										path='submenu1'
-										element={<h1>Submenu 1</h1>}
+										path='player-list'
+										element={<h1>Player List</h1>}
 									/>
+
 									<Route
-										path='submenu2'
-										element={<h1>Submenu 2</h1>}
+										path='add-player'
+										element={<h1>Add Player</h1>}
 									/>
 								</Route>
-								<Route
-									path='player-list'
-									element={<h1>Player List</h1>}
-								/>
 							</Route>
 						</Route>
 					</Route>
