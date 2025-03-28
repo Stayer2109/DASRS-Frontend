@@ -97,6 +97,18 @@ const AppRoutes = () => {
 					</Route>
 				);
 
+			case "ORGANIZER":
+				return (
+					<Route element={<PersistLogin />}>
+						<Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
+							<Route
+								path='/'
+								element={<h1>Organizer page</h1>}
+							/>
+						</Route>
+					</Route>
+				);
+
 			default:
 				return (
 					<Route
