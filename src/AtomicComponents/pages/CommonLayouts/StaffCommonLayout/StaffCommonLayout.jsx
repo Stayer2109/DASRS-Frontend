@@ -107,7 +107,7 @@ const StaffCommonLayout = () => {
 
       {/* Main content */}
       <div
-        className={`flex-1 transition-all duration-300 z-0 p-10 min-h-screen flex flex-col ${
+        className={`flex-1 transition-all duration-300 z-0 p-10 max-h-screen flex flex-col ${
           isMobile ? "" : ""
         } p-10`}
       >
