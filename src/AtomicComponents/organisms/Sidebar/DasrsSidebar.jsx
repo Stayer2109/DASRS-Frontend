@@ -103,7 +103,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
           x: isOpened || !isMobile ? 0 : "-150px",
         }}
         transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}
-        className={`playersidebar-container bg-navbar-color text-off-white p-4 z-50 h-screen ${
+        className={`playersidebar-container bg-navbar-color text-off-white p-4 z-50 h-screen sm:h-screen ${
           isMobile ? "fixed top-0 left-0" : ""
         }`}
       >
@@ -197,7 +197,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                           <motion.span
                             key="text"
                             initial={
-                              hasMounted ? { opacity: 0, maxWidth: 0 } : false
+                              !hasMounted ? { opacity: 0, maxWidth: 0 } : false
                             }
                             animate={{ opacity: 1, maxWidth: 200 }}
                             exit={{ opacity: 0, maxWidth: 0 }}
@@ -353,7 +353,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                         <motion.span
                           key="logout-text"
                           initial={
-                            hasMounted ? { opacity: 0, maxWidth: 0 } : false
+                            !hasMounted ? { opacity: 0, maxWidth: 0 } : false
                           }
                           animate={{ opacity: 1, maxWidth: 200 }}
                           exit={{ opacity: 0, maxWidth: 0 }}

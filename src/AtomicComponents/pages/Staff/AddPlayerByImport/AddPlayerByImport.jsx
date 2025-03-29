@@ -119,21 +119,22 @@ const AddPlayerByImport = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="">
       <div
-        className={`border-2 border-dashed p-6 rounded-xl cursor-pointer transition-all ${
-          isDragging
-            ? "bg-blue-100 border-blue-400"
-            : `bg-white ${
-                errorMessage && selectedFileName
-                  ? "border-red-400"
-                  : "border-gray-300"
-              } ${
-                !errorMessage && selectedFileName
-                  ? "border-green-400"
-                  : "border-gray-300"
-              }`
-        }`}
+        className={`border-2 border-dashed p-4 sm:p-6 rounded-xl cursor-pointer transition-all
+          w-[100%] ${
+            isDragging
+              ? "bg-blue-100 border-blue-400"
+              : `bg-white ${
+                  errorMessage && selectedFileName
+                    ? "border-red-400"
+                    : "border-gray-300"
+                } ${
+                  !errorMessage && selectedFileName
+                    ? "border-green-400"
+                    : "border-gray-300"
+                }`
+          }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -144,7 +145,7 @@ const AddPlayerByImport = () => {
             <p className="text-sm text-red-600">{errorMessage}</p>
           )}
           {selectedFileName && !errorMessage && (
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-green-600 mb-2 sm:mb-0">
               ✅ Selected:{" "}
               <span className="font-medium">{selectedFileName}</span>
             </p>
@@ -167,8 +168,8 @@ const AddPlayerByImport = () => {
           <h1 className="text-center text-h3 italic">
             Preview your data below
           </h1>
-          <div className="overflow-auto rounded max-w-full w-fit m-auto">
-            <div className="w-400 max-w-[1200px] max-h-[450px]">
+          <div className="overflow-auto rounded max-w-full w-auto m-auto">
+            <div className="w-auto max-w-dvw md:max-w-[650px] sm:max-w-[1100px] max-h-[450px]">
               <Spreadsheet data={spreadsheetData} className="" />
             </div>
           </div>
