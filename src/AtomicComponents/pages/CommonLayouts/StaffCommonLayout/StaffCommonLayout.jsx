@@ -108,7 +108,7 @@ const StaffCommonLayout = () => {
       {/* Main content */}
       <div
         className={`flex-1 transition-all duration-300 z-0 p-10 min-h-screen flex flex-col ${
-          isMobile ? "" : "" // Match your expanded sidebar width
+          isMobile ? "" : ""
         } p-10`}
       >
         <Outlet />
