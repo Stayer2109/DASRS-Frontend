@@ -4,7 +4,7 @@ import { Settings } from "../Settings/Settings";
 import { Tournament } from "../Tournament/Tournament";
 import Scene from "../Scene/Scene";
 
-export const MainContent = ({ activeTab }) => {
+export const AdminContent = ({ activeTab }) => {
   const renderContent = () => {
     switch (activeTab) {
       case "overview":

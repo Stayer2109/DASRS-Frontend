@@ -12,8 +12,8 @@ import { StatusSelector } from "@/AtomicComponents/molecules/StatusSelector/Stat
 import { TournamentActions } from "@/AtomicComponents/molecules/TournamentActions/TournamentActions";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 
-export const TournamentTable = ({ 
-  tournaments, 
+export const TournamentTable = ({
+  tournaments,
   isLoading,
   editStatus,
   onStatusChange,
@@ -21,11 +21,12 @@ export const TournamentTable = ({
   onEdit,
   onDelete,
   onChangeStatusFromDropdown,
-  formatDate
+  formatDate,
+  onTournamentNameClick, // Add this prop
 }) => {
   if (isLoading) {
     return (
-      <div className="h-64">
+      <div className="h-64 flex items-center justify-center">
         <LoadingIndicator />
       </div>
     );
@@ -54,7 +55,10 @@ export const TournamentTable = ({
         ) : (
           tournaments.map((tournament) => (
             <TableRow key={tournament.tournament_id}>
-              <TableCell className="font-medium">
+              <TableCell
+                className="font-medium cursor-pointer text-primary hover:underline"
+                onClick={() => onTournamentNameClick(tournament)}
+              >
                 {tournament.tournament_name}
               </TableCell>
               <TableCell>{formatDate(tournament.created_date)}</TableCell>
@@ -64,19 +68,27 @@ export const TournamentTable = ({
                 {editStatus.tournamentId === tournament.tournament_id ? (
                   <StatusSelector
                     currentStatus={editStatus.status || tournament.status}
-                    onStatusChange={(status) => onStatusChange(tournament.tournament_id, status)}
+                    onStatusChange={(status) =>
+                      onStatusChange(tournament.tournament_id, status)
+                    }
                     onSubmit={onUpdateStatus}
                     isSubmitting={editStatus.isSubmitting}
                   />
                 ) : (
                   <StatusBadge
                     status={tournament.status}
-                    onClick={() => onStatusChange(tournament.tournament_id, tournament.status || "PENDING")}
+                    onClick={() =>
+                      onStatusChange(
+                        tournament.tournament_id,
+                        tournament.status || "PENDING"
+                      )
+                    }
                   />
                 )}
               </TableCell>
               <TableCell>
-                {tournament.team_list?.length || 0}/{tournament.team_number || 0}
+                {tournament.team_list?.length || 0}/
+                {tournament.team_number || 0}
               </TableCell>
               <TableCell className="text-right">
                 <TournamentActions
