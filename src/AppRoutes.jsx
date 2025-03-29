@@ -2,19 +2,24 @@
 
 // import React from "react";
 import { Route, Routes } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
 import HomePage from "./AtomicComponents/pages/Home/Homepage";
 import useAuth from "./hooks/useAuth";
 import PersistLogin from "./config/provider/PersistLogin";
-import "react-tooltip/dist/react-tooltip.css";
 import RequireAuth from "./config/provider/RequireAuth";
 import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPassword";
 import ScrollToTop from "./others/ScrollToTop";
-import { Toaster } from "react-hot-toast";
-import { useEffect, useState } from "react";
 import CommonLayout from "./AtomicComponents/pages/CommonLayouts/GuestCommonLayout/CommonLayout";
 import StaffCommonLayout from "./AtomicComponents/pages/CommonLayouts/StaffCommonLayout/StaffCommonLayout";
 import StaffHomePage from "./AtomicComponents/pages/Staff/HomePage/StaffHomePage";
+import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
+import "react-tooltip/dist/react-tooltip.css";
+import OrganizerPage from "./AtomicComponents/pages/Organizer/OrganizerPage/OrganizerPage";
+import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
+import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
+import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 
 const AppRoutes = () => {
 	const { auth } = useAuth();
@@ -72,7 +77,7 @@ const AppRoutes = () => {
 
 									<Route
 										path='add-player'
-										element={<h1>Add Player</h1>}
+										element={<AddPlayerByImport />}
 									/>
 								</Route>
 							</Route>
@@ -92,6 +97,23 @@ const AppRoutes = () => {
 									index
 									element={<h1>close</h1>}
 								/>
+							</Route>
+						</Route>
+					</Route>
+				);
+
+			case "ORGANIZER":
+				return (
+					<Route element={<PersistLogin />}>
+						<Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
+							<Route path='/' element={<OrganizerPage />}>
+								 {/* Main tournaments page */}
+								 <Route path="tournaments" element={<Tournament />} />
+                                
+                                {/* Fixed nested routes - removed leading slash */}
+                                <Route path="tournaments/:tournamentId/rounds" element={<TournamentRounds />} />
+                                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
+                                <Route path="tournaments/:tournamentId/teams" element={<TournamentTeams />} />								
 							</Route>
 						</Route>
 					</Route>
