@@ -7,10 +7,10 @@ const apiAuth = axios.create({
 	baseURL: baseURL,
 });
 
-const axiosPrivate = axios.create({
+const apiClient = axios.create({
 	baseURL: baseURL,
 	headers: { "Content-Type": "application/json" },
 	withCredentials: true,
 });
 
-export { apiAuth, axiosPrivate };
+export { apiAuth, apiClient };

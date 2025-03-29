@@ -9,6 +9,7 @@ const Button = ({
   className = "",
   content = "Button",
   tooltipData = "",
+  toolTipPos = "top",
   disabled = false,
   onClick = () => {},
   bgColor = "#4683FF", // Default color is blue
@@ -39,7 +40,7 @@ const Button = ({
           <button
             data-tooltip-id="my-tooltip"
             data-tooltip-content={tooltipData}
-            data-tooltip-place="top"
+            data-tooltip-place={toolTipPos}
             className={`${className} px-standard-x py-standard-y rounded-[12px] cursor-pointer transition-all duration-300 ease-linear`}
             onMouseEnter={handleHover}
             onMouseLeave={handleLeave}
@@ -50,25 +51,33 @@ const Button = ({
               backgroundColor: darkenColor(bgColor, 0.3), // Darkens background on hover
               color: "#ffffff", // Keep text color white
               cursor: "not-allowed",
-            }}>
+            }}
+          >
             {content}
           </button>
           <Tooltip id="my-tooltip" style={{ borderRadius: "12px" }} />
         </>
       ) : (
-        <button
-          className={`${className} px-standard-x py-standard-y rounded-[12px] cursor-pointer transition-all duration-300 ease-linear`}
-          onMouseEnter={handleHover}
-          onMouseLeave={handleLeave}
-          disabled={false}
-          type={type}
-          onClick={onClick}
-          style={{
-            backgroundColor: isHovered ? darkenColor(bgColor, 0.2) : bgColor, // Darkens background on hover
-            color: "#ffffff", // Keep text color white
-          }}>
-          {content}
-        </button>
+        <>
+          <button
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={tooltipData}
+            data-tooltip-place={toolTipPos}
+            className={`${className} px-standard-x py-standard-y rounded-[12px] cursor-pointer transition-all duration-300 ease-linear`}
+            onMouseEnter={handleHover}
+            onMouseLeave={handleLeave}
+            disabled={false}
+            type={type}
+            onClick={onClick}
+            style={{
+              backgroundColor: isHovered ? darkenColor(bgColor, 0.2) : bgColor, // Darkens background on hover
+              color: "#ffffff", // Keep text color white
+            }}
+          >
+            {content}
+          </button>
+          <Tooltip id="my-tooltip" style={{ borderRadius: "12px" }} />
+        </>
       )}
     </>
   );
@@ -80,6 +89,7 @@ Button.propTypes = {
   onClick: PropTypes.func,
   disabled: PropTypes.bool,
   tooltipData: PropTypes.string,
+  toolTipPos: PropTypes.string,
   bgColor: PropTypes.string,
   type: PropTypes.string,
 };
