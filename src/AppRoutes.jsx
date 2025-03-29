@@ -16,6 +16,10 @@ import StaffCommonLayout from "./AtomicComponents/pages/CommonLayouts/StaffCommo
 import StaffHomePage from "./AtomicComponents/pages/Staff/HomePage/StaffHomePage";
 import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
 import "react-tooltip/dist/react-tooltip.css";
+import OrganizerPage from "./AtomicComponents/pages/Organizer/OrganizerPage/OrganizerPage";
+import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
+import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
+import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 
 const AppRoutes = () => {
 	const { auth } = useAuth();
@@ -102,10 +106,15 @@ const AppRoutes = () => {
 				return (
 					<Route element={<PersistLogin />}>
 						<Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
-							<Route
-								path='/'
-								element={<h1>Organizer page</h1>}
-							/>
+							<Route path='/' element={<OrganizerPage />}>
+								 {/* Main tournaments page */}
+								 <Route path="tournaments" element={<Tournament />} />
+                                
+                                {/* Fixed nested routes - removed leading slash */}
+                                <Route path="tournaments/:tournamentId/rounds" element={<TournamentRounds />} />
+                                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
+                                <Route path="tournaments/:tournamentId/teams" element={<TournamentTeams />} />								
+							</Route>
 						</Route>
 					</Route>
 				);
