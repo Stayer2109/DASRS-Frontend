@@ -38,6 +38,9 @@ const VALID_AUTOCOMPLETE_VALUES = [
 ];
 
 const Input = ({
+  ref = null,
+  id = "",
+  accept = "",
   type = "text",
   placeholder = "",
   className = "",
@@ -48,8 +51,22 @@ const Input = ({
       rounded-xl border-border-line border-1 focus:border-main-blue focus:outline-none 
       text-h6 shadow-md w-full`;
 
-  return (
+  return type === "file" ? (
     <input
+      id={id}
+      ref={ref}
+      type="file"
+      accept={accept}
+      placeholder={placeholder}
+      className={commonInputClass}
+      onChange={onChange}
+      autoComplete={
+        VALID_AUTOCOMPLETE_VALUES.includes(autoComplete) ? autoComplete : "off"
+      }
+    />
+  ) : (
+    <input
+      id={id}
       type={type}
       placeholder={placeholder}
       className={commonInputClass}
@@ -62,6 +79,9 @@ const Input = ({
 };
 
 Input.propTypes = {
+  ref: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+  id: PropTypes.string,
+  accept: PropTypes.string,
   type: PropTypes.oneOf(["text", "password", "email"]),
   placeholder: PropTypes.string,
   className: PropTypes.string,
