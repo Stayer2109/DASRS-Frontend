@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Spreadsheet from "react-spreadsheet";
 import * as XLSX from "xlsx";
@@ -78,10 +78,14 @@ const AddPlayerByImport = () => {
         return;
       }
 
-      const formattedData = json.map((row) =>
+      const filteredRows = json.filter((row) =>
+        row.some((cell) => cell !== null && cell !== undefined && cell !== "")
+      );
+
+      const formattedData = filteredRows.map((row) =>
         row.map((cell) => ({
           value: String(cell ?? ""),
-          readOnly: true, // ✅ read-only cell
+          readOnly: true,
         }))
       );
 
@@ -115,7 +119,11 @@ const AddPlayerByImport = () => {
       console.log("✅ Upload success:", response.data);
     } catch (error) {
       console.error("❌ Upload failed:", error);
-      Toast({ type: "error", message: error.response.data.message, title: "Error" });
+      Toast({
+        type: "error",
+        message: error.response.data.message,
+        title: "Error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +163,7 @@ const AddPlayerByImport = () => {
               </p>
             )}
             <p className="text-sm text-gray-500">
-              Drag & drop or click to upload
+              Drag & drop or click to upload players file
             </p>
             <Input
               accept=".xlsx, .xls, .csv"
@@ -167,27 +175,27 @@ const AddPlayerByImport = () => {
           </div>
         </div>
 
-      {spreadsheetData.length > 0 && (
-        <>
-          <h1 className="text-center text-h3 italic">
-            Preview your data below
-          </h1>
-          <div className="overflow-auto rounded max-w-full w-auto m-auto">
-            <div className="w-auto max-w-dvw md:max-w-[650px] sm:max-w-[1100px] max-h-[450px]">
-              <Spreadsheet data={spreadsheetData} className="" />
+        {spreadsheetData.length > 0 && (
+          <>
+            <h1 className="text-center text-h3 italic">
+              Preview your data below
+            </h1>
+            <div className="overflow-auto rounded max-w-dvw md:max-w-[100%] sm:max-w-[100%] w-auto m-auto">
+              <div className="w-auto max-h-[450px] flex justify-center items-center">
+                <Spreadsheet data={spreadsheetData} className="m-auto" />
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
 
         <div className="text-center mt-6">
           <Button
             onClick={handleSubmitFile}
             type="submit"
             content="Import Player"
-            disabled={errorMessage ? true : false}
+            disabled={errorMessage || !uploadedFile ? true : false}
             tooltipData={`${
-              errorMessage
+              errorMessage || !uploadedFile
                 ? "Check file type and try again."
                 : "Click to import player."
             }`}
