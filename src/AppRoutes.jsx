@@ -20,6 +20,7 @@ import OrganizerPage from "./AtomicComponents/pages/Organizer/OrganizerPage/Orga
 import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
 import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
+import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 
 const AppRoutes = () => {
 	const { auth } = useAuth();
@@ -112,6 +113,7 @@ const AppRoutes = () => {
                                 
                                 {/* Fixed nested routes - removed leading slash */}
                                 <Route path="tournaments/:tournamentId/rounds" element={<TournamentRounds />} />
+                                <Route path="tournaments/:tournamentId/rounds/:roundId/matches" element={<RoundMatches />} />
                                 {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
                                 <Route path="tournaments/:tournamentId/teams" element={<TournamentTeams />} />								
 							</Route>
