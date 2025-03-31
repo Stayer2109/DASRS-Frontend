@@ -1,3 +1,4 @@
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import {
   Table,
   TableHeader,
@@ -5,44 +6,74 @@ import {
   TableRow,
   TableCell,
 } from "@/AtomicComponents/molecules/Table/Table";
+import { apiClient } from "@/config/axios/axios";
+import { useEffect, useState } from "react";
 
 const PlayerList = () => {
-  const data = [
-    { id: 1, name: "John", age: 25, position: "Forward" },
-    { id: 2, name: "Jane", age: 28, position: "Midfielder" },
-    { id: 3, name: "Mike", age: 22, position: "Defender" },
-    { id: 4, name: "Sara", age: 30, position: "Goalkeeper" },
-    { id: 5, name: "Tom", age: 27, position: "Forward" },
-    { id: 6, name: "Lucy", age: 24, position: "Midfielder" },
-    { id: 7, name: "Jake", age: 29, position: "Defender" },
-    { id: 8, name: "Emma", age: 26, position: "Goalkeeper" },
-    { id: 9, name: "Liam", age: 23, position: "Forward" },
-    { id: 10, name: "Olivia", age: 31, position: "Midfielder" },
+  const [playerList, setPlayerList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const columns = [
+    "accountId",
+    "lastName",
+    "firstName",
+    "email",
+    "phone",
+    "teamName",
+  ];
+  const labels = [
+    "ID",
+    "Last Name",
+    "First Name",
+    "Email",
+    "Phone",
+    "Team Name",
   ];
 
-  const columns = ["id", "name", "age", "position"];
-  const labels = ["ID", "Name", "Age", "Position"];
+  // USE EFFECT
+  useEffect(() => {
+    const getPlayerListData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get("accounts/players");
+        console.log(response.data);
+
+        if (response.data.http_status === 200) {
+          setPlayerList(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching player list data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getPlayerListData();
+  }, []);
 
   return (
-    <Table title="Player List">
-      <TableHeader>
-        {labels.map((label, index) => (
-          <TableCell key={index} className="font-semibold">
-            {label}
-          </TableCell>
-        ))}
-      </TableHeader>
+    <>
+      {isLoading && <Spinner />}
+      <Table title="Player List">
+        <TableHeader>
+          {labels.map((label, index) => (
+            <TableCell key={index} className="font-semibold">
+              {label}
+            </TableCell>
+          ))}
+        </TableHeader>
 
-      <TableBody>
-        {data.map((row, rowIndex) => (
-          <TableRow key={rowIndex}>
-            {columns.map((col, colIndex) => (
-              <TableCell key={colIndex}>{row[col]}</TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        <TableBody>
+          {playerList.map((row, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {columns.map((col, colIndex) => (
+                <TableCell key={colIndex}>{row[col]}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   );
 };
 
