@@ -21,6 +21,7 @@ import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
 import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
+import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -79,29 +80,23 @@ const AppRoutes = () => {
             </Route>
           </Route>
         );
-
-      case "ORGANIZER":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
-              <Route path="/" element={<OrganizerPage />}>
-                {/* Main tournaments page */}
-                <Route path="tournaments" element={<Tournament />} />
-
-                {/* Fixed nested routes - removed leading slash */}
-                <Route
-                  path="tournaments/:tournamentId/rounds"
-                  element={<TournamentRounds />}
-                />
-                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
-                <Route
-                  path="tournaments/:tournamentId/teams"
-                  element={<TournamentTeams />}
-                />
-              </Route>
-            </Route>
-          </Route>
-        );
+			case "ORGANIZER":
+				return (
+					<Route element={<PersistLogin />}>
+						<Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
+							<Route path='/' element={<OrganizerPage />}>
+								 {/* Main tournaments page */}
+								 <Route path="tournaments" element={<Tournament />} />
+                                
+                                {/* Fixed nested routes - removed leading slash */}
+                                <Route path="tournaments/:tournamentId/rounds" element={<TournamentRounds />} />
+                                <Route path="tournaments/:tournamentId/rounds/:roundId/matches" element={<RoundMatches />} />
+                                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
+                                <Route path="tournaments/:tournamentId/teams" element={<TournamentTeams />} />								
+							</Route>
+						</Route>
+					</Route>
+				);
 
       default:
         return <Route path="/" element={<h1>Not yet</h1>} />;

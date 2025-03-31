@@ -167,18 +167,18 @@ const AddPlayerByImport = () => {
           </div>
         </div>
 
-        {spreadsheetData.length > 0 && (
-          <>
-            <h1 className="text-center text-h3 italic">
-              Preview your data below
-            </h1>
-            <div className="overflow-auto rounded max-w-full w-fit m-auto">
-              <div className="w-400 max-w-[1200px] max-h-[450px]">
-                <Spreadsheet data={spreadsheetData} className="" />
-              </div>
+      {spreadsheetData.length > 0 && (
+        <>
+          <h1 className="text-center text-h3 italic">
+            Preview your data below
+          </h1>
+          <div className="overflow-auto rounded max-w-full w-auto m-auto">
+            <div className="w-auto max-w-dvw md:max-w-[650px] sm:max-w-[1100px] max-h-[450px]">
+              <Spreadsheet data={spreadsheetData} className="" />
             </div>
-          </>
-        )}
+          </div>
+        </>
+      )}
 
         <div className="text-center mt-6">
           <Button
