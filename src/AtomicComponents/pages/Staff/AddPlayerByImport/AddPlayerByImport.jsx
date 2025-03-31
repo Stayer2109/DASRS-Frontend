@@ -4,6 +4,8 @@ import Spreadsheet from "react-spreadsheet";
 import * as XLSX from "xlsx";
 import Button from "@/AtomicComponents/atoms/Button/Button";
 import { apiClient } from "@/config/axios/axios";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 const AddPlayerByImport = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -113,16 +115,18 @@ const AddPlayerByImport = () => {
       console.log("✅ Upload success:", response.data);
     } catch (error) {
       console.error("❌ Upload failed:", error);
+      Toast({ type: "error", message: error.response.data.message, title: "Error" });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="">
-      <div
-        className={`border-2 border-dashed p-4 sm:p-6 rounded-xl cursor-pointer transition-all
-          w-[100%] ${
+    <>
+      {isLoading && <Spinner />}
+      <div className="space-y-4">
+        <div
+          className={`border-2 border-dashed p-6 rounded-xl cursor-pointer transition-all ${
             isDragging
               ? "bg-blue-100 border-blue-400"
               : `bg-white ${
@@ -135,33 +139,33 @@ const AddPlayerByImport = () => {
                     : "border-gray-300"
                 }`
           }`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={handleClick}
-      >
-        <div className="text-center">
-          {errorMessage && (
-            <p className="text-sm text-red-600">{errorMessage}</p>
-          )}
-          {selectedFileName && !errorMessage && (
-            <p className="text-sm text-green-600 mb-2 sm:mb-0">
-              ✅ Selected:{" "}
-              <span className="font-medium">{selectedFileName}</span>
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={handleClick}
+        >
+          <div className="text-center">
+            {errorMessage && (
+              <p className="text-sm text-red-600">{errorMessage}</p>
+            )}
+            {selectedFileName && !errorMessage && (
+              <p className="text-sm text-green-600">
+                ✅ Selected:{" "}
+                <span className="font-medium">{selectedFileName}</span>
+              </p>
+            )}
+            <p className="text-sm text-gray-500">
+              Drag & drop or click to upload
             </p>
-          )}
-          <p className="text-sm text-gray-500">
-            Drag & drop or click to upload
-          </p>
-          <Input
-            accept=".xlsx, .xls, .csv"
-            type="file"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-          />
+            <Input
+              accept=".xlsx, .xls, .csv"
+              type="file"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+          </div>
         </div>
-      </div>
 
       {spreadsheetData.length > 0 && (
         <>
@@ -176,21 +180,22 @@ const AddPlayerByImport = () => {
         </>
       )}
 
-      <div className="text-center mt-6">
-        <Button
-          onClick={handleSubmitFile}
-          type="submit"
-          content="Import Player"
-          disabled={errorMessage ? true : false}
-          tooltipData={`${
-            errorMessage
-              ? "Check file type and try again."
-              : "Click to import player."
-          }`}
-          toolTipPos="bottom"
-        />
+        <div className="text-center mt-6">
+          <Button
+            onClick={handleSubmitFile}
+            type="submit"
+            content="Import Player"
+            disabled={errorMessage ? true : false}
+            tooltipData={`${
+              errorMessage
+                ? "Check file type and try again."
+                : "Click to import player."
+            }`}
+            toolTipPos="bottom"
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
