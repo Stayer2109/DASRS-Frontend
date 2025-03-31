@@ -50,6 +50,11 @@ const StaffCommonLayout = () => {
         },
       ],
     },
+    {
+      item: "Leaderboard",
+      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/leaderboard",
+    },
   ];
 
   useEffect(() => {
