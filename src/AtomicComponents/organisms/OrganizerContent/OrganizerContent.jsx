@@ -3,10 +3,9 @@ import { Overview } from "../Overview/Overview";
 import { Settings } from "../Settings/Settings";
 import { Tournament } from "../Tournament/Tournament";
 import { TournamentTeams } from "@/AtomicComponents/molecules/TournamentTeams/TournamentTeams";
+import { RoundMatches } from "@/AtomicComponents/molecules/RoundMatches/RoundMatches";
 
 export const OrganizerContent = ({ activeTab, routeParams = {} }) => {
-  console.log("OrganizerContent rendering with:", { activeTab, routeParams });
-
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
@@ -17,9 +16,11 @@ export const OrganizerContent = ({ activeTab, routeParams = {} }) => {
         if (routeParams.tournamentId && routeParams.section) {
           switch (routeParams.section) {
             case "rounds":
-              return (
-                <TournamentRounds tournamentId={routeParams.tournamentId} />
-              );
+              // Check if we're viewing matches for a specific round
+              if (routeParams.roundId && routeParams.view === "matches") {
+                return <RoundMatches />;
+              }
+              return <TournamentRounds />;
             case "teams":
               return (
                 <TournamentTeams tournamentId={routeParams.tournamentId} />
