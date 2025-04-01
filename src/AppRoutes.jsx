@@ -21,8 +21,8 @@ import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
 import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
-import { RoundnMatches } from "./AtomicComponents/pages/Staff/RoundandMatches/RoundnMatches";
 import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
+import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -49,36 +49,6 @@ const AppRoutes = () => {
           </Route>
         );
 
-      case "STAFF":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
-              <Route path="/" element={<StaffCommonLayout />}>
-                <Route index element={<StaffHomePage />} />
-                <Route path="my-profile" element={<h1>My Profile</h1>} />
-
-                <Route path="player-management">
-                  <Route path="player-list" element={<PlayerList />} />
-
-                  <Route path="add-player" element={<AddPlayerByImport />} />
-                </Route>
-
-                <Route path="leaderboard">
-                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
-                </Route>
-
-                <Route path="tournament" element={<RoundnMatches />}>
-                  <Route path=":tournamentId" element={<h1>Round</h1>} />
-                  <Route
-                    path=":tournamentId/:roundId"
-                    element={<h1>Round</h1>}
-                  />
-                </Route>
-              </Route>
-            </Route>
-          </Route>
-        );
-
       case "ADMIN":
         return (
           <Route element={<PersistLogin />}>
@@ -89,6 +59,41 @@ const AppRoutes = () => {
             </Route>
           </Route>
         );
+
+      case "STAFF":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
+              <Route path="/" element={<StaffCommonLayout />}>
+                <Route index element={<StaffHomePage />} />
+                <Route path="my-profile" element={<h1>My Profile</h1>} />
+                <Route path="player-management">
+                  <Route path="player-list" element={<PlayerList />} />
+
+                  <Route path="add-player" element={<AddPlayerByImport />} />
+                </Route>
+                <Route path="leaderboard">
+                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+                </Route>
+                {/* For Tournaments */}
+                <Route path="tournaments" element={<TournamentList />} />
+                <Route
+                  path="tournaments/:tournamentId/rounds"
+                  element={<TournamentRounds />}
+                />
+                <Route
+                  path="tournaments/:tournamentId/teams"
+                  element={<TournamentTeams />}
+                />{" "}
+                <Route
+                  path="tournaments/:tournamentId/rounds/:roundId/matches"
+                  element={<RoundMatches />}
+                />
+              </Route>
+            </Route>
+          </Route>
+        );
+
       case "ORGANIZER":
         return (
           <Route element={<PersistLogin />}>

@@ -11,9 +11,8 @@ export default function DasrsPagination({
   count,
   ...props
 }) {
-
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4 mt-4">
+    <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4 mt-4">
       <PaginationMui
         {...props}
         showFirstButton
@@ -59,10 +58,10 @@ export default function DasrsPagination({
             },
           },
         }}
-        className="flex-1 ml-50"
+        className="flex-1"
       />
 
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm absolute right-0">
         <span className="font-semibold">Rows per page:</span>
         <Select
           labelId="demo-simple-select-label"
@@ -81,9 +80,9 @@ export default function DasrsPagination({
           className="min-w-[80px] text-sm bg-white rounded border border-gray-300"
         >
           <MenuItem value={10}>10</MenuItem>
+          <MenuItem value={15}>15</MenuItem>
           <MenuItem value={20}>20</MenuItem>
-          <MenuItem value={50}>50</MenuItem>
-          <MenuItem value={100}>100</MenuItem>
+          <MenuItem value={25}>25</MenuItem>
         </Select>
       </div>
     </div>

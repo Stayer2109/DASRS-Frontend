@@ -11,16 +11,17 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { Plus, Users, Shield, AlertTriangle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
 
-export const TournamentTeams = ({ tournamentId }) => {
+export const TournamentTeams = () => {
+  const { tournamentId } = useParams();
+  const { auth } = useAuth();
   const [tournament, setTournament] = useState(null);
   const [teams, setTeams] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  console.log("TournamentTeams rendering with ID:", tournamentId);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,10 +30,10 @@ export const TournamentTeams = ({ tournamentId }) => {
         return;
       }
 
-      setIsLoading(true);
-      setError(null);
-
       try {
+        setIsLoading(true);
+        setError(null);
+
         // Fetch tournament information
         const tournamentResponse = await apiAuth.get(
           `tournaments/${tournamentId}`
@@ -119,17 +120,23 @@ export const TournamentTeams = ({ tournamentId }) => {
     <div className="space-y-6">
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-5">
         <h2 className="text-2xl font-bold">
           {tournament?.tournament_name} - Teams
         </h2>
         <div className="space-x-2">
-          <Button variant="outline" onClick={handleBackToTournament}>
+          <Button
+            variant="outline"
+            onClick={handleBackToTournament}
+            className="cursor-pointer"
+          >
             Back to Tournaments
           </Button>
-          <Button onClick={handleAddTeam}>
-            <Plus className="h-4 w-4 mr-2" /> Add Team
-          </Button>
+          {auth?.role === "ORGANIZER" && (
+            <Button onClick={handleAddTeam} className="cursor-pointer">
+              <Plus className="h-4 w-4 mr-2" /> Add Team
+            </Button>
+          )}
         </div>
       </div>
 
@@ -142,9 +149,11 @@ export const TournamentTeams = ({ tournamentId }) => {
           <p className="text-muted-foreground mb-4">
             No teams have been added to this tournament yet.
           </p>
-          <Button variant="outline" onClick={handleAddTeam}>
-            <Plus className="h-4 w-4 mr-2" /> Add First Team
-          </Button>
+          {auth?.role === "ORGANIZER" && (
+            <Button variant="outline" onClick={handleAddTeam}>
+              <Plus className="h-4 w-4 mr-2" /> Add First Team
+            </Button>
+          )}
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -174,10 +183,18 @@ export const TournamentTeams = ({ tournamentId }) => {
                   </div>
 
                   <div className="flex justify-between">
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full cursor-pointer"
+                    >
                       <Users className="h-4 w-4 mr-2" /> View Players
                     </Button>
-                    <Button variant="ghost" size="sm" className="ml-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-2 cursor-pointer"
+                    >
                       <Shield className="h-4 w-4" />
                     </Button>
                   </div>

@@ -20,8 +20,10 @@ import { formatDateString } from "@/utils/dateUtils";
 import { EnvironmentDetails } from "../CollapsibleDetails/EnvironmentDetails";
 import { MapDetails } from "../CollapsibleDetails/MapDetails";
 import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
+import useAuth from "@/hooks/useAuth";
 
 export const TournamentRounds = () => {
+  const { auth } = useAuth();
   const { tournamentId } = useParams();
   const navigate = useNavigate();
   const [rounds, setRounds] = useState([]);
@@ -148,25 +150,25 @@ export const TournamentRounds = () => {
   const handleDateChange = (field, date) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: date ? date.toISOString().split('T')[0] : ''
+      [field]: date ? date.toISOString().split("T")[0] : "",
     }));
   };
 
   const handleNumberChange = (e, section = null) => {
     const { name, value } = e.target;
-    
+
     if (section === "scoreMethod") {
       setFormData((prev) => ({
         ...prev,
         scoreMethod: {
           ...prev.scoreMethod,
-          [name]: Number(value)
-        }
+          [name]: Number(value),
+        },
       }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        [name]: Number(value)
+        [name]: Number(value),
       }));
     }
   };
@@ -177,13 +179,13 @@ export const TournamentRounds = () => {
         ...prev,
         scoreMethod: {
           ...prev.scoreMethod,
-          [field]: value
-        }
+          [field]: value,
+        },
       }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        [field]: value
+        [field]: value,
       }));
     }
   };
@@ -246,11 +248,13 @@ export const TournamentRounds = () => {
   const handleEditRound = async (round) => {
     try {
       // Format dates to match the expected format
-      const startDate = new Date(round.start_date).toISOString().split('T')[0];
-      const endDate = new Date(round.end_date).toISOString().split('T')[0];
+      const startDate = new Date(round.start_date).toISOString().split("T")[0];
+      const endDate = new Date(round.end_date).toISOString().split("T")[0];
 
       // Fetch score method data
-      const scoreMethodData = await apiAuth.get("scored-methods/" + round.scored_method_id);
+      const scoreMethodData = await apiAuth.get(
+        "scored-methods/" + round.scored_method_id
+      );
 
       setFormData({
         round_id: round.round_id,
@@ -273,7 +277,8 @@ export const TournamentRounds = () => {
           off_track: scoreMethodData.data.data.off_track,
           average_speed: scoreMethodData.data.data.average_speed,
           total_distance: scoreMethodData.data.data.total_distance,
-          match_finish_type: scoreMethodData.data.data.match_finish_type || "LAP",
+          match_finish_type:
+            scoreMethodData.data.data.match_finish_type || "LAP",
         },
       });
 
@@ -323,17 +328,23 @@ export const TournamentRounds = () => {
     <div className="space-y-6">
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-5">
         <h2 className="text-2xl font-bold">
           {tournament?.tournament_name} - Rounds
         </h2>
         <div className="space-x-2">
-          <Button variant="outline" onClick={handleBackToTournament}>
+          <Button
+            variant="outline"
+            onClick={handleBackToTournament}
+            className="cursor-pointer"
+          >
             Back to Tournaments
           </Button>
-          <Button onClick={handleCreateRound}>
-            <Plus className="h-4 w-4 mr-2" /> Create Round
-          </Button>
+          {auth?.role === "ORGANIZER" && (
+            <Button onClick={handleCreateRound} className="cursor-pointer">
+              <Plus className="h-4 w-4 mr-2" /> Create Round
+            </Button>
+          )}
         </div>
       </div>
 
@@ -347,12 +358,22 @@ export const TournamentRounds = () => {
         {rounds.length === 0 ? (
           <Card className="col-span-full">
             <CardContent className="flex flex-col items-center justify-center p-6">
-              <p className="text-muted-foreground mb-4">
+              <p
+                className={`text-muted-foreground ${
+                  auth?.role === "ORGANIZER" ? "mb-4" : ""
+                }`}
+              >
                 No rounds found for this tournament.
               </p>
-              <Button variant="outline" onClick={handleCreateRound}>
-                <Plus className="h-4 w-4 mr-2" /> Create First Round
-              </Button>
+              {auth?.role === "ORGANIZER" && (
+                <Button
+                  variant="outline"
+                  onClick={handleCreateRound}
+                  className="cursor-pointer"
+                >
+                  <Plus className="h-4 w-4 mr-2" /> Create First Round
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -381,6 +402,7 @@ export const TournamentRounds = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => handleEditRound(round)}
+                  className="cursor-pointer"
                 >
                   Edit
                 </Button>
@@ -462,7 +484,7 @@ export const TournamentRounds = () => {
                 <CardFooter className="p-4">
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() => handleViewMatches(round.round_id)}
                   >
                     View Matches
@@ -471,7 +493,7 @@ export const TournamentRounds = () => {
                 <CardFooter className="p-4 pt-0">
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() => handleViewLeaderboard(round.round_id)}
                   >
                     View Leaderboard

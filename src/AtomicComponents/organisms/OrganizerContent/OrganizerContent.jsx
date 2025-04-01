@@ -23,7 +23,7 @@ export const OrganizerContent = ({ activeTab, routeParams = {} }) => {
               return <TournamentRounds />;
             case "teams":
               return (
-                <TournamentTeams tournamentId={routeParams.tournamentId} />
+                <TournamentTeams />
               );
             case "leaderboard":
               return (
