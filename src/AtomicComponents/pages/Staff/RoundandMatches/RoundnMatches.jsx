@@ -24,7 +24,7 @@ export const RoundnMatches = () => {
   const [pageIndex, setPageIndex] = useState(1); // 1-based indexing for MUI
   const [totalPages, setTotalPages] = useState(1);
   const [sortBy, setSortBy] = useState("SORT_BY_ID_ASC");
-  const [sortByKey, setSortByKey] = useState("id");
+  const [sortByKey, setSortByKey] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc"); // asc | desc
 
   const columns = [
@@ -58,18 +58,15 @@ export const RoundnMatches = () => {
     const baseKey = sortKeyMap[columnKey];
     if (!baseKey) return;
 
-    let newDirection = sortBy.includes("ASC") ? "asc" : "desc";
-    const sortColumn = columns.find((col) => col.key === columnKey);
     
 
-    let newSortBy;
-    if (newDirection != null) {
-      newSortBy = `${baseKey}_${newDirection.toUpperCase()}`;
-    }
+    // const newDirection = sortBy.includes("ASC") ? " desc" : "asc";
+    // const sortColumn = columns.find((col) => col.key === columnKey);
+    // const newSortBy = `${baseKey}_${newDirection.toUpperCase()}`;
 
-    setSortBy(newSortBy);
-    setSortByKey(sortColumn.key);
-    setPageIndex(1); // Reset to page 1 on sort
+    // setSortBy(newSortBy);
+    // setSortByKey(sortColumn.key);
+    // setPageIndex(1); // Reset to page 1 on sort
   };
 
   useEffect(() => {

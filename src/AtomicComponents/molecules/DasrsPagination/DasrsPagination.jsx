@@ -11,9 +11,6 @@ export default function DasrsPagination({
   count,
   ...props
 }) {
-  useEffect(() => {
-    console.log("pageSize", pageSize);
-  }, [pageSize]);
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4 mt-4">
