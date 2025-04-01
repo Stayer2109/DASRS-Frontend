@@ -12,7 +12,6 @@ const OrganizerTemplate = () => {
   // Handle route changes
   useEffect(() => {
     const path = location.pathname;
-    console.log("Current path:", path);
     
     // Reset route params by default
     let newRouteParams = {};
@@ -25,10 +24,24 @@ const OrganizerTemplate = () => {
     } else if (path.includes('/tournaments/') && params.tournamentId) {
       // Tournament subpages (rounds, teams, etc)
       newActiveTab = "tournament";
-      newRouteParams = {
-        tournamentId: params.tournamentId,
-        section: path.split('/').pop() // 'rounds', 'teams', etc.
-      };
+      
+      const pathParts = path.split('/');
+      
+      // Check if we're on a matches view for a specific round
+      if (pathParts.includes('rounds') && params.roundId && pathParts.includes('matches')) {
+        newRouteParams = {
+          tournamentId: params.tournamentId,
+          section: 'rounds',
+          roundId: params.roundId,
+          view: 'matches'
+        };
+      } else {
+        // Regular tournament subpage
+        newRouteParams = {
+          tournamentId: params.tournamentId,
+          section: pathParts.pop() // 'rounds', 'teams', etc.
+        };
+      }
     } else if (path.includes('/settings')) {
       newActiveTab = "settings";
     }
@@ -37,8 +50,6 @@ const OrganizerTemplate = () => {
     setActiveTab(newActiveTab);
     setRouteParams(newRouteParams);
     
-    console.log("Setting activeTab:", newActiveTab);
-    console.log("Setting routeParams:", newRouteParams);
   }, [location.pathname, params]);
 
   // Force content to re-render when route changes

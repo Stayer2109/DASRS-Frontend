@@ -20,131 +20,111 @@ import OrganizerPage from "./AtomicComponents/pages/Organizer/OrganizerPage/Orga
 import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
 import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
+import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
+import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 
 const AppRoutes = () => {
-	const { auth } = useAuth();
-	const [toastPosition, setToastPosition] = useState("top-right");
+  const { auth } = useAuth();
+  const [toastPosition, setToastPosition] = useState("top-right");
 
-	useEffect(() => {
-		const checkScreen = () => {
-			setToastPosition(window.innerWidth <= 480 ? "top-center" : "top-right");
-		};
+  useEffect(() => {
+    const checkScreen = () => {
+      setToastPosition(window.innerWidth <= 480 ? "top-center" : "top-right");
+    };
 
-		checkScreen();
-		window.addEventListener("resize", checkScreen);
-		return () => window.removeEventListener("resize", checkScreen);
-	}, []);
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
-	const renderRoutesByRole = () => {
-		const role = auth?.role;
+  const renderRoutesByRole = () => {
+    const role = auth?.role;
 
-		switch (role) {
-			case undefined:
-				return (
-					<Route
-						path='/'
-						element={<CommonLayout />}
-					>
-						<Route
-							index
-							element={<HomePage />}
-						/>
-					</Route>
-				);
+    switch (role) {
+      case undefined:
+        return (
+          <Route path="/" element={<CommonLayout />}>
+            <Route index element={<HomePage />} />
+          </Route>
+        );
 
-			case "STAFF":
-				return (
-					<Route element={<PersistLogin />}>
-						<Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
-							<Route
-								path='/'
-								element={<StaffCommonLayout />}
-							>
-								<Route
-									index
-									element={<StaffHomePage />}
-								/>
-								<Route
-									path='my-profile'
-									element={<h1>My Profile</h1>}
-								/>
+      case "STAFF":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
+              <Route path="/" element={<StaffCommonLayout />}>
+                <Route index element={<StaffHomePage />} />
+                <Route path="my-profile" element={<h1>My Profile</h1>} />
 
-								<Route path='player-management'>
-									<Route
-										path='player-list'
-										element={<h1>Player List</h1>}
-									/>
+                <Route path="player-management">
+                  <Route path="player-list" element={<PlayerList />} />
 
-									<Route
-										path='add-player'
-										element={<AddPlayerByImport />}
-									/>
-								</Route>
-							</Route>
-						</Route>
-					</Route>
-				);
+                  <Route path="add-player" element={<AddPlayerByImport />} />
+                </Route>
 
-			case "ADMIN":
-				return (
-					<Route element={<PersistLogin />}>
-						<Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
-							<Route
-								path='/'
-								element={<AdminPage />}
-							>
-								<Route
-									index
-									element={<h1>close</h1>}
-								/>
-							</Route>
-						</Route>
-					</Route>
-				);
+                <Route path="leaderboard">
+                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+                </Route>
+              </Route>
+            </Route>
+          </Route>
+        );
 
-			case "ORGANIZER":
-				return (
-					<Route element={<PersistLogin />}>
-						<Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
-							<Route path='/' element={<OrganizerPage />}>
-								 {/* Main tournaments page */}
-								 <Route path="tournaments" element={<Tournament />} />
-                                
-                                {/* Fixed nested routes - removed leading slash */}
-                                <Route path="tournaments/:tournamentId/rounds" element={<TournamentRounds />} />
-                                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
-                                <Route path="tournaments/:tournamentId/teams" element={<TournamentTeams />} />								
-							</Route>
-						</Route>
-					</Route>
-				);
+      case "ADMIN":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
+              <Route path="/" element={<AdminPage />}>
+                <Route index element={<h1>close</h1>} />
+              </Route>
+            </Route>
+          </Route>
+        );
+      case "ORGANIZER":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
+              <Route path="/" element={<OrganizerPage />}>
+                {/* Main tournaments page */}
+                <Route path="tournaments" element={<Tournament />} />
 
-			default:
-				return (
-					<Route
-						path='/'
-						element={<h1>Not yet</h1>}
-					/>
-				);
-		}
-	};
+                {/* Fixed nested routes - removed leading slash */}
+                <Route
+                  path="tournaments/:tournamentId/rounds"
+                  element={<TournamentRounds />}
+                />
+                <Route
+                  path="tournaments/:tournamentId/rounds/:roundId/matches"
+                  element={<RoundMatches />}
+                />
+                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
+                <Route
+                  path="tournaments/:tournamentId/teams"
+                  element={<TournamentTeams />}
+                />
+              </Route>
+            </Route>
+          </Route>
+        );
 
-	return (
-		<ScrollToTop>
-			<Toaster position={toastPosition} />
-			<Routes>
-				{renderRoutesByRole()}
-				<Route
-					path='reset-password/:token'
-					element={<ForgetPassword />}
-				/>
-				<Route
-					path='*'
-					element={<h1 className='text-h1 text-red-500'>Adu Ang Seng</h1>}
-				/>
-			</Routes>
-		</ScrollToTop>
-	);
+      default:
+        return <Route path="/" element={<h1>Not yet</h1>} />;
+    }
+  };
+
+  return (
+    <ScrollToTop>
+      <Toaster position={toastPosition} />
+      <Routes>
+        {renderRoutesByRole()}
+        <Route path="reset-password/:token" element={<ForgetPassword />} />
+        <Route
+          path="*"
+          element={<h1 className="text-h1 text-red-500">Adu Ang Seng</h1>}
+        />
+      </Routes>
+    </ScrollToTop>
+  );
 };
 
 export default AppRoutes;

@@ -44,11 +44,16 @@ const StaffCommonLayout = () => {
           link: "/player-management/add-player",
         },
         {
-          item: "List Players",
+          item: "Player List",
           icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
           link: "/player-management/player-list",
         },
       ],
+    },
+    {
+      item: "Leaderboard",
+      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/leaderboard",
     },
   ];
 
