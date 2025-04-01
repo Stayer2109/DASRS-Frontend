@@ -53,9 +53,9 @@ const StaffCommonLayout = () => {
       ],
     },
     {
-      item: "Tournament",
+      item: "Tournaments",
       icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/tournament",
+      link: "/tournaments",
     },
     {
       item: "Leaderboard",
