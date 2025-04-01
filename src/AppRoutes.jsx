@@ -21,6 +21,7 @@ import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
 import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
+import { RoundnMatches } from "./AtomicComponents/pages/Staff/RoundandMatches/RoundnMatches";
 import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 
 const AppRoutes = () => {
@@ -64,6 +65,14 @@ const AppRoutes = () => {
 
                 <Route path="leaderboard">
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+                </Route>
+
+                <Route path="tournament" element={<RoundnMatches />}>
+                  <Route path=":tournamentId" element={<h1>Round</h1>} />
+                  <Route
+                    path=":tournamentId/:roundId"
+                    element={<h1>Round</h1>}
+                  />
                 </Route>
               </Route>
             </Route>

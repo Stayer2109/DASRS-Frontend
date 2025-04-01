@@ -1,7 +1,6 @@
 import { MenuItem, Pagination as PaginationMui, Select } from "@mui/material";
-import "./Pagination.scss";
+import PropTypes from "prop-types";
 import { useEffect } from "react";
-import React from "react";
 
 export default function DasrsPagination({
   pageSize,
@@ -17,7 +16,7 @@ export default function DasrsPagination({
   }, [pageSize]);
 
   return (
-    <div className="pagination-container">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4 mt-4">
       <PaginationMui
         {...props}
         showFirstButton
@@ -63,16 +62,18 @@ export default function DasrsPagination({
             },
           },
         }}
-        className="pagination-items"
+        className="flex-1 ml-50"
       />
 
-      {/* <div className="items-per-page-container">
-        <p className="text-sm font-semibold">Rows per page:</p>
+      <div className="flex items-center gap-2 text-sm">
+        <span className="font-semibold">Rows per page:</span>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={pageSize || 10}
-          onChange={(event) => handleChangePageSize(event.target.value, pageIndex)} // Pass event.target.value directly
+          onChange={(event) =>
+            handleChangePageSize(event.target.value, pageIndex)
+          } // Pass event.target.value directly
           label="Rows per page"
           sx={{
             "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
@@ -80,14 +81,23 @@ export default function DasrsPagination({
               padding: "1px !important",
             },
           }}
-          className="select-box"
+          className="min-w-[80px] text-sm bg-white rounded border border-gray-300"
         >
           <MenuItem value={10}>10</MenuItem>
           <MenuItem value={20}>20</MenuItem>
           <MenuItem value={50}>50</MenuItem>
           <MenuItem value={100}>100</MenuItem>
         </Select>
-      </div> */}
+      </div>
     </div>
   );
 }
+
+DasrsPagination.propTypes = {
+  pageSize: PropTypes.number.isRequired,
+  pageIndex: PropTypes.number.isRequired,
+  handlePagination: PropTypes.func.isRequired,
+  handleChangePageSize: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  count: PropTypes.number.isRequired,
+};

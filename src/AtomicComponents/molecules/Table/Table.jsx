@@ -12,7 +12,7 @@ export const Table = ({ children, title = "" }) => (
   </div>
 );
 
-export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
+export const TableHeader = ({ columns, sortBy, sortDirection, onSort, sortByKey }) => (
   <thead>
     <tr className="bg-gray-200">
       {columns.map((col) => (
@@ -21,11 +21,11 @@ export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
           onClick={() => col.sortable && onSort?.(col.key)}
           className={`px-4 py-2 text-center border-b border-gray-200 font-semibold select-none ${
             col.sortable ? "cursor-pointer" : ""
-          } ${sortBy === col.key ? "text-blue-600" : ""}`}
+          } ${sortByKey == col.key ? "text-blue-600" : ""}`}
         >
           {col.label}
           <span className="ml-1 text-gray-500">
-            {sortBy === col.key
+            {sortByKey == col.key
               ? sortDirection === "asc"
                 ? "🔼"
                 : "🔽"
@@ -62,6 +62,7 @@ TableHeader.propTypes = {
   sortBy: PropTypes.string,
   sortDirection: PropTypes.string,
   onSort: PropTypes.func,
+  sortByKey: PropTypes.string,
 };
 
 TableBody.propTypes = {

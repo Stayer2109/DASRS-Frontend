@@ -7,8 +7,10 @@ import { useMediaQuery } from "react-responsive";
 import {
   AddPlayerIcon,
   HomeIcon,
+  LeaderboardIcon,
   ListIcon,
   SidebarIcon,
+  TournamentIcon,
   UserIcon,
 } from "@/assets/icon-svg";
 import PropTypes from "prop-types";
@@ -20,7 +22,7 @@ const StaffCommonLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navBarIconColor = "#FAF9F6";
-  const iconWidth = 24;
+  const iconWidth = 28;
   const subIconWidth = 20;
 
   const sidebarData = [
@@ -51,8 +53,13 @@ const StaffCommonLayout = () => {
       ],
     },
     {
+      item: "Tournament",
+      icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/tournament",
+    },
+    {
       item: "Leaderboard",
-      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+      icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
       link: "/leaderboard",
     },
   ];
@@ -89,7 +96,7 @@ const StaffCommonLayout = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="flex relative">
+    <div className="flex relative h-screen">
       {isMobile && isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
@@ -112,7 +119,7 @@ const StaffCommonLayout = () => {
 
       {/* Main content */}
       <div
-        className={`flex-1 transition-all duration-300 z-0 p-10 max-h-screen flex flex-col ${
+        className={`flex-1 transition-all duration-300 z-0 p-10 max-h-screen flex flex-col overflow-auto ${
           isMobile ? "" : ""
         } p-10`}
       >
