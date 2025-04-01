@@ -42,7 +42,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
   // Style icon color when the navbar is opeend
   const navBarIconColor = "#FAF9F6";
 
-  const iconWidth = 24;
+  const iconWidth = 28;
   const [hasMounted, setHasMounted] = useState(false);
 
   const handleMenuItemClick = (item) => {
@@ -103,7 +103,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
           x: isOpened || !isMobile ? 0 : "-150px",
         }}
         transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}
-        className={`playersidebar-container bg-navbar-color text-off-white p-4 z-50 h-full md:h-screen sm:h-screen ${
+        className={`playersidebar-container bg-navbar-color text-off-white p-4 z-50 h-full ${
           isMobile ? "fixed top-0 left-0" : ""
         }`}
       >

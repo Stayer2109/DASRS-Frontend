@@ -14,27 +14,32 @@ export const Table = ({ children, title = "" }) => (
 
 export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
   <thead>
-    <tr className="bg-gray-200">
-      {columns.map((col) => (
-        <th
-          key={col.key}
-          onClick={() => col.sortable && onSort?.(col.key)}
-          className={`px-4 py-2 text-center border-b border-gray-200 font-semibold select-none ${
-            col.sortable ? "cursor-pointer" : ""
-          } ${sortBy === col.key ? "text-blue-600" : ""}`}
-        >
-          {col.label}
-          <span className="ml-1 text-gray-500">
-            {sortBy === col.key
-              ? sortDirection === "asc"
-                ? "🔼"
-                : "🔽"
-              : col.sortable
-              ? "⇅"
-              : ""}
-          </span>
-        </th>
-      ))}
+    <tr className="bg-gray-100 text-gray-700 text-sm uppercase tracking-wide text-h5">
+      {columns.map((col) => {
+        const isSorted = sortBy === col.key;
+        const sortIcon = isSorted
+          ? sortDirection === "asc"
+            ? "▲"
+            : "▼"
+          : col.sortable
+          ? "⇅"
+          : "";
+
+        return (
+          <th
+            key={col.key}
+            onClick={() => col.sortable && onSort?.(col.key)}
+            className={`px-6 py-3 border-b border-gray-300 text-center font-semibold select-none whitespace-nowrap transition-colors duration-150 ${
+              col.sortable ? "cursor-pointer hover:text-blue-600" : ""
+            } ${isSorted ? "text-blue-600" : ""}`}
+          >
+            <div className="flex items-center justify-center gap-1">
+              <span>{col.label}</span>
+              {sortIcon && <span className="text-xs">{sortIcon}</span>}
+            </div>
+          </th>
+        );
+      })}
     </tr>
   </thead>
 );
@@ -45,8 +50,8 @@ export const TableRow = ({ children }) => (
   <tr className="hover:bg-gray-100">{children}</tr>
 );
 
-export const TableCell = ({ children, className = "" }) => (
-  <td className={`px-4 py-2 text-center border-b border-gray-200 ${className}`}>
+export const TableCell = ({ children, className = "", onClick = () => {} }) => (
+  <td className={`px-4 py-4 text-center border-b border-gray-200 ${className}`} onClick={onClick}>
     {children}
   </td>
 );
@@ -62,6 +67,7 @@ TableHeader.propTypes = {
   sortBy: PropTypes.string,
   sortDirection: PropTypes.string,
   onSort: PropTypes.func,
+  sortByKey: PropTypes.string,
 };
 
 TableBody.propTypes = {
@@ -75,4 +81,5 @@ TableRow.propTypes = {
 TableCell.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
+  onClick: PropTypes.func,
 };
