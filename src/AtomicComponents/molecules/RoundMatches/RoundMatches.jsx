@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -13,6 +13,7 @@ import { apiAuth } from "@/config/axios/axios";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { toast } from "sonner";
+import useAuth from "@/hooks/useAuth";
 
 export const RoundMatches = () => {
   const { tournamentId, roundId } = useParams();
@@ -31,10 +32,9 @@ export const RoundMatches = () => {
         return;
       }
 
-      setIsLoading(true);
-      setError(null);
-
       try {
+        setIsLoading(true);
+        setError(null);
         // Fetch tournament information
         const tournamentResponse = await apiAuth.get(
           `tournaments/${tournamentId}`
@@ -46,9 +46,7 @@ export const RoundMatches = () => {
         setRound(roundResponse.data.data);
 
         // Fetch matches for the round
-        const matchesResponse = await apiAuth.get(
-          `matches/round/${roundId}`
-        );
+        const matchesResponse = await apiAuth.get(`matches/round/${roundId}`);
         setMatches(matchesResponse.data.data || []);
       } catch (err) {
         console.error("Error fetching round matches:", err);
@@ -73,7 +71,9 @@ export const RoundMatches = () => {
       label: "Rounds",
       href: `/tournaments/${tournamentId}/rounds`,
     },
-    { label: round?.round_name || `Round ${round?.round_no}` || "Round Matches" },
+    {
+      label: round?.round_name || `Round ${round?.round_no}` || "Round Matches",
+    },
   ];
 
   const handleBackToRounds = () => {
@@ -114,10 +114,15 @@ export const RoundMatches = () => {
 
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">
-          {tournament?.tournament_name} - {round?.round_name || `Round ${round?.round_id}`} Matches
+          {tournament?.tournament_name} -{" "}
+          {round?.round_name || `Round ${round?.round_id}`} Matches
         </h2>
         <div className="space-x-2">
-          <Button variant="outline" onClick={handleBackToRounds}>
+          <Button
+            variant="outline"
+            onClick={handleBackToRounds}
+            className="cursor-pointer"
+          > 
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Rounds
           </Button>
         </div>
@@ -149,7 +154,13 @@ export const RoundMatches = () => {
                   <CardTitle className="text-lg font-bold">
                     Match {match.match_name}
                   </CardTitle>
-                  <Badge className={match.status === "FINISHED" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
+                  <Badge
+                    className={
+                      match.status === "FINISHED"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-blue-100 text-blue-800"
+                    }
+                  >
                     {match.status}
                   </Badge>
                 </div>
@@ -161,9 +172,13 @@ export const RoundMatches = () => {
               <CardContent className="p-4">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                    <div className="font-medium">{match.teams[0].team_name || "No Team"}</div>
+                    <div className="font-medium">
+                      {match.teams[0].team_name || "No Team"}
+                    </div>
                     <div className="text-lg font-bold">VS</div>
-                    <div className="font-medium">{match?.teams[1]?.team_name || "Team Not Available"}</div>
+                    <div className="font-medium">
+                      {match?.teams[1]?.team_name || "Team Not Available"}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
