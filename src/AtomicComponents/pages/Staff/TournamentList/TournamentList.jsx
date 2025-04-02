@@ -12,7 +12,6 @@ import { ConvertDate } from "../../../../utils/DateConvert";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { useDebounce } from "@/hooks/useDebounce"; // adjust path if needed
 import Input from "@/AtomicComponents/atoms/Input/Input";
-import { useNavigate } from "react-router-dom";
 import { TournamentNavCards } from "@/AtomicComponents/molecules/TournamentNavCards/TournamentNavCards";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 
