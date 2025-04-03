@@ -139,7 +139,7 @@ export const TournamentRounds = () => {
   };
 
   const handleViewLeaderboard = (roundId) => {
-    // Implement leaderboard navigation
+    navigate(`${roundId}/matches`);
   };
 
   const handleInputChange = (e) => {
