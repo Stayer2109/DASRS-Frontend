@@ -23,6 +23,8 @@ import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
 import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
+import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
+import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -116,6 +118,18 @@ const AppRoutes = () => {
                   path="tournaments/:tournamentId/teams"
                   element={<TournamentTeams />}
                 />
+              </Route>
+            </Route>
+          </Route>
+        );
+
+      case "PLAYER":
+        return (
+          <Route element={<PersistLogin />}>
+            <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
+              <Route path="/" element={<PlayerCommonLayout />}>
+                <Route path="my-profile" element={<h1>My Profile</h1>} />
+                <Route path="rounds" element={<PlayerRounds />} />
               </Route>
             </Route>
           </Route>
