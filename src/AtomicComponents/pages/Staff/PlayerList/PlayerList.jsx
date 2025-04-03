@@ -26,11 +26,11 @@ const PlayerList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [sortByKey, setSortByKey] = useState("account_id"); // default sort key
   const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const columns = [
     { key: "account_id", label: "ID", sortable: true },
@@ -111,13 +111,13 @@ const PlayerList = () => {
         <div className="mb-4 flex justify-between flex-wrap gap-2">
           <Input
             type="text"
-            placeholder="Search players by team name..."
+            placeholder="Search players by last name or team name..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setPageIndex(1); // Reset to page 1 on search
             }}
-            className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xs"
+            className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xl"
           />
         </div>
       </div>

@@ -25,6 +25,7 @@ import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMat
 import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
 import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
 import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
+import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -130,6 +131,10 @@ const AppRoutes = () => {
               <Route path="/" element={<PlayerCommonLayout />}>
                 <Route path="my-profile" element={<h1>My Profile</h1>} />
                 <Route path="rounds" element={<PlayerRounds />} />
+                <Route
+                  path="rounds/:roundId/matches"
+                  element={<PlayerMatches />}
+                />
               </Route>
             </Route>
           </Route>

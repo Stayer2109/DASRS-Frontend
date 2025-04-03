@@ -115,7 +115,7 @@ const CommonLayout = () => {
 
       // Get information
       const role = decodedToken.role;
-      console.log(decodedToken);
+      const id = decodedToken.id;
 
       // Save to auth
       setAuth({
@@ -123,6 +123,7 @@ const CommonLayout = () => {
         password: loginData.password,
         role,
         accessToken,
+        id
       });
 
       navigate(from, { replace: true });
