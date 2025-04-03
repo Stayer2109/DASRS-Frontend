@@ -21,6 +21,7 @@ import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import { useNavigate } from "react-router-dom";
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 
 const sortKeyMap = {
   round_id: "SORT_BY_ID",
@@ -33,16 +34,15 @@ const PlayerRounds = () => {
   const { auth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [roundList, setRoundList] = useState([]);
+  const [selectedRoundName, setSelectedRoundName] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(3);
   const [totalPages, setTotalPages] = useState(1);
   const [sortByKey, setSortByKey] = useState("round_id"); // default sort key
   const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
   const navigate = useNavigate();
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-
-  console.log(auth.id);
 
   // GET SORT PARAMS
   const getSortByParam = () => {
@@ -70,6 +70,16 @@ const PlayerRounds = () => {
   const handleViewMatches = (roundId) => {
     navigate(`${roundId}/matches`);
   };
+
+  // DISPLAY VALUE FOR PAGINATION
+  const displayedValues = [3, 6, 9, 12];
+
+  const breadcrumbItems = [
+    { label: "Rounds", href: "/rounds" },
+    ...(selectedRoundName
+      ? [{ label: selectedRoundName }]
+      : []),
+  ];
 
   //#region PAGINATION
   const handlePagination = (_pageSize, newPageIndex) => {
@@ -129,6 +139,8 @@ const PlayerRounds = () => {
   return (
     <>
       {isLoading && <Spinner />}
+      <Breadcrumb items={breadcrumbItems} />
+
       <div className="flex justify-between">
         <div className="flex-1">
           <div className="mb-4 flex justify-between flex-wrap gap-2">
@@ -285,7 +297,7 @@ const PlayerRounds = () => {
                     <Button
                       variant="outline"
                       className="w-full cursor-pointer"
-                      onClick={() => handleViewMatches(round.round_id)}
+                      onClick={() => {handleViewMatches(round.round_id), setSelectedRoundName(round.round_name)}}
                     >
                       View Matches
                     </Button>
@@ -312,6 +324,7 @@ const PlayerRounds = () => {
           handleChangePageSize={handleChangePageSize}
           page={pageIndex}
           count={totalPages}
+          displayedValues={displayedValues}
         />
       </div>
     </>
