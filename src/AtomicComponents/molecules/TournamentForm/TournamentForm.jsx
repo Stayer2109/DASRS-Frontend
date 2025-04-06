@@ -3,23 +3,26 @@ import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import { Input } from "@/AtomicComponents/atoms/shadcn/input";
 import { Textarea } from "@/AtomicComponents/atoms/shadcn/textarea";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
-import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator"; // Changed import name
+import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { DialogFooter } from "@/AtomicComponents/atoms/shadcn/dialog";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { Calendar } from "@/AtomicComponents/atoms/shadcn/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/AtomicComponents/atoms/shadcn/popover";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
 
-export const TournamentForm = ({ 
-  formData, 
-  formMode, 
-  isSubmitting, 
-  onInputChange, 
+export const TournamentForm = ({
+  formData,
+  formMode,
+  isSubmitting,
+  onInputChange,
   onDateChange,
   onNumberChange,
-  onSubmit, 
-  onCancel 
+  onSubmit,
+  onCancel,
 }) => {
+  const [startDateOpen, setStartDateOpen] = React.useState(false);
+  const [endDateOpen, setEndDateOpen] = React.useState(false);
+
   return (
     <form onSubmit={onSubmit} className="space-y-4 pt-4">
       <div className="grid w-full gap-2">
@@ -27,11 +30,86 @@ export const TournamentForm = ({
         <Input
           id="tournament_name"
           name="tournament_name"
-          value={formData.tournament_name || ''}
+          value={formData.tournament_name || ""}
           onChange={onInputChange}
           required
           placeholder="Enter tournament name"
         />
+      </div>
+      <div className="grid w-full gap-2">
+        <Label htmlFor="start_date">Start Date</Label>
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full justify-start text-left font-normal"
+            onClick={() => setStartDateOpen(!startDateOpen)}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {formData.start_date ? (
+              format(new Date(formData.start_date), "PPP")
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+          {startDateOpen && (
+            <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+              <DayPicker
+                mode="single"
+                selected={
+                  formData.start_date
+                    ? new Date(formData.start_date)
+                    : undefined
+                }
+                onSelect={(date) => {
+                  onDateChange("start_date", date);
+                  setStartDateOpen(false);
+                }}
+                initialFocus
+                disabled={(date) => date < new Date()}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid w-full gap-2">
+        <Label htmlFor="end_date">End Date</Label>
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full justify-start text-left font-normal"
+            onClick={() => setEndDateOpen(!endDateOpen)}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {formData.end_date ? (
+              format(new Date(formData.end_date), "PPP")
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+          {endDateOpen && (
+            <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+              <DayPicker
+                mode="single"
+                selected={
+                  formData.end_date ? new Date(formData.end_date) : undefined
+                }
+                onSelect={(date) => {
+                  onDateChange("end_date", date);
+                  setEndDateOpen(false);
+                }}
+                initialFocus
+                disabled={(date) =>
+                  formData.start_date
+                    ? date < new Date(formData.start_date)
+                    : date < new Date()
+                }
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid w-full gap-2">
@@ -39,7 +117,7 @@ export const TournamentForm = ({
         <Textarea
           id="tournament_context"
           name="tournament_context"
-          value={formData.tournament_context || ''}
+          value={formData.tournament_context || ""}
           onChange={onInputChange}
           placeholder="Enter tournament context"
           rows={4}
@@ -59,64 +137,14 @@ export const TournamentForm = ({
         />
       </div>
 
-      <div className="grid w-full gap-2">
-        <Label htmlFor="start_date">Start Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className="w-full justify-start text-left font-normal"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {formData.start_date ? format(new Date(formData.start_date), "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={formData.start_date ? new Date(formData.start_date) : undefined}
-              onSelect={(date) => onDateChange("start_date", date)}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div className="grid w-full gap-2">
-        <Label htmlFor="end_date">End Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className="w-full justify-start text-left font-normal"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {formData.end_date ? format(new Date(formData.end_date), "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={formData.end_date ? new Date(formData.end_date) : undefined}
-              onSelect={(date) => onDateChange("end_date", date)}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
       <DialogFooter>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
-              <LoadingIndicator size="small" className="mr-2" /> {/* Changed component name */}
+              <LoadingIndicator size="small" className="mr-2" />
               {formMode === "create" ? "Creating..." : "Saving..."}
             </>
           ) : formMode === "create" ? (

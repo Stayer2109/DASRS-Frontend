@@ -9,16 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/AtomicComponents/atoms/shadcn/select";
-import { Checkbox } from "@/AtomicComponents/atoms/shadcn/checkbox";
-import { Calendar } from "@/AtomicComponents/atoms/shadcn/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/AtomicComponents/atoms/shadcn/popover";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
+import { Checkbox } from "@/AtomicComponents/atoms/shadcn/checkbox";
 
 export const RoundForm = ({
   formData,
@@ -32,12 +28,27 @@ export const RoundForm = ({
   resources,
   environments,
   matchTypes,
-  formMode, // Add formMode prop
+  formMode,
 }) => {
+  const [startDateOpen, setStartDateOpen] = React.useState(false);
+  const [endDateOpen, setEndDateOpen] = React.useState(false);
+
+  // Click outside handler
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".calendar-dropdown")) {
+        setStartDateOpen(false);
+        setEndDateOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div className="flex flex-col h-full pb-6">
       <form onSubmit={onSubmit} className="flex flex-col h-full">
-        {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto pr-4 -mr-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -65,50 +76,80 @@ export const RoundForm = ({
 
             <div className="space-y-2">
               <Label>Start Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.start_date ? (
-                      format(new Date(formData.start_date), "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.start_date ? new Date(formData.start_date) : undefined}
-                    onSelect={(date) => onDateChange("start_date", date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="relative calendar-dropdown">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setStartDateOpen(!startDateOpen)}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.start_date ? (
+                    format(new Date(formData.start_date), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+                {startDateOpen && (
+                  <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+                    <DayPicker
+                      mode="single"
+                      selected={
+                        formData.start_date
+                          ? new Date(formData.start_date)
+                          : undefined
+                      }
+                      onSelect={(date) => {
+                        onDateChange("start_date", date);
+                        setStartDateOpen(false);
+                      }}
+                      initialFocus
+                      disabled={(date) => date < new Date()}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label>End Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.end_date ? (
-                      format(new Date(formData.end_date), "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.end_date ? new Date(formData.end_date) : undefined}
-                    onSelect={(date) => onDateChange("end_date", date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="relative calendar-dropdown">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => setEndDateOpen(!endDateOpen)}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.end_date ? (
+                    format(new Date(formData.end_date), "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+                {endDateOpen && (
+                  <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+                    <DayPicker
+                      mode="single"
+                      selected={
+                        formData.end_date
+                          ? new Date(formData.end_date)
+                          : undefined
+                      }
+                      onSelect={(date) => {
+                        onDateChange("end_date", date);
+                        setEndDateOpen(false);
+                      }}
+                      initialFocus
+                      disabled={(date) =>
+                        formData.start_date
+                          ? date < new Date(formData.start_date)
+                          : date < new Date()
+                      }
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Score Method Section */}
@@ -224,7 +265,9 @@ export const RoundForm = ({
                         ? "border-primary bg-primary/10"
                         : "hover:border-primary/50"
                     }`}
-                    onClick={() => onSelectChange("resource_id", resource.resource_id)}
+                    onClick={() =>
+                      onSelectChange("resource_id", resource.resource_id)
+                    }
                   >
                     <h4 className="font-medium">{resource.resource_name}</h4>
                     <p className="text-sm text-muted-foreground">
@@ -246,7 +289,9 @@ export const RoundForm = ({
                         ? "border-primary bg-primary/10"
                         : "hover:border-primary/50"
                     }`}
-                    onClick={() => onSelectChange("environment_id", env.environment_id)}
+                    onClick={() =>
+                      onSelectChange("environment_id", env.environment_id)
+                    }
                   >
                     <h4 className="font-medium">{env.environment_name}</h4>
                   </div>
@@ -265,7 +310,9 @@ export const RoundForm = ({
                         ? "border-primary bg-primary/10"
                         : "hover:border-primary/50"
                     }`}
-                    onClick={() => onSelectChange("match_type_id", type.match_type_id)}
+                    onClick={() =>
+                      onSelectChange("match_type_id", type.match_type_id)
+                    }
                   >
                     <h4 className="font-medium">{type.match_type_name}</h4>
                   </div>
@@ -296,8 +343,8 @@ export const RoundForm = ({
           </div>
         </div>
 
-        {/* Fixed footer */}
-        <div className="flex justify-end space-x-2 pt-4 mt-4 border-t">
+        {/* Form Footer */}
+        <div className="flex justify-end gap-4 mt-6 pt-4 border-t">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
@@ -305,10 +352,12 @@ export const RoundForm = ({
             {isSubmitting ? (
               <>
                 <LoadingIndicator size="small" className="mr-2" />
-                {formMode === "edit" ? "Saving..." : "Creating..."}
+                {formMode === "create" ? "Creating..." : "Saving..."}
               </>
+            ) : formMode === "create" ? (
+              "Create Round"
             ) : (
-              formMode === "edit" ? "Save Changes" : "Create Round"
+              "Save Changes"
             )}
           </Button>
         </div>
@@ -316,6 +365,3 @@ export const RoundForm = ({
     </div>
   );
 };
-
-
-

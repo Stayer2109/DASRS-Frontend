@@ -40,7 +40,7 @@
     "postcss": "^8.5.3",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
-    "react-day-picker": "^9.6.3",
+    "react-day-picker": "^8.10.1",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "react-responsive": "^10.0.1",

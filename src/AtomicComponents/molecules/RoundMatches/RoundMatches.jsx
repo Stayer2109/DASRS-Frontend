@@ -13,7 +13,6 @@ import { apiAuth } from "@/config/axios/axios";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { toast } from "sonner";
-import useAuth from "@/hooks/useAuth";
 
 export const RoundMatches = () => {
   const { tournamentId, roundId } = useParams();
@@ -46,8 +45,10 @@ export const RoundMatches = () => {
         setRound(roundResponse.data.data);
 
         // Fetch matches for the round
-        const matchesResponse = await apiAuth.get(`matches/round/${roundId}`);
-        setMatches(matchesResponse.data.data || []);
+        const matchesResponse = await apiAuth.get(
+          `matches/round/${roundId}?sortBy=SORT_BY_ID_ASC`
+        );
+        setMatches(matchesResponse.data.data.content || []);
       } catch (err) {
         console.error("Error fetching round matches:", err);
         setError("Failed to load matches. Please try again.");
@@ -122,7 +123,7 @@ export const RoundMatches = () => {
             variant="outline"
             onClick={handleBackToRounds}
             className="cursor-pointer"
-          > 
+          >
             <ArrowLeft className="h-4 w-4 mr-2" /> Back to Rounds
           </Button>
         </div>
