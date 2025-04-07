@@ -222,7 +222,7 @@ const PlayerRounds = () => {
                   </div>
                 </CardHeader>
 
-                <CardContent className="p-4 h-[400px] overflow-y-auto">
+                <CardContent className="p-4 h-max-[400px] overflow-y-auto">
                   <div className="space-y-3">
                     {round.description && (
                       <p className="text-sm text-gray-600 line-clamp-2">
