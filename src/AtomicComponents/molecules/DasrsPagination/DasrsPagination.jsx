@@ -1,14 +1,13 @@
 import { MenuItem, Pagination as PaginationMui, Select } from "@mui/material";
 import PropTypes from "prop-types";
-import { useEffect } from "react";
 
 export default function DasrsPagination({
   pageSize,
   pageIndex,
   handlePagination,
   handleChangePageSize,
-  page,
   count,
+  displayedValues,
   ...props
 }) {
   return (
@@ -79,10 +78,20 @@ export default function DasrsPagination({
           }}
           className="min-w-[80px] text-sm bg-white rounded border border-gray-300"
         >
-          <MenuItem value={10}>10</MenuItem>
-          <MenuItem value={15}>15</MenuItem>
-          <MenuItem value={20}>20</MenuItem>
-          <MenuItem value={25}>25</MenuItem>
+          {displayedValues && displayedValues.length > 0 ? (
+            displayedValues.map((value) => (
+              <MenuItem key={value} value={value}>
+                {value}
+              </MenuItem>
+            ))
+          ) : (
+            <>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              <MenuItem value={25}>25</MenuItem>
+            </>
+          )}
         </Select>
       </div>
     </div>
@@ -96,4 +105,5 @@ DasrsPagination.propTypes = {
   handleChangePageSize: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   count: PropTypes.number.isRequired,
+  displayedValues: PropTypes.array.isRequired,
 };

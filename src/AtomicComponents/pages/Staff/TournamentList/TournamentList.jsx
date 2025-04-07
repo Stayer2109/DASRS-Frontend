@@ -187,7 +187,7 @@ export const TournamentList = () => {
               setSearchTerm(e.target.value);
               setPageIndex(1); // Reset to page 1 on search
             }}
-            className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xs"
+            className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xl"
           />
         </div>
       </div>

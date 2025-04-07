@@ -13,14 +13,15 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");
     const decodeAccessToken = accessToken ? jwtDecode(accessToken) : null;
+    const id = decodeAccessToken ? decodeAccessToken.id : null;
 
     if (decodeAccessToken) {
       setAuth({
         role: decodeAccessToken.role,
         accessToken: accessToken,
+        id: id,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
