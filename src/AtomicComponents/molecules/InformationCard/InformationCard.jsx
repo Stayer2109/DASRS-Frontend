@@ -1,80 +1,178 @@
-/** @format */
-
-import RaceImage from "../../../assets/img/racing-cinematic1.jpg";
-import { RightArrowIcon } from "@/assets/icon-svg";
-import "./InformationCard.scss";
+import { useEffect, useState } from "react";
 import { PropTypes } from "prop-types";
+import { apiClient } from "@/config/axios/axios";
+import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/AtomicComponents/atoms/shadcn/card";
+import { Separator } from "@/AtomicComponents/atoms/shadcn/separator";
+import { Skeleton } from "@/AtomicComponents/atoms/shadcn/skeleton";
+import {
+  CalendarDays,
+  Clock,
+  Flag,
+  Info,
+  MapPin,
+  Settings2,
+  Target,
+  Trophy,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
-const InformationCard = ({ className, teamName, team }) => {
-	const H2Style = "text-h2";
+const InformationCard = ({ className, item }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [map, setMap] = useState({});
+  const [scoreMethod, setScoreMethod] = useState({});
+  const [environment, setEnvironment] = useState({});
 
-	// Example competition data - you can pass it via props if needed
-	const competitionData = [
-		{
-			dayType: "Qualifying: 1st day",
-			competitors: ["Goku", "Vegeta", "Piccolo"],
-		},
-		{
-			dayType: "Final Winner: 2nd day",
-			competitors: ["Goku", "Frieza", "Cell"],
-		},
-	];
+  useEffect(() => {
+    if (!item) return;
 
-	return (
-		<div
-			className={`${className} team-racing-schedule-information-container sm:w-auto bg-blue-500 rounded-[8px] p-1 sm:grid grid-cols-2 gap-5`}
-		>
-			<img
-				src={RaceImage}
-				alt='Team represent image'
-				className='columns-1 rounded-[8px]'
-			/>
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [mapResponse, scoreMethodResponse, environmentResponse] =
+          await Promise.all([
+            apiClient.get(`resources/${item.map_id}`),
+            apiClient.get(`scored-methods/${item.scored_method_id}`),
+            apiClient.get(`environments/${item.environment_id}`),
+          ]);
 
-			<div className='team-information sm:p-0 px-4'>
-				{/* Team Name */}
-				<h1 className='text-h1 pushdown-class'>
-					{teamName || "Team name"}
-				</h1>
+        setMap(mapResponse.data.data);
+        setScoreMethod(scoreMethodResponse.data.data);
+        setEnvironment(environmentResponse.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-				<DevineLine />
+    fetchData();
+  }, [item]);
 
-				{/* Finished Date */}
-				<div className='finished-date pushdown-class'>
-					<p className='paragraph-bold'>Status</p>
-					<h2 className={H2Style}>25 Jan</h2>
-				</div>
+  if (isLoading) {
+    return (
+      <Card className={`${className} bg-blue-100 p-4`}>
+        <CardHeader>
+          <CardTitle>
+            <Skeleton className="h-6 w-2/3" />
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-1/2" />
+        </CardContent>
+      </Card>
+    );
+  }
 
-				<DevineLine />
+  if (!item) return null;
 
-				{/* Competition Info Loop */}
-				{competitionData.map((stage, idx) => (
-					<div key={idx}>
-						<div className='pushdown-class'>
-							<p className='paragraph-bold'>{stage.dayType}</p>
-							{stage.competitors.map((name, i) => (
-								<div className='status flex items-center' key={i}>
-									<RightArrowIcon className={"right-arrow-icon"} width={30} height={30} />
-									<h2 className={`${H2Style} ml-1`}>{name}</h2>
-								</div>
-							))}
-						</div>
-						{/* Only add divider between blocks */}
-						{idx < competitionData.length - 1 && <DevineLine />}
-					</div>
-				))}
-			</div>
-		</div>
-	);
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={item.round_id} // this is important to trigger animation on change
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -50 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        <Card className={`${className} bg-blue-500 text-white rounded-xl`}>
+          <CardTitle className="text-white text-h1 font-bold px-6">
+            {item.round_name}
+          </CardTitle>
+
+          <CardContent className="space-y-4 text-sm">
+            <Separator className="bg-blue-600" />
+
+            <div className="grid grid-cols-2 gap-2">
+              <InfoLine
+                label="Finish type"
+                value={item.finish_type}
+                Icon={Trophy}
+              />
+              <InfoLine
+                label="Match type"
+                value={item.match_type_name}
+                Icon={Target}
+              />
+              <InfoLine
+                label="Start"
+                value={`${GetDateFromDate(item.start_date)} - ${GetTimeFromDate(
+                  item.start_date
+                )}`}
+                Icon={CalendarDays}
+              />
+              <InfoLine
+                label="Qualification spots"
+                value={item.team_limit}
+                Icon={Flag}
+              />
+              <InfoLine
+                label="End"
+                value={`${GetDateFromDate(item.end_date)} - ${GetTimeFromDate(
+                  item.end_date
+                )}`}
+                Icon={Clock}
+              />
+            </div>
+
+            <Separator className="bg-blue-600" />
+            <h4 className="text-xl font-semibold mt-4 flex items-center gap-2">
+              <Info className="w-5 h-5" /> Information
+            </h4>
+
+            <div className="space-y-1">
+              <InfoLine label="Map" value={map.resource_name} Icon={MapPin} />
+              <InfoLine
+                label="Environment"
+                value={environment.environment_name}
+                Icon={Settings2}
+              />
+
+              {scoreMethod && (
+                <div className="mt-2 space-y-1">
+                  <h5 className="text-lg font-semibold">Score Method</h5>
+                  <ul className="list-disc list-inside space-y-1 text-white/90 pl-4 text-base">
+                    <li>Assist usage: {scoreMethod.assist_usage} pts</li>
+                    <li>Average speed: {scoreMethod.average_speed} pts</li>
+                    <li>Collision: {scoreMethod.collision} pts</li>
+                    <li>Top speed: {scoreMethod.top_speed} pts</li>
+                    <li>Total distance: {scoreMethod.total_distance} pts</li>
+                    <li>Total race time: {scoreMethod.total_race_time} pts</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </AnimatePresence>
+  );
 };
 
+const InfoLine = ({ label, value, Icon }) => (
+  <div className="flex items-center gap-3 text-white text-base">
+    {Icon && <Icon className="w-5 h-5 text-white/80" />}
+    <span className="font-semibold">{label}:</span>
+    <span className="text-white/90 font-medium">{value ?? "N/A"}</span>
+  </div>
+);
+
 InformationCard.propTypes = {
-	className: PropTypes.string,
-	teamName: PropTypes.string,
-	team: PropTypes.object,
+  className: PropTypes.string,
+  item: PropTypes.object,
+};
+
+InfoLine.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  Icon: PropTypes.elementType,
 };
 
 export default InformationCard;
-
-const DevineLine = () => (
-	<div className='w-full h-[1px] bg-[#2650FF]' />
-);

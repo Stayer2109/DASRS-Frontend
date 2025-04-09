@@ -67,8 +67,10 @@ const PlayerRounds = () => {
   };
 
   // HANDLE VIEW MATCHES BUTTON
-  const handleViewMatches = (roundId) => {
-    navigate(`${roundId}/matches`);
+  const handleViewMatches = (roundId, roundName) => {
+    navigate(`${roundId}/matches`, {
+      state: { roundName }, // pass round name as state
+    });
   };
 
   // DISPLAY VALUE FOR PAGINATION
@@ -76,9 +78,7 @@ const PlayerRounds = () => {
 
   const breadcrumbItems = [
     { label: "Rounds", href: "/rounds" },
-    ...(selectedRoundName
-      ? [{ label: selectedRoundName }]
-      : []),
+    ...(selectedRoundName ? [{ label: selectedRoundName }] : []),
   ];
 
   //#region PAGINATION
@@ -297,7 +297,10 @@ const PlayerRounds = () => {
                     <Button
                       variant="outline"
                       className="w-full cursor-pointer"
-                      onClick={() => {handleViewMatches(round.round_id), setSelectedRoundName(round.round_name)}}
+                      onClick={() => {
+                        handleViewMatches(round.round_id, round.round_name),
+                          setSelectedRoundName(round.round_name);
+                      }}
                     >
                       View Matches
                     </Button>

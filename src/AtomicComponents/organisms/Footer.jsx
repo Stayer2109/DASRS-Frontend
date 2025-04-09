@@ -9,30 +9,30 @@ const Footer = () => {
 	const infoLinks = [
 		{
 			title: "Race Calendar",
-			links: [{ text: "Overview", path: "/overview" }],
+			links: [{ text: "Overview", path: "#" }],
 		},
 		{
 			title: "Results",
 			links: [
-				{ text: "Race Results", path: "/race-results" },
-				{ text: "Standing", path: "/standing" },
-				{ text: "Jeddah Race Report S2", path: "/jeddah-s2" },
-				{ text: "Doha Race Report S2", path: "/doha-s2" },
-				{ text: "Season 1 Results", path: "/season-1-results" },
+				{ text: "Race Results", path: "#" },
+				{ text: "Standing", path: "#" },
+				{ text: "Jeddah Race Report S2", path: "#" },
+				{ text: "Doha Race Report S2", path: "#" },
+				{ text: "Season 1 Results", path: "#" },
 			],
 		},
 		{
 			title: "News & Media",
 			links: [
-				{ text: "Latest News & Media", path: "/latest-news" },
-				{ text: "All News", path: "/all-news" },
-				{ text: "All Media", path: "/all-media" },
-				{ text: "Inside E1 Docuseries", path: "/inside-e1-docuseries" },
+				{ text: "Latest News & Media", path: "#" },
+				{ text: "All News", path: "#" },
+				{ text: "All Media", path: "#" },
+				{ text: "Inside E1 Docuseries", path: "#" },
 			],
 		},
 		{
 			title: "Team & Pilots",
-			links: [{ text: "Team & Pilots", path: "/team-pilots" }],
+			links: [{ text: "Team & Pilots", path: "#" }],
 		},
 	];
 
