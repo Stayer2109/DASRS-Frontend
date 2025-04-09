@@ -13,14 +13,16 @@ import {
 import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
+import useAuth from "@/hooks/useAuth";
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const { auth } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navBarIconColor = "#FAF9F6";
   const iconWidth = 28;
-//   const subIconWidth = 20;
+  //   const subIconWidth = 20;
 
   const sidebarData = [
     {
@@ -38,6 +40,15 @@ const PlayerCommonLayout = () => {
       icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
       link: "/rounds",
     },
+    ...(auth?.isLeader
+      ? [
+          {
+            item: "Assign Player",
+            icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+            link: "/assign-player",
+          },
+        ]
+      : []),
   ];
 
   useEffect(() => {

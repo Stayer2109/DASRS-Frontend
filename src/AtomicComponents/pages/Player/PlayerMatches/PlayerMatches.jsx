@@ -1,6 +1,5 @@
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Calendar, Users } from "lucide-react";
 import {
   Card,
@@ -13,119 +12,94 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { formatDateString } from "@/utils/dateUtils";
 import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Input from "@/AtomicComponents/atoms/Input/Input";
-import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+// import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import useAuth from "@/hooks/useAuth";
 
-const sortKeyMap = {
-  match_id: "SORT_BY_ID",
-  match_name: "SORT_BY_NAME",
-  time_created: "SORT_BY_CREATED",
-  time_start: "SORT_BY_START",
-  time_end: "SORT_BY_END",
-};
+// const sortKeyMap = {
+//   match_id: "SORT_BY_ID",
+//   match_name: "SORT_BY_NAME",
+//   time_created: "SORT_BY_CREATED",
+//   time_start: "SORT_BY_START",
+//   time_end: "SORT_BY_END",
+// };
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
+  const { auth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(3);
-  const [totalPages, setTotalPages] = useState(1);
-  const [sortByKey, setSortByKey] = useState("match_id"); // default sort key
-  const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
+  // const [pageSize, setPageSize] = useState(3);
+  // const [totalPages, setTotalPages] = useState(1);
+  // const [sortByKey, setSortByKey] = useState("match_id"); // default sort key
+  // const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [round, setRound] = useState(null);
   const [matchesList, setMatchesList] = useState([]);
+  const roundNameFromState = location.state?.roundName;
 
   const breadcrumbItems = [
-    { label: `${round?.round_name}`, href: "/rounds" },
+    { label: `${roundNameFromState}`, href: "/rounds" },
     { label: "Matches", href: `/rounds/${roundId}/matches` },
   ];
 
   // HANDLE SORT
-  const handleSort = (columnKey) => {
-    const isSameColumn = sortByKey === columnKey;
-    let newDirection = "ASC";
+  // const handleSort = (columnKey) => {
+  //   const isSameColumn = sortByKey === columnKey;
+  //   let newDirection = "ASC";
 
-    // Check if the same column is clicked and change sort direction
-    if (isSameColumn && sortDirection === "ASC") {
-      newDirection = "DESC";
-    }
+  //   // Check if the same column is clicked and change sort direction
+  //   if (isSameColumn && sortDirection === "ASC") {
+  //     newDirection = "DESC";
+  //   }
 
-    setSortByKey(columnKey);
-    setSortDirection(newDirection);
-    setPageIndex(1);
-  };
+  //   setSortByKey(columnKey);
+  //   setSortDirection(newDirection);
+  //   setPageIndex(1);
+  // };
 
   // GET SORT PARAMS
-  const getSortByParam = () => {
-    if (!sortByKey || !sortDirection) return null;
-    const baseKey = sortKeyMap[sortByKey];
-    return baseKey ? `${baseKey}_${sortDirection}` : null;
-  };
+  // const getSortByParam = () => {
+  //   if (!sortByKey || !sortDirection) return null;
+  //   const baseKey = sortKeyMap[sortByKey];
+  //   return baseKey ? `${baseKey}_${sortDirection}` : null;
+  // };
 
   // DISPLAY VALUE FOR PAGINATION
-  const displayedValues = [3, 6, 9, 12];
+  // const displayedValues = [3, 6, 9, 12];
 
   //#region PAGINATION
-  const handlePagination = (_pageSize, newPageIndex) => {
-    setPageIndex(newPageIndex);
-  };
+  // const handlePagination = (_pageSize, newPageIndex) => {
+  //   setPageIndex(newPageIndex);
+  // };
 
-  const handleChangePageSize = (newSize) => {
-    setPageSize(newSize);
-    setPageIndex(1);
-  };
+  // const handleChangePageSize = (newSize) => {
+  //   setPageSize(newSize);
+  //   setPageIndex(1);
+  // };
   //#endregion
 
-  useEffect(() => {
-    if (!roundId) return;
-
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const response = await apiClient.get(`rounds/${roundId}`);
-        console.log("Response:", response);
-
-        if (response.data.http_status === 200) {
-          const data = response.data.data;
-          setRound(data);
-        }
-      } catch (error) {
-        console.error("Error fetching matches:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // GET MATCHES BY ROUND ID
+  // GET MATCHES BY ROUND ID AND PLAYER ID
   useEffect(() => {
     if (!roundId) return;
 
     const fetchMatches = async () => {
-      const sortByParam = getSortByParam();
       try {
         setIsLoading(true);
-        const response = await apiClient.get(`matches/round/${roundId}`, {
-          params: {
-            pageNo: pageIndex - 1,
-            pageSize,
-            sortBy: sortByParam,
-            keyword: debouncedSearchTerm || undefined,
-          },
-        });
+
+        const response = await apiClient.get(
+          `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
+        );
 
         if (response.data.http_status === 200) {
+          if (response.data.data.length === 0) return;
+
           const data = response.data.data;
           setMatchesList(data.content);
-          setTotalPages(data.total_pages);
+          // setTotalPages(data.total_pages);
         }
       } catch (error) {
         console.error("Error fetching matches:", error);
@@ -136,11 +110,14 @@ const PlayerMatches = () => {
 
     fetchMatches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortByKey, sortDirection, debouncedSearchTerm, pageIndex, pageSize]);
+  }, [
+    /*sortByKey, sortDirection,*/ debouncedSearchTerm,
+    pageIndex /*pageSize*/,
+  ]);
 
   useEffect(() => {
     setPageIndex(1);
-  }, [sortByKey, sortDirection, debouncedSearchTerm]);
+  }, [/*sortByKey, sortDirection,*/ debouncedSearchTerm]);
 
   return (
     <>
@@ -163,7 +140,7 @@ const PlayerMatches = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-4 mb-4 top-0 right-0">
+        {/* <div className="flex items-center justify-end gap-4 mb-4 top-0 right-0">
           <select
             value={sortByKey}
             onChange={(e) => handleSort(e.target.value)}
@@ -186,16 +163,14 @@ const PlayerMatches = () => {
             <option value="ASC">Asc</option>
             <option value="DESC">Desc</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
         {matchesList.length === 0 ? (
           <Card className="col-span-full">
             <CardContent className="flex flex-col items-center justify-center p-6">
-              <p className="text-muted-foreground mb-4">
-                No matches found for this round.
-              </p>
+              <p className="text-muted-foreground mb-4">No matches found.</p>
             </CardContent>
           </Card>
         ) : (
@@ -279,7 +254,7 @@ const PlayerMatches = () => {
         )}
       </div>
 
-      <DasrsPagination
+      {/* <DasrsPagination
         pageSize={pageSize}
         pageIndex={pageIndex}
         handlePagination={handlePagination}
@@ -287,7 +262,7 @@ const PlayerMatches = () => {
         page={pageIndex}
         count={totalPages}
         displayedValues={displayedValues}
-      />
+      /> */}
     </>
   );
 };
