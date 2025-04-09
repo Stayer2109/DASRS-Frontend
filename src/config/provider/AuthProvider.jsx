@@ -14,12 +14,14 @@ export const AuthProvider = ({ children }) => {
     const accessToken = Cookies.get("accessToken");
     const decodeAccessToken = accessToken ? jwtDecode(accessToken) : null;
     const id = decodeAccessToken ? decodeAccessToken.id : null;
+    const isLeader = decodeAccessToken ? decodeAccessToken.isLeader : null;
 
     if (decodeAccessToken) {
       setAuth({
         role: decodeAccessToken.role,
         accessToken: accessToken,
         id: id,
+        isLeader: isLeader,
       });
     }
   }, []);
