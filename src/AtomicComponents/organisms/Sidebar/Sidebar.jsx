@@ -6,23 +6,18 @@ import {
   Menu,
   ChevronRight,
   Trophy,
-  ChevronDown,
-  CircleDot,
   CircuitBoard,
+  Factory,
+  Swords,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Separator } from "@/AtomicComponents/atoms/shadcn/separator";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/AtomicComponents/atoms/shadcn/collapsible";
 import useLogout from "@/hooks/useLogout";
+import { Car } from "lucide-react";
 
 export const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isTournamentOpen, setIsTournamentOpen] = useState(false);
   const logOut = useLogout();
 
   // HANDLE LOGOUT
@@ -33,12 +28,6 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
       console.error(error);
     }
   };
-
-  const tournamentItems = [
-    { id: "tournament", label: "Overview" },
-    { id: "rounds", label: "Rounds" },
-    { id: "matches", label: "Matches" },
-  ];
 
   return (
     <div
@@ -92,49 +81,43 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
           <span className={`ml-3 ${!isExpanded && "hidden"}`}>Scene</span>
         </Button>
 
-        <Collapsible
-          open={isTournamentOpen && isExpanded}
-          onOpenChange={setIsTournamentOpen}
+        <Button
+          variant={activeTab === "match-types" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => setActiveTab("match-types")}
         >
-          <CollapsibleTrigger asChild>
-            <Button
-              variant={
-                tournamentItems.some((item) => item.id === activeTab)
-                  ? "secondary"
-                  : "ghost"
-              }
-              className="w-full justify-between"
-            >
-              <div className="flex items-center">
-                <Trophy size={20} />
-                <span className={`ml-3 ${!isExpanded && "hidden"}`}>
-                  Tournament
-                </span>
-              </div>
-              {isExpanded && (
-                <ChevronDown
-                  size={16}
-                  className={`transition-transform duration-200 ${
-                    isTournamentOpen ? "rotate-180" : ""
-                  }`}
-                />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 mt-2 ml-2">
-            {tournamentItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={activeTab === item.id ? "secondary" : "ghost"}
-                className="w-full justify-start pl-6"
-                onClick={() => setActiveTab(item.id)}
-              >
-                <CircleDot size={16} />
-                <span className="ml-3">{item.label}</span>
-              </Button>
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
+          <Swords size={20} />
+          <span className={`ml-3 ${!isExpanded && "hidden"}`}>Match Types</span>
+        </Button>
+
+        <Button
+          variant={activeTab === "tournament" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => setActiveTab("tournament")}
+        >
+          <Trophy size={20} />
+          <span className={`ml-3 ${!isExpanded && "hidden"}`}>Tournament</span>
+        </Button>
+
+        <Button
+          variant={activeTab === "environments" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => setActiveTab("environments")}
+        >
+          <Factory size={20} />
+          <span className={`ml-3 ${!isExpanded && "hidden"}`}>
+            Environments
+          </span>
+        </Button>
+
+        <Button
+          variant={activeTab === "cars" ? "secondary" : "ghost"}
+          className="w-full justify-start"
+          onClick={() => setActiveTab("cars")}
+        >
+          <Car size={20} />
+          <span className={`ml-3 ${!isExpanded && "hidden"}`}>Cars</span>
+        </Button>
 
         <Button
           variant={activeTab === "settings" ? "secondary" : "ghost"}

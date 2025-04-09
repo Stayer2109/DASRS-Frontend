@@ -93,7 +93,7 @@ export const TournamentRounds = () => {
       try {
         const [resourcesRes, environmentsRes, matchTypesRes] =
           await Promise.all([
-            apiAuth.get("resources"),
+            apiAuth.get("resources/map?pageSize=100"),
             apiAuth.get("environments"),
             apiAuth.get("match-types"),
           ]);
