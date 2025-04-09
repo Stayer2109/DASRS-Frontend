@@ -1,6 +1,9 @@
 /** @format */
 
 .button-container {
+	position: relative;
+	overflow-x: hidden;
+
 	&:hover {
 		.right-icon {
 			animation: arrowSlide 0.5s ease-in-out forwards;
@@ -31,8 +34,8 @@
 
 @media (min-width: 40rem) {
   .right-icon {
-    width: 40xp !important;
-    height: 40xp !important;
+    width: 35px !important;
+    height: 35px !important;
   }
 
 	.connector-icon {

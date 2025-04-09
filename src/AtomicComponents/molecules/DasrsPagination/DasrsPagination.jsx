@@ -7,7 +7,7 @@ export default function DasrsPagination({
   handlePagination,
   handleChangePageSize,
   count,
-  displayedValues,
+  displayedValues = [10, 15, 20, 25],
   ...props
 }) {
   return (
@@ -18,8 +18,8 @@ export default function DasrsPagination({
         showLastButton
         page={pageIndex}
         pageSize={pageSize}
-        siblingCount={0}
-        boundaryCount={2}
+        siblingCount={1}
+        boundaryCount={1}
         count={count}
         onChange={(_e, value) => handlePagination(pageSize, value)}
         sx={{
@@ -93,6 +93,24 @@ export default function DasrsPagination({
             </>
           )}
         </Select>
+
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-semibold">Go to page:</span>
+          <input
+            type="number"
+            min={1}
+            max={count}
+            className="w-16 px-2 py-1 border border-gray-300 rounded"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const value = parseInt(e.target.value, 10);
+                if (!isNaN(value) && value >= 1 && value <= count) {
+                  handlePagination(pageSize, value);
+                }
+              }
+            }}
+          />
+        </div>
       </div>
     </div>
   );
