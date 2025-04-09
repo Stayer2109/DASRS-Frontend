@@ -40,15 +40,15 @@ const PlayerCommonLayout = () => {
       icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
       link: "/rounds",
     },
-    ...(auth?.isLeader
-      ? [
-          {
-            item: "Assign Player",
-            icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
-            link: "/assign-player",
-          },
-        ]
-      : []),
+    // ...(auth?.isLeader
+    //   ? [
+    //       {
+    //         item: "Assign Player",
+    //         icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+    //         link: "/assign-player",
+    //       },
+    //     ]
+    //   : []),
   ];
 
   useEffect(() => {
