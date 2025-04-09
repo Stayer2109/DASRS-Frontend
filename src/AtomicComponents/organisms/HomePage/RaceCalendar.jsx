@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import InformationCard from "../../molecules/InformationCard/InformationCard";
-import ButtonWithIcon from "@/AtomicComponents/atoms/ButtonWithIcon/ButtonWithIcon";
+// import ButtonWithIcon from "@/AtomicComponents/atoms/ButtonWithIcon/ButtonWithIcon";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { apiClient } from "@/config/axios/axios";
 import { FormatToISODate } from "@/utils/DateConvert";
@@ -9,11 +9,11 @@ import RoundInfoCard from "@/AtomicComponents/molecules/TeamCard/RoundInfoCard";
 const RaceCalendar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null); // Store the active card index
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
-  const [sortByKey, setSortByKey] = useState("sort_by_id"); // default sort key
-  const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
+  const [pageIndex, _setPageIndex] = useState(1);
+  const [pageSize, _setPageSize] = useState(5);
+  const [_totalPages, setTotalPages] = useState(1);
+  const [sortByKey, _setSortByKey] = useState("sort_by_id"); // default sort key
+  const [sortDirection, _setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
   const [calendarData, setCalendarData] = useState();
 
   //#region GET START DATE AND END DATE
