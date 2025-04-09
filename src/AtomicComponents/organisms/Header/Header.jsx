@@ -10,6 +10,7 @@ export default function Header() {
   const [isTop, setIsTop] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar toggle state
   const [isClosedClicked, setIsClosedClicked] = useState(true); // Close button state
+  const [isShown, setIsShown] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -133,85 +134,87 @@ export default function Header() {
       </div>
 
       {/* Right Side: Lumpy Nav + Circle Icon */}
-      <nav className="flex items-center group relative">
-        {/* Sliding nav items */}
-        <ul
-          className={`${
-            !isClosedClicked ? "hidden" : ""
-          } flex gap-2 absolute item-container w-[480px] transition-all duration-450 ease-in-out 
-          flex-nowrap opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 right-0 transform translate-x-[400px] 
-          group-hover:-translate-x-[60px]`}
-        >
-          {navItems.map((item, index) => (
-            <li className={pillClass} key={index}>
-              <Link to={item.url} className={linkClass}>
-                {item.navLink}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {/* Circle button with the icon (overlaps the last pill) */}
-        <button
-          type="button"
-          className="bg-gray-nav w-13 h-13 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
-          onClick={() => {
-            toggleSidebar();
-          }}
-        >
-          <SidebarIcon
-            className="w-7 h-7 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
-            transition ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)] duration-700"
-            color="white"
-          />
-        </button>
-
-        {/* Dark Overlay (For Background Dim Effect) */}
-        <div
-          className={`fixed inset-0 bg-black transition-opacity duration-500 
-          ${
-            isSidebarOpen
-              ? "opacity-55 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          } z-1`}
-          onClick={toggleSidebar} // Clicking outside closes the sidebar
-        />
-
-        {/* Sidebar Menu (Slides in from the right) */}
-        <div
-          className={`fixed top-0 right-0 h-full w-full sm:h-full sm:w-[22%] bg-gray-900 text-white shadow-lg 
-            transform transition-transform duration-500 overflow-y-auto z-2 ${
-              isSidebarOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-        >
-          {/* Close Button */}
-          <button
-            className="absolute top-3 right-6 sm:top-4 sm:right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
-            onClick={() => toggleSidebar()}
+      {!isShown && (
+        <nav className="flex items-center group relative">
+          {/* Sliding nav items */}
+          <ul
+            className={`${
+              !isClosedClicked ? "hidden" : ""
+            } flex gap-2 absolute item-container w-[480px] transition-all duration-450 ease-in-out 
+        flex-nowrap opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 right-0 transform translate-x-[400px] 
+        group-hover:-translate-x-[60px]`}
           >
-            <CancelIcon
-              height={54}
-              width={54}
-              color={"white"}
-              className="close-icon transitions duration-150 ease-linear hover:scale-120 p-3 sm:p-2"
-            />
-          </button>
-
-          {/* Nav Items */}
-          <ul className="flex flex-col gap-5 sm:gap-3 mt-8">
-            {navFullItems.map((item, index) => (
-              <li key={index}>
-                <Link
-                  to={item.url}
-                  className="sidebar-items block px-8 py-4 sm:px-standard-x sm:py-4 text-mobile-h6 sm:text-h3"
-                >
+            {navItems.map((item, index) => (
+              <li className={pillClass} key={index}>
+                <Link to={item.url} className={linkClass}>
                   {item.navLink}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
-      </nav>
+
+          {/* Circle button with the icon (overlaps the last pill) */}
+          <button
+            type="button"
+            className="bg-gray-nav w-13 h-13 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
+            onClick={() => {
+              toggleSidebar();
+            }}
+          >
+            <SidebarIcon
+              className="w-7 h-7 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
+          transition ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)] duration-700"
+              color="white"
+            />
+          </button>
+
+          {/* Dark Overlay (For Background Dim Effect) */}
+          <div
+            className={`fixed inset-0 bg-black transition-opacity duration-500 
+        ${
+          isSidebarOpen
+            ? "opacity-55 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        } z-1`}
+            onClick={toggleSidebar} // Clicking outside closes the sidebar
+          />
+
+          {/* Sidebar Menu (Slides in from the right) */}
+          <div
+            className={`fixed top-0 right-0 h-full w-full sm:h-full sm:w-[22%] bg-gray-900 text-white shadow-lg 
+          transform transition-transform duration-500 overflow-y-auto z-2 ${
+            isSidebarOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+          >
+            {/* Close Button */}
+            <button
+              className="absolute top-3 right-6 sm:top-4 sm:right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
+              onClick={() => toggleSidebar()}
+            >
+              <CancelIcon
+                height={54}
+                width={54}
+                color={"white"}
+                className="close-icon transitions duration-150 ease-linear hover:scale-120 p-3 sm:p-2"
+              />
+            </button>
+
+            {/* Nav Items */}
+            <ul className="flex flex-col gap-5 sm:gap-3 mt-8">
+              {navFullItems.map((item, index) => (
+                <li key={index}>
+                  <Link
+                    to={item.url}
+                    className="sidebar-items block px-8 py-4 sm:px-standard-x sm:py-4 text-mobile-h6 sm:text-h3"
+                  >
+                    {item.navLink}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
+      )}
     </header>
   );
 }
