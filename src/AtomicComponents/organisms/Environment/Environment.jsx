@@ -1,18 +1,15 @@
-import React from "react";
 import { Card, CardContent } from "@/AtomicComponents/atoms/shadcn/card";
-import { SceneHeader } from "@/AtomicComponents/molecules/SceneHeader/SceneHeader";
-import { SceneTable } from "@/AtomicComponents/organisms/SceneTable/SceneTable";
 import { Pagination } from "@/AtomicComponents/molecules/Pagination/Pagination";
-import { SceneModal } from "@/AtomicComponents/organisms/SceneModal/SceneModal";
-import { useSceneManagement } from "@/hooks/useSceneManagement";
+import { useEnvironmentManagement } from "@/hooks/useEnvironmentManagement";
+import { EnvironmentTable } from "../EnvironmentTable/EnvironmentTable";
+import { EnvironmentHeader } from "@/AtomicComponents/molecules/EnvironmentHeader/EnvironmentHeader";
+import { EnvironmentModal } from "@/AtomicComponents/molecules/EnvironmentModal/EnvironmentModal";
 
-export const Scene = () => {
+export const Environment = () => {
   const {
     tableData,
     isLoading,
     error,
-    typeFilter,
-    setTypeFilter,
     sortColumn,
     sortOrder,
     pagination,
@@ -20,30 +17,27 @@ export const Scene = () => {
     setIsModalOpen,
     formMode,
     formData,
-    isSubmitting,
-    handleInputChange,
-    handleTypeChange,
     handleFormSubmit,
-    handleNewScene,
     handleEdit,
     handleDelete,
     handleSort,
     handleStatusToggle,
     handlePageChange,
-  } = useSceneManagement();
+  } = useEnvironmentManagement();
 
   return (
     <>
       <Card className="w-full">
         <CardContent className="pt-6">
-          <SceneHeader
-            onNewScene={handleNewScene}
+          <EnvironmentHeader
+            onNewEnvironment={() => {
+              setIsModalOpen(true);
+              setFormMode("create"); // Changed from formMode("create")
+            }}
             error={error}
-            typeFilter={typeFilter}
-            onTypeFilterChange={setTypeFilter}
           />
 
-          <SceneTable
+          <EnvironmentTable
             data={tableData}
             isLoading={isLoading}
             sortColumn={sortColumn}
@@ -51,11 +45,11 @@ export const Scene = () => {
             onSort={handleSort}
             onStatusToggle={handleStatusToggle}
             onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         </CardContent>
       </Card>
 
-      {/* Using your existing Pagination component */}
       {!isLoading && tableData.length > 0 && (
         <Pagination
           currentPage={pagination.pageNo}
@@ -64,16 +58,15 @@ export const Scene = () => {
         />
       )}
 
-      <SceneModal
+      <EnvironmentModal
         isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        formData={formData}
+        onClose={() => setIsModalOpen(false)}
         formMode={formMode}
-        isSubmitting={isSubmitting}
-        onInputChange={handleInputChange}
-        onTypeChange={handleTypeChange}
+        formData={formData}
         onSubmit={handleFormSubmit}
       />
     </>
   );
-}
+};
+
+export default Environment;

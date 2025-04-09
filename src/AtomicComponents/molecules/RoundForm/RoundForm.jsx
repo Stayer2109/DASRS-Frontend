@@ -315,6 +315,12 @@ export const RoundForm = ({
                     }
                   >
                     <h4 className="font-medium">{type.match_type_name}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Duration: {type.match_duration}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Type: {type.finish_type}
+                    </p>
                   </div>
                 ))}
               </div>
