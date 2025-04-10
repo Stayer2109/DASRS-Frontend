@@ -113,13 +113,14 @@ const CommonLayout = () => {
       // Decode jwt token
       const decodedToken = jwtDecode(accessToken);
       console.log(accessToken);
-      
+
       console.log(decodedToken);
 
       // Get information
       const role = decodedToken.role;
       const id = decodedToken.id;
       const isLeader = decodedToken.isLeader;
+      const teamId = decodedToken.teamId;
 
       // Save to auth
       setAuth({
@@ -129,6 +130,7 @@ const CommonLayout = () => {
         accessToken,
         id,
         isLeader,
+        teamId,
       });
 
       navigate(from, { replace: true });

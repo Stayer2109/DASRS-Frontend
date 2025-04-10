@@ -34,29 +34,29 @@ export const ForgetPasswordValidation = (data) => {
 };
 
 export const UpdateProfileValidation = (data) => {
-  errors = {};
+  const errors = {};
 
-  if (data.address === "") {
+  if (data.address.trim() === "") {
     errors.address = "Address is required";
   }
 
-  if (data.gender === "") {
-    errors.gender = "Gender is reauired";
+  if (data.gender.trim() === "") {
+    errors.gender = "Gender is required";
   }
 
-  if (data.dob === "") {
+  if (data.dob.trim() === "") {
     errors.dob = "Date of Birth is required";
   }
 
-  if (data.phone === "") {
+  if (data.phone.trim() === "") {
     errors.phone = "Phone number is required";
   }
 
-  if (data.first_name === "") {
+  if (data.first_name.trim() === "") {
     errors.first_name = "First name is required";
   }
 
-  if (data.last_name === "") {
+  if (data.last_name.trim() === "") {
     errors.last_name = "Last name is required";
   }
 
