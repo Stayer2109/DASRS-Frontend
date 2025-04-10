@@ -220,6 +220,7 @@ const CommonLayout = () => {
                           email: trimText(e.target.value),
                         });
                       }}
+                      value={loginData.email}
                     />
 
                     {loginErrors.email && (
@@ -242,6 +243,7 @@ const CommonLayout = () => {
                           password: trimText(e.target.value),
                         });
                       }}
+                      value={loginData.password}
                     />
                     <div
                       className="absolute top-0 right-0 -translate-x-2 translate-y-[5px] cursor-pointer active:scale-92 active:translate-y-[6px]"
