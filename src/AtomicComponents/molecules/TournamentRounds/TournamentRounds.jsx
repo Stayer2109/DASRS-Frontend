@@ -42,7 +42,6 @@ export const TournamentRounds = () => {
     start_date: "",
     end_date: "",
     environment_id: "",
-    map_id: "",
     match_type_id: "",
     scored_method_id: "",
     team_limit: "",
@@ -150,7 +149,9 @@ export const TournamentRounds = () => {
   const handleDateChange = (field, date) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: date ? date.toISOString().split("T")[0] : "",
+      [field]: date ? 
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` 
+        : "",
     }));
   };
 
@@ -226,8 +227,24 @@ export const TournamentRounds = () => {
 
         toast.success("Round updated successfully");
       } else {
+        // create score method
+        const response = await apiAuth.post(`scored-methods`, {
+          lap: formData.scoreMethod.lap,
+          assistUsageCount: formData.scoreMethod.assistUsageCount,
+          collision: formData.scoreMethod.collision,
+          total_race_time: formData.scoreMethod.total_race_time,
+          off_track: formData.scoreMethod.off_track,
+          average_speed: formData.scoreMethod.average_speed,
+          total_distance: formData.scoreMethod.total_distance,
+          match_finish_type: formData.scoreMethod.match_finish_type,
+        });
+
+        // Remove formData.scoreMethod from formData
+        const { scoreMethod, ...roundData } = formData;
+        roundData.scored_method_id = response.data.data.scored_method_id;
+
         // Create new round (existing logic)
-        await apiAuth.post("rounds", formData);
+        await apiAuth.post("rounds", roundData);
         toast.success("Round created successfully");
       }
 
@@ -238,9 +255,10 @@ export const TournamentRounds = () => {
     } catch (err) {
       console.error("Error saving round:", err);
       toast.error(
-        formMode === "edit"
-          ? "Failed to update round!\n Error:" + err.message
-          : "Failed to create round!\n Error:" + err.message
+        err.response?.data?.message ||
+          (formMode === "edit"
+            ? "Failed to update round"
+            : "Failed to create round")
       );
     }
   };
