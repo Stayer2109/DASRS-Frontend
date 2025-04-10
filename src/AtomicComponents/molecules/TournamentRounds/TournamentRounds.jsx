@@ -149,7 +149,9 @@ export const TournamentRounds = () => {
   const handleDateChange = (field, date) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: date ? date.toISOString().split("T")[0] : "",
+      [field]: date ? 
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` 
+        : "",
     }));
   };
 
