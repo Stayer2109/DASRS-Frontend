@@ -42,6 +42,7 @@ const Input = ({
   id = "",
   accept = "",
   type = "text",
+  value = "",
   placeholder = "",
   className = "",
   autoComplete = "off",
@@ -58,6 +59,7 @@ const Input = ({
       type="file"
       accept={accept}
       placeholder={placeholder}
+      value={value}
       className={commonInputClass}
       onChange={onChange}
       autoComplete={
@@ -68,6 +70,8 @@ const Input = ({
     <input
       id={id}
       type={type}
+      ref={ref}
+      value={value}
       placeholder={placeholder}
       className={commonInputClass}
       onChange={onChange}
@@ -81,6 +85,7 @@ const Input = ({
 Input.propTypes = {
   ref: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
   id: PropTypes.string,
+  value: PropTypes.string || PropTypes.number || PropTypes.bool,
   accept: PropTypes.string,
   type: PropTypes.oneOf(["text", "password", "email"]),
   placeholder: PropTypes.string,

@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     const decodeAccessToken = accessToken ? jwtDecode(accessToken) : null;
     const id = decodeAccessToken ? decodeAccessToken.id : null;
     const isLeader = decodeAccessToken ? decodeAccessToken.isLeader : null;
+    const teamId = decodeAccessToken ? decodeAccessToken.teamId : null;
 
     if (decodeAccessToken) {
       setAuth({
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
         accessToken: accessToken,
         id: id,
         isLeader: isLeader,
+        teamId: teamId,
       });
     }
   }, []);

@@ -24,6 +24,8 @@ import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
 import Button from "@/AtomicComponents/atoms/Button/Button";
 import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
+import Select from "@/AtomicComponents/atoms/Select/Select";
+import { number } from "prop-types";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
@@ -33,6 +35,13 @@ const PlayerMatches = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [assignModalShow, setAssignModalShow] = useState(false);
+  const [_teamMember, setTeamMember] = useState([]);
+  const [playerOptions, setPlayerOptions] = useState([]);
+  const [assignData, setAssignData] = useState({
+    matchTeamid: 0,
+    assigner: "",
+    assignee: "",
+  });
   const playerId = auth?.id;
   const location = useLocation();
   const roundNameFromState = location.state?.roundName;
@@ -46,7 +55,11 @@ const PlayerMatches = () => {
   // HANDLE SELECT MATCH
   const handleSelectMatch = (match) => {
     setSelectedMatch(match);
-    console.log("Selected Match:", match);
+    setAssignData({
+      matchTeamid: "", // user will select this later
+      assigner: playerId,
+      assignee: "",
+    });
   };
 
   //#region MODAL CONTROL
@@ -64,6 +77,24 @@ const PlayerMatches = () => {
   };
   //#endregion
 
+  // HANDLE SUBMIT ASSIGN PLAYER TO MATCH
+  const handleSubmitAssignPlayer = async (e) => {
+    e.preventDefault();
+
+    try {
+      setIsLoading(true);
+      const response = await apiClient.put(
+        `matches/assign/${assignData.matchTeamid}?assigner=${assignData.assigner}&assignee=${assignData.assignee}`
+      );
+
+      console.log("Assign Player Response:", response.data);
+    } catch (error) {
+      console.error("Error assigning player:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // GET MATCHES BY ROUND ID AND PLAYER ID
   useEffect(() => {
     if (!roundId || !playerId) return;
@@ -73,20 +104,18 @@ const PlayerMatches = () => {
         setIsLoading(true);
 
         const response = assignedModeToggle
-          ? await apiClient.get(
+          ? /*await apiClient.get(
+              `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
+            )*/ await apiClient.get(
               `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
             )
-          : await apiClient.get(`matches/round/${roundId}`, {
-              params: {
-                sortBy: "SORT_BY_ID_ASC",
-              },
-            });
+          : await apiClient.get(`matches/team/${auth?.teamId}`);
 
         if (response.data.http_status === 200) {
           const data = response.data.data;
 
           // Handle data format for each API
-          const formattedData = assignedModeToggle ? data : data?.content;
+          const formattedData = data;
           setMatchesList(Array.isArray(formattedData) ? formattedData : []);
         }
       } catch (error) {
@@ -101,18 +130,35 @@ const PlayerMatches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assignedModeToggle, roundId, playerId]);
 
-  // GET SELECTED MATCH
+  // GET TEAM MEMBER BY MATCH ID
   useEffect(() => {
-    if (!selectedMatch) return;
+    if (!auth?.teamId) return;
 
-    try {
-      setIsLoading(true);
-    } catch (error) {
-      console.log("Error fetching selected match:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedMatch]);
+    const fetchTeamMembers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get(`teams/members/${auth?.teamId}`);
+
+        if (response.status === 200) {
+          setTeamMember(response.data);
+          setPlayerOptions(
+            response.data.map((member) => ({
+              value: member.id,
+              label: member.full_name,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching team members:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTeamMembers();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -174,11 +220,11 @@ const PlayerMatches = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
                     <div className="font-medium text-blue-600">
-                      {match.teams[0].team_name || "No Team"}
+                      {/* {match?.teams[0]?.team_name || "No Team"} */}
                     </div>
                     <div className="text-lg font-bold text-gray-700">VS</div>
                     <div className="font-medium text-red-600">
-                      {match?.teams[1]?.team_name || "Team Not Available"}
+                      {/* {match?.teams[1]?.team_name || "Team Not Available"} */}
                     </div>
                   </div>
 
@@ -222,6 +268,7 @@ const PlayerMatches = () => {
                   <div className="text-center">
                     {match?.status.toString().toLowerCase() === "pending" ? (
                       <Button
+                        className="font-semibold"
                         content="Assign player"
                         onClick={() => {
                           handleSelectMatch(match);
@@ -230,6 +277,7 @@ const PlayerMatches = () => {
                       />
                     ) : (
                       <Button
+                        className="font-semibold"
                         content="Assign player"
                         disabled
                         tooltipData="Cannot assign player for this match"
@@ -247,18 +295,18 @@ const PlayerMatches = () => {
       <Modal size="md" show={assignModalShow} onHide={handleAssignModalClose}>
         <ModalHeader content={"Assign Player To A Match"} />
         <ModalBody className="">
-          <div className="selected-match-container flex flex-col gap-2">
-            <h2 className="selected-match-name text-h2 font-bold">
-              {selectedMatch?.match_name}
-            </h2>
+          <form
+            onSubmit={handleSubmitAssignPlayer}
+            className="flex flex-col gap-6"
+          >
+            <h2 className="text-h2 font-bold">{selectedMatch?.match_name}</h2>
             <h5 className="text-h5 italic">{selectedMatch?.match_code}</h5>
+
             {/* Start Date */}
             <div className="flex gap-2">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                <span className="">Start:</span>
-              </div>
-              <span className="text-right">
+              <Calendar className="h-4 w-4 mr-2" />
+              <span>Start:</span>
+              <span>
                 {`${GetDateFromDate(
                   selectedMatch?.time_start
                 )} - ${GetTimeFromDate(selectedMatch?.time_start)}`}
@@ -267,17 +315,65 @@ const PlayerMatches = () => {
 
             {/* End Date */}
             <div className="flex gap-2">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                <span className="">End:</span>
-              </div>
-              <span className="text-right">
+              <Calendar className="h-4 w-4 mr-2" />
+              <span>End:</span>
+              <span>
                 {`${GetDateFromDate(
                   selectedMatch?.time_end
                 )} - ${GetTimeFromDate(selectedMatch?.time_end)}`}
               </span>
             </div>
-          </div>
+
+            {/* Select slot */}
+            <div className="">
+              <label className="block mb-1">Select empty slot</label>
+              {selectedMatch?.match_team?.filter((m) => !m.player_id).length ===
+              0 ? (
+                <p className="text-md text-red-500">
+                  All slots are already assigned
+                </p>
+              ) : (
+                <Select
+                  options={selectedMatch?.match_team
+                    .filter((m) => !m.player_id)
+                    .map((m) => ({
+                      value: m.match_team_id,
+                      label: `Slot ${m.match_team_id}`,
+                    }))}
+                  placeHolder="Select slot"
+                  onChange={(e) =>
+                    setAssignData((prev) => ({
+                      ...prev,
+                      matchTeamid: e.target.value,
+                    }))
+                  }
+                />
+              )}
+            </div>
+
+            {/* Select team member */}
+            <div className="">
+              <label className="block mb-1">Select team member</label>
+              <Select
+                options={playerOptions}
+                placeHolder="Select player"
+                onChange={(e) =>
+                  setAssignData((prev) => ({
+                    ...prev,
+                    assignee: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="text-center">
+              <Button
+                disabled={!assignData.assignee || !assignData.matchTeamid}
+                content="Assign Player"
+                type="submit"
+              />
+            </div>
+          </form>
         </ModalBody>
       </Modal>
     </>
