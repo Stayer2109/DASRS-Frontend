@@ -3,18 +3,20 @@
 import { LogoutIcon, SidebarIcon } from "@/assets/icon-svg";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useLogout from "@/hooks/useLogout";
-import { TruncateText } from "@/utils/Trucatetext";
 import { ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { Link, useLocation } from "react-router-dom";
+import { TruncateText } from "@/utils/Trucatetext";
+import useAuth from "@/hooks/useAuth";
 
 const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const { auth } = useAuth();
   const location = useLocation();
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const logOut = useLogout();
@@ -121,9 +123,10 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
             >
               <h1 className="text-h2 font-bold absolute w-[87%]">
                 <TypingText
-                  text={`${TruncateText("Welcome Phong Pro Vip", 18)}`}
+                  text={`${TruncateText("Welcome Back", 18)}`}
                   isVisible={isOpened}
                 />
+                {auth?.isLeader && <span className="text-yellow-500">Leader</span>}
               </h1>
             </motion.span>
 

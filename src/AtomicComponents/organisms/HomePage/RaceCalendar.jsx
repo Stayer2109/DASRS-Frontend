@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import InformationCard from "../../molecules/InformationCard/InformationCard";
-import ButtonWithIcon from "@/AtomicComponents/atoms/ButtonWithIcon/ButtonWithIcon";
+// import ButtonWithIcon from "@/AtomicComponents/atoms/ButtonWithIcon/ButtonWithIcon";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { apiClient } from "@/config/axios/axios";
 import { FormatToISODate } from "@/utils/DateConvert";
@@ -9,28 +9,28 @@ import RoundInfoCard from "@/AtomicComponents/molecules/TeamCard/RoundInfoCard";
 const RaceCalendar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(null); // Store the active card index
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const [totalPages, setTotalPages] = useState(1);
-  const [sortByKey, setSortByKey] = useState("sort_by_id"); // default sort key
-  const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
+  const [pageIndex, _setPageIndex] = useState(1);
+  const [pageSize, _setPageSize] = useState(5);
+  const [_totalPages, setTotalPages] = useState(1);
+  const [sortByKey, _setSortByKey] = useState("sort_by_id"); // default sort key
+  const [sortDirection, _setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
   const [calendarData, setCalendarData] = useState();
 
   //#region GET START DATE AND END DATE
   const getStartDate = () => {
-    // const today = new Date();
-    // const startDate = new Date(
-    //   today.getFullYear(),
-    //   today.getMonth(),
-    //   today.getDate()
-    // );
-
-    const day = new Date(2025, 0, 31); // Month is 0-indexed, so 3 is April
+    const today = new Date();
     const startDate = new Date(
-      day.getFullYear(),
-      day.getMonth(),
-      day.getDate()
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
     );
+
+    // const day = new Date(2025, 0, 31); // Month is 0-indexed, so 3 is April
+    // const startDate = new Date(
+    //   day.getFullYear(),
+    //   day.getMonth(),
+    //   day.getDate()
+    // );
     return FormatToISODate(startDate);
   };
 
@@ -39,7 +39,7 @@ const RaceCalendar = () => {
     const endDate = new Date(
       today.getFullYear(),
       today.getMonth(),
-      today.getDate() + 3, // Fetch data from today + 3 days
+      today.getDate() + 3 // Fetch data from today + 3 days
     );
     return FormatToISODate(endDate);
   };
@@ -102,7 +102,7 @@ const RaceCalendar = () => {
               : ""
           }`}
         >
-          <div className="flex-2/12 gap flex flex-col gap-y-5">
+          <div className="flex-2/12 gap flex flex-col gap-y-5 mb-5">
             {calendarData && calendarData.length > 0 ? (
               calendarData.map((item, index) => (
                 <RoundInfoCard
@@ -113,8 +113,8 @@ const RaceCalendar = () => {
                 />
               ))
             ) : (
-              <h1 className="text-gray-300 text-h4 sm:text-h1 text-center">
-                No races currently avaiable
+              <h1 className="w-auto mx-auto text-gray-300 text-h4 sm:text-h1 text-center rounded-2xl border-2 border-gray-300 p-5 px-50">
+                No races currently available
               </h1>
             )}
           </div>

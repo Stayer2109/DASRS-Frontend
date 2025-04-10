@@ -112,6 +112,9 @@ const CommonLayout = () => {
 
       // Decode jwt token
       const decodedToken = jwtDecode(accessToken);
+      console.log(accessToken);
+      
+      console.log(decodedToken);
 
       // Get information
       const role = decodedToken.role;

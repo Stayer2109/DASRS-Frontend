@@ -17,7 +17,7 @@ import useAuth from "@/hooks/useAuth";
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const { auth } = useAuth();
+  const { _auth } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navBarIconColor = "#FAF9F6";
@@ -40,15 +40,15 @@ const PlayerCommonLayout = () => {
       icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
       link: "/rounds",
     },
-    ...(auth?.isLeader
-      ? [
-          {
-            item: "Assign Player",
-            icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
-            link: "/assign-player",
-          },
-        ]
-      : []),
+    // ...(auth?.isLeader
+    //   ? [
+    //       {
+    //         item: "Assign Player",
+    //         icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+    //         link: "/assign-player",
+    //       },
+    //     ]
+    //   : []),
   ];
 
   useEffect(() => {

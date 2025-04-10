@@ -8,98 +8,86 @@ import {
   CardTitle,
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { apiClient } from "@/config/axios/axios";
-import { useDebounce } from "@/hooks/useDebounce";
 import { formatDateString } from "@/utils/dateUtils";
 import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import Input from "@/AtomicComponents/atoms/Input/Input";
+import { Switch } from "@/AtomicComponents/atoms/shadcn/switch";
+import { Label } from "@/AtomicComponents/atoms/shadcn/label";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 // import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
-
-// const sortKeyMap = {
-//   match_id: "SORT_BY_ID",
-//   match_name: "SORT_BY_NAME",
-//   time_created: "SORT_BY_CREATED",
-//   time_start: "SORT_BY_START",
-//   time_end: "SORT_BY_END",
-// };
+import Button from "@/AtomicComponents/atoms/Button/Button";
+import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
   const { auth } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const location = useLocation();
-  const [pageIndex, setPageIndex] = useState(1);
-  // const [pageSize, setPageSize] = useState(3);
-  // const [totalPages, setTotalPages] = useState(1);
-  // const [sortByKey, setSortByKey] = useState("match_id"); // default sort key
-  // const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [matchesList, setMatchesList] = useState([]);
+  const [assignedModeToggle, setAssignedModeToggle] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [assignModalShow, setAssignModalShow] = useState(false);
+  const playerId = auth?.id;
+  const location = useLocation();
   const roundNameFromState = location.state?.roundName;
 
+  // BREADCRUM ITEMS
   const breadcrumbItems = [
     { label: `${roundNameFromState}`, href: "/rounds" },
     { label: "Matches", href: `/rounds/${roundId}/matches` },
   ];
 
-  // HANDLE SORT
-  // const handleSort = (columnKey) => {
-  //   const isSameColumn = sortByKey === columnKey;
-  //   let newDirection = "ASC";
+  // HANDLE SELECT MATCH
+  const handleSelectMatch = (match) => {
+    setSelectedMatch(match);
+    console.log("Selected Match:", match);
+  };
 
-  //   // Check if the same column is clicked and change sort direction
-  //   if (isSameColumn && sortDirection === "ASC") {
-  //     newDirection = "DESC";
-  //   }
+  //#region MODAL CONTROL
+  const handleAssignmModalShow = () => {
+    setAssignModalShow(true);
+  };
 
-  //   setSortByKey(columnKey);
-  //   setSortDirection(newDirection);
-  //   setPageIndex(1);
-  // };
+  const handleAssignModalClose = () => {
+    setAssignModalShow(false);
 
-  // GET SORT PARAMS
-  // const getSortByParam = () => {
-  //   if (!sortByKey || !sortDirection) return null;
-  //   const baseKey = sortKeyMap[sortByKey];
-  //   return baseKey ? `${baseKey}_${sortDirection}` : null;
-  // };
-
-  // DISPLAY VALUE FOR PAGINATION
-  // const displayedValues = [3, 6, 9, 12];
-
-  //#region PAGINATION
-  // const handlePagination = (_pageSize, newPageIndex) => {
-  //   setPageIndex(newPageIndex);
-  // };
-
-  // const handleChangePageSize = (newSize) => {
-  //   setPageSize(newSize);
-  //   setPageIndex(1);
-  // };
+    // Remove selected match after modal close
+    setTimeout(() => {
+      setSelectedMatch(null);
+    }, 100);
+  };
   //#endregion
 
   // GET MATCHES BY ROUND ID AND PLAYER ID
   useEffect(() => {
-    if (!roundId) return;
+    if (!roundId || !playerId) return;
 
     const fetchMatches = async () => {
       try {
         setIsLoading(true);
 
-        const response = await apiClient.get(
-          `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
-        );
+        const response = assignedModeToggle
+          ? await apiClient.get(
+              `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
+            )
+          : await apiClient.get(`matches/round/${roundId}`, {
+              params: {
+                sortBy: "SORT_BY_ID_ASC",
+              },
+            });
 
         if (response.data.http_status === 200) {
-          if (response.data.data.length === 0) return;
-
           const data = response.data.data;
-          setMatchesList(data.content);
-          // setTotalPages(data.total_pages);
+
+          // Handle data format for each API
+          const formattedData = assignedModeToggle ? data : data?.content;
+          setMatchesList(Array.isArray(formattedData) ? formattedData : []);
         }
       } catch (error) {
         console.error("Error fetching matches:", error);
@@ -109,63 +97,46 @@ const PlayerMatches = () => {
     };
 
     fetchMatches();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    /*sortByKey, sortDirection,*/ debouncedSearchTerm,
-    pageIndex /*pageSize*/,
-  ]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignedModeToggle, roundId, playerId]);
+
+  // GET SELECTED MATCH
   useEffect(() => {
-    setPageIndex(1);
-  }, [/*sortByKey, sortDirection,*/ debouncedSearchTerm]);
+    if (!selectedMatch) return;
+
+    try {
+      setIsLoading(true);
+    } catch (error) {
+      console.log("Error fetching selected match:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedMatch]);
 
   return (
     <>
       {isLoading && <Spinner />}
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex justify-between">
-        <div className="flex-1">
-          <div className="mb-4 flex justify-between flex-wrap gap-2">
-            <Input
-              type="text"
-              placeholder="Search match by name..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPageIndex(1); // Reset to page 1 on search
-              }}
-              className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xl"
-            />
-          </div>
+      {/* Switch button for different render mode */}
+      <div className="w-full mb-5">
+        <div className="inline-flex items-center gap-4 border border-gray-600 p-4 rounded-md">
+          <Switch
+            id="assigned-toggle"
+            checked={assignedModeToggle}
+            onCheckedChange={setAssignedModeToggle}
+          />
+          <Label
+            htmlFor="assigned-toggle"
+            className="text-sm text-muted-foreground"
+          >
+            Assigned Mode
+          </Label>
         </div>
-
-        {/* <div className="flex items-center justify-end gap-4 mb-4 top-0 right-0">
-          <select
-            value={sortByKey}
-            onChange={(e) => handleSort(e.target.value)}
-            className="border px-2 py-1 rounded"
-          >
-            <option value="match_id">Sort by ID</option>
-            <option value="created_date">Sort by Created Date</option>
-            <option value="start_date">Sort by Start Date</option>
-            <option value="end_date">Sort by End Date</option>
-          </select>
-
-          <select
-            value={sortDirection}
-            onChange={(e) => {
-              setSortDirection(e.target.value);
-              setPageIndex(1);
-            }}
-            className="border px-2 py-1 rounded"
-          >
-            <option value="ASC">Asc</option>
-            <option value="DESC">Desc</option>
-          </select>
-        </div> */}
       </div>
 
+      {/* Match card render */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
         {matchesList.length === 0 ? (
           <Card className="col-span-full">
@@ -177,10 +148,10 @@ const PlayerMatches = () => {
           matchesList.map((match) => (
             <Card
               key={match.match_id}
-              className="hover:shadow-md transition-shadow overflow-hidden"
+              className="hover:shadow-xl transition-shadow overflow-hidden self-start min-h-[300px]"
             >
               <CardHeader className="bg-gray-50 p-4 pb-3 border-b">
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start gap-3">
                   <CardTitle className="text-lg font-bold">
                     {match.match_name}
                   </CardTitle>
@@ -202,11 +173,11 @@ const PlayerMatches = () => {
               <CardContent className="p-4">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                    <div className="font-medium">
+                    <div className="font-medium text-blue-600">
                       {match.teams[0].team_name || "No Team"}
                     </div>
-                    <div className="text-lg font-bold">VS</div>
-                    <div className="font-medium">
+                    <div className="text-lg font-bold text-gray-700">VS</div>
+                    <div className="font-medium text-red-600">
                       {match?.teams[1]?.team_name || "Team Not Available"}
                     </div>
                   </div>
@@ -247,6 +218,24 @@ const PlayerMatches = () => {
                       {match.location}
                     </div>
                   )}
+
+                  <div className="text-center">
+                    {match?.status.toString().toLowerCase() === "pending" ? (
+                      <Button
+                        content="Assign player"
+                        onClick={() => {
+                          handleSelectMatch(match);
+                          handleAssignmModalShow();
+                        }}
+                      />
+                    ) : (
+                      <Button
+                        content="Assign player"
+                        disabled
+                        tooltipData="Cannot assign player for this match"
+                      />
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -254,15 +243,43 @@ const PlayerMatches = () => {
         )}
       </div>
 
-      {/* <DasrsPagination
-        pageSize={pageSize}
-        pageIndex={pageIndex}
-        handlePagination={handlePagination}
-        handleChangePageSize={handleChangePageSize}
-        page={pageIndex}
-        count={totalPages}
-        displayedValues={displayedValues}
-      /> */}
+      {/* Assign Modal */}
+      <Modal size="md" show={assignModalShow} onHide={handleAssignModalClose}>
+        <ModalHeader content={"Assign Player To A Match"} />
+        <ModalBody className="">
+          <div className="selected-match-container flex flex-col gap-2">
+            <h2 className="selected-match-name text-h2 font-bold">
+              {selectedMatch?.match_name}
+            </h2>
+            <h5 className="text-h5 italic">{selectedMatch?.match_code}</h5>
+            {/* Start Date */}
+            <div className="flex gap-2">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="">Start:</span>
+              </div>
+              <span className="text-right">
+                {`${GetDateFromDate(
+                  selectedMatch?.time_start
+                )} - ${GetTimeFromDate(selectedMatch?.time_start)}`}
+              </span>
+            </div>
+
+            {/* End Date */}
+            <div className="flex gap-2">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="">End:</span>
+              </div>
+              <span className="text-right">
+                {`${GetDateFromDate(
+                  selectedMatch?.time_end
+                )} - ${GetTimeFromDate(selectedMatch?.time_end)}`}
+              </span>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
     </>
   );
 };
