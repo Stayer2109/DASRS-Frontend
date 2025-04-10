@@ -12,26 +12,57 @@ import { formatDateString } from "@/utils/dateUtils";
 import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import { Switch } from "@/AtomicComponents/atoms/shadcn/switch";
+import { Label } from "@/AtomicComponents/atoms/shadcn/label";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 // import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
-import { Switch } from "@/AtomicComponents/atoms/shadcn/switch";
-import { Label } from "@/AtomicComponents/atoms/shadcn/label";
+import Button from "@/AtomicComponents/atoms/Button/Button";
+import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
   const { auth } = useAuth();
-  const playerId = auth?.id;
+  const [matchesList, setMatchesList] = useState([]);
   const [assignedModeToggle, setAssignedModeToggle] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [assignModalShow, setAssignModalShow] = useState(false);
+  const playerId = auth?.id;
   const location = useLocation();
-  const [matchesList, setMatchesList] = useState([]);
   const roundNameFromState = location.state?.roundName;
 
+  // BREADCRUM ITEMS
   const breadcrumbItems = [
     { label: `${roundNameFromState}`, href: "/rounds" },
     { label: "Matches", href: `/rounds/${roundId}/matches` },
   ];
+
+  // HANDLE SELECT MATCH
+  const handleSelectMatch = (match) => {
+    setSelectedMatch(match);
+    console.log("Selected Match:", match);
+  };
+
+  //#region MODAL CONTROL
+  const handleAssignmModalShow = () => {
+    setAssignModalShow(true);
+  };
+
+  const handleAssignModalClose = () => {
+    setAssignModalShow(false);
+
+    // Remove selected match after modal close
+    setTimeout(() => {
+      setSelectedMatch(null);
+    }, 100);
+  };
+  //#endregion
 
   // GET MATCHES BY ROUND ID AND PLAYER ID
   useEffect(() => {
@@ -70,11 +101,25 @@ const PlayerMatches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assignedModeToggle, roundId, playerId]);
 
+  // GET SELECTED MATCH
+  useEffect(() => {
+    if (!selectedMatch) return;
+
+    try {
+      setIsLoading(true);
+    } catch (error) {
+      console.log("Error fetching selected match:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedMatch]);
+
   return (
     <>
       {isLoading && <Spinner />}
       <Breadcrumb items={breadcrumbItems} />
 
+      {/* Switch button for different render mode */}
       <div className="w-full mb-5">
         <div className="inline-flex items-center gap-4 border border-gray-600 p-4 rounded-md">
           <Switch
@@ -91,6 +136,7 @@ const PlayerMatches = () => {
         </div>
       </div>
 
+      {/* Match card render */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
         {matchesList.length === 0 ? (
           <Card className="col-span-full">
@@ -102,7 +148,7 @@ const PlayerMatches = () => {
           matchesList.map((match) => (
             <Card
               key={match.match_id}
-              className="hover:shadow-md transition-shadow overflow-hidden"
+              className="hover:shadow-xl transition-shadow overflow-hidden self-start min-h-[300px]"
             >
               <CardHeader className="bg-gray-50 p-4 pb-3 border-b">
                 <div className="flex justify-between items-start gap-3">
@@ -127,11 +173,11 @@ const PlayerMatches = () => {
               <CardContent className="p-4">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                    <div className="font-medium">
+                    <div className="font-medium text-blue-600">
                       {match.teams[0].team_name || "No Team"}
                     </div>
-                    <div className="text-lg font-bold">VS</div>
-                    <div className="font-medium">
+                    <div className="text-lg font-bold text-gray-700">VS</div>
+                    <div className="font-medium text-red-600">
                       {match?.teams[1]?.team_name || "Team Not Available"}
                     </div>
                   </div>
@@ -172,12 +218,68 @@ const PlayerMatches = () => {
                       {match.location}
                     </div>
                   )}
+
+                  <div className="text-center">
+                    {match?.status.toString().toLowerCase() === "pending" ? (
+                      <Button
+                        content="Assign player"
+                        onClick={() => {
+                          handleSelectMatch(match);
+                          handleAssignmModalShow();
+                        }}
+                      />
+                    ) : (
+                      <Button
+                        content="Assign player"
+                        disabled
+                        tooltipData="Cannot assign player for this match"
+                      />
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))
         )}
       </div>
+
+      {/* Assign Modal */}
+      <Modal size="md" show={assignModalShow} onHide={handleAssignModalClose}>
+        <ModalHeader content={"Assign Player To A Match"} />
+        <ModalBody className="">
+          <div className="selected-match-container flex flex-col gap-2">
+            <h2 className="selected-match-name text-h2 font-bold">
+              {selectedMatch?.match_name}
+            </h2>
+            <h5 className="text-h5 italic">{selectedMatch?.match_code}</h5>
+            {/* Start Date */}
+            <div className="flex gap-2">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="">Start:</span>
+              </div>
+              <span className="text-right">
+                {`${GetDateFromDate(
+                  selectedMatch?.time_start
+                )} - ${GetTimeFromDate(selectedMatch?.time_start)}`}
+              </span>
+            </div>
+
+            {/* End Date */}
+            <div className="flex gap-2">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span className="">End:</span>
+              </div>
+              <span className="text-right">
+                {`${GetDateFromDate(
+                  selectedMatch?.time_end
+                )} - ${GetTimeFromDate(selectedMatch?.time_end)}`}
+              </span>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
     </>
   );
 };

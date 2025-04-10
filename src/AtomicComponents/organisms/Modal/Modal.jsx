@@ -126,4 +126,20 @@ Modal.propTypes = {
   size: PropTypes.string,
 };
 
+ModalHeader.propTypes = {
+  content: PropTypes.string,
+  className: PropTypes.string,
+  icon: PropTypes.element,
+};
+
+ModalBody.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+ModalFooter.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
 export { Modal, ModalHeader, ModalBody, ModalFooter };

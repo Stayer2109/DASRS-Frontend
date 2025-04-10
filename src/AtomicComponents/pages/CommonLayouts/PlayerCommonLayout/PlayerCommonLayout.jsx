@@ -17,7 +17,7 @@ import useAuth from "@/hooks/useAuth";
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const { auth } = useAuth();
+  const { _auth } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navBarIconColor = "#FAF9F6";
