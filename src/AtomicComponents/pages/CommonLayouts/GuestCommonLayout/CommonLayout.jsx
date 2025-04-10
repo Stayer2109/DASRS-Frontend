@@ -112,11 +112,15 @@ const CommonLayout = () => {
 
       // Decode jwt token
       const decodedToken = jwtDecode(accessToken);
+      console.log(accessToken);
+
+      console.log(decodedToken);
 
       // Get information
       const role = decodedToken.role;
       const id = decodedToken.id;
       const isLeader = decodedToken.isLeader;
+      const teamId = decodedToken.teamId;
 
       // Save to auth
       setAuth({
@@ -126,6 +130,7 @@ const CommonLayout = () => {
         accessToken,
         id,
         isLeader,
+        teamId,
       });
 
       navigate(from, { replace: true });
@@ -215,6 +220,7 @@ const CommonLayout = () => {
                           email: trimText(e.target.value),
                         });
                       }}
+                      value={loginData.email}
                     />
 
                     {loginErrors.email && (
@@ -237,6 +243,7 @@ const CommonLayout = () => {
                           password: trimText(e.target.value),
                         });
                       }}
+                      value={loginData.password}
                     />
                     <div
                       className="absolute top-0 right-0 -translate-x-2 translate-y-[5px] cursor-pointer active:scale-92 active:translate-y-[6px]"

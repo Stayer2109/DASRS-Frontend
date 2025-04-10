@@ -8,11 +8,24 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import { Calendar, Clock, Users, ArrowLeft } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Users,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { apiAuth } from "@/config/axios/axios";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { toast } from "sonner";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/AtomicComponents/atoms/shadcn/collapsible";
+import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 
 export const RoundMatches = () => {
   const { tournamentId, roundId } = useParams();
@@ -21,7 +34,18 @@ export const RoundMatches = () => {
   const [tournament, setTournament] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [scoreDetails, setScoreDetails] = useState({});
+  const [loadingScores, setLoadingScores] = useState({});
+
+  // Add pagination states
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+  const [totalPages, setTotalPages] = useState(1);
+
   const navigate = useNavigate();
+
+  // Display values for pagination
+  const displayedValues = [6, 12, 18, 24];
 
   // Fetch tournament, round, and matches data
   useEffect(() => {
@@ -44,11 +68,17 @@ export const RoundMatches = () => {
         const roundResponse = await apiAuth.get(`rounds/${roundId}`);
         setRound(roundResponse.data.data);
 
-        // Fetch matches for the round
-        const matchesResponse = await apiAuth.get(
-          `matches/round/${roundId}?sortBy=SORT_BY_ID_ASC`
-        );
+        // Update matches fetch to include pagination
+        const matchesResponse = await apiAuth.get(`matches/round/${roundId}`, {
+          params: {
+            pageNo: pageIndex - 1, // Adjust for 0-based indexing if your API uses it
+            pageSize: pageSize,
+            sortBy: "SORT_BY_ID_ASC",
+          },
+        });
+
         setMatches(matchesResponse.data.data.content || []);
+        setTotalPages(matchesResponse.data.data.total_pages || 1);
       } catch (err) {
         console.error("Error fetching round matches:", err);
         setError("Failed to load matches. Please try again.");
@@ -59,7 +89,7 @@ export const RoundMatches = () => {
     };
 
     fetchData();
-  }, [tournamentId, roundId]);
+  }, [tournamentId, roundId, pageIndex, pageSize]); // Add pagination dependencies
 
   // Breadcrumb items
   const breadcrumbItems = [
@@ -101,6 +131,27 @@ export const RoundMatches = () => {
     return timeString;
   };
 
+  const fetchScoreDetails = async (matchId, teamId) => {
+    setLoadingScores((prev) => ({ ...prev, [`${matchId}-${teamId}`]: true }));
+    try {
+      const response = await apiAuth.get(
+        `matches/score-details/${matchId}/${teamId}`
+      );
+      setScoreDetails((prev) => ({
+        ...prev,
+        [`${matchId}-${teamId}`]: response.data.data,
+      }));
+    } catch (error) {
+      console.error("Error fetching score details:", error);
+      toast.error("Failed to load score details");
+    } finally {
+      setLoadingScores((prev) => ({
+        ...prev,
+        [`${matchId}-${teamId}`]: false,
+      }));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -108,6 +159,16 @@ export const RoundMatches = () => {
       </div>
     );
   }
+
+  // Pagination handlers
+  const handlePagination = (_pageSize, newPageIndex) => {
+    setPageIndex(newPageIndex);
+  };
+
+  const handleChangePageSize = (newSize) => {
+    setPageSize(newSize);
+    setPageIndex(1); // Reset to first page when changing page size
+  };
 
   return (
     <div className="space-y-6">
@@ -135,7 +196,7 @@ export const RoundMatches = () => {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         {matches.length === 0 ? (
           <Card className="col-span-full">
             <CardContent className="flex flex-col items-center justify-center p-6">
@@ -172,14 +233,54 @@ export const RoundMatches = () => {
 
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                    <div className="font-medium">
-                      {match.teams[0].team_name || "No Team"}
-                    </div>
-                    <div className="text-lg font-bold">VS</div>
-                    <div className="font-medium">
-                      {match?.teams[1]?.team_name || "Team Not Available"}
-                    </div>
+                  <div className="space-y-2">
+                    {/* Group teams by team_id to avoid duplicates */}
+                    {(() => {
+                      const uniqueTeams = Array.from(
+                        new Map(
+                          match.teams.map((team) => [team.team_id, team])
+                        ).values()
+                      );
+
+                      return uniqueTeams.length <= 2 ? (
+                        // If 2 or fewer teams, show the VS layout
+                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                          <div className="font-medium">
+                            {uniqueTeams[0]?.team_name || "No Team"}
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({uniqueTeams[0]?.team_tag || "N/A"})
+                            </span>
+                          </div>
+                          <div className="text-lg font-bold">VS</div>
+                          <div className="font-medium">
+                            {uniqueTeams[1]?.team_name || "Team Not Available"}
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({uniqueTeams[1]?.team_tag || "N/A"})
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        // If more than 2 teams, show them in a list
+                        <div className="space-y-2">
+                          {uniqueTeams.map((team, index) => (
+                            <div
+                              key={team.team_id}
+                              className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
+                            >
+                              <div className="font-medium">
+                                {team.team_name}
+                                <span className="text-xs text-gray-500 ml-1">
+                                  ({team.team_tag || "N/A"})
+                                </span>
+                              </div>
+                              <Badge variant="outline" className="text-xs">
+                                Team {index + 1}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
@@ -200,15 +301,130 @@ export const RoundMatches = () => {
                     </span>
 
                     {match.status === "FINISHED" && (
-                      <>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-2 text-gray-500" />
-                          <span className="text-muted-foreground">Score:</span>
-                        </div>
-                        <span className="text-right font-medium">
-                          {match.team1_score || 0} - {match.team2_score || 0}
-                        </span>
-                      </>
+                      <div className="col-span-2">
+                        {/* Score Details Collapsible for unique teams */}
+                        {(() => {
+                          const uniqueTeams = Array.from(
+                            new Map(
+                              match.teams.map((team) => [team.team_id, team])
+                            ).values()
+                          );
+
+                          return uniqueTeams.map((team) => (
+                            <Collapsible
+                              key={`${match.match_id}-${team.team_id}`}
+                            >
+                              <CollapsibleTrigger className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-gray-800 p-2">
+                                <span>{team.team_name} Score Details</span>
+                                <ChevronDown className="h-4 w-4" />
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                {loadingScores[
+                                  `${match.match_id}-${team.team_id}`
+                                ] ? (
+                                  <div className="flex justify-center py-2">
+                                    <LoadingIndicator size="small" />
+                                  </div>
+                                ) : scoreDetails[
+                                    `${match.match_id}-${team.team_id}`
+                                  ] ? (
+                                  <div className="p-2 space-y-4">
+                                    {scoreDetails[
+                                      `${match.match_id}-${team.team_id}`
+                                    ].map((player) => (
+                                      <div
+                                        key={player.player_id}
+                                        className="border rounded-lg p-3 bg-gray-50"
+                                      >
+                                        <div className="flex justify-between items-center mb-2">
+                                          <div className="font-medium">
+                                            {player.player_name}
+                                          </div>
+                                          <Badge variant="secondary">
+                                            Score: {player.team_score}
+                                          </Badge>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                                          <div className="text-gray-600">
+                                            Lap:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.lap}
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Fastest Lap:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.fastest_lap_time}s
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Collision:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.collision}
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Off Track:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.off_track}
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Assist Usage:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.assist_usage}
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Top Speed:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.top_speed} km/h
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Avg Speed:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.average_speed} km/h
+                                          </div>
+
+                                          <div className="text-gray-600">
+                                            Distance:
+                                          </div>
+                                          <div className="text-right">
+                                            {player.total_distance} m
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full"
+                                    onClick={() =>
+                                      fetchScoreDetails(
+                                        match.match_id,
+                                        team.team_id
+                                      )
+                                    }
+                                  >
+                                    Load Score Details
+                                  </Button>
+                                )}
+                              </CollapsibleContent>
+                            </Collapsible>
+                          ));
+                        })()}
+                      </div>
                     )}
                   </div>
 
@@ -224,6 +440,17 @@ export const RoundMatches = () => {
           ))
         )}
       </div>
+
+      {/* Add pagination component */}
+      <DasrsPagination
+        pageSize={pageSize}
+        pageIndex={pageIndex}
+        handlePagination={handlePagination}
+        handleChangePageSize={handleChangePageSize}
+        page={pageIndex}
+        count={totalPages}
+        displayedValues={displayedValues}
+      />
     </div>
   );
 };

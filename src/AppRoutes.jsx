@@ -1,7 +1,7 @@
 /** @format */
 
 // import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
@@ -26,6 +26,8 @@ import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/To
 import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
 import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
 import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
+import AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
+import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -129,12 +131,18 @@ const AppRoutes = () => {
           <Route element={<PersistLogin />}>
             <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
               <Route path="/" element={<PlayerCommonLayout />}>
-                <Route path="my-profile" element={<h1>My Profile</h1>} />
+                <Route path="my-profile" element={<PlayerProfile />} />
                 <Route path="rounds" element={<PlayerRounds />} />
                 <Route
                   path="rounds/:roundId/matches"
                   element={<PlayerMatches />}
                 />
+                {/* <Route
+                  path="assign-player"
+                  element={
+                    auth?.isLeader ? <AssignPlayer /> : <Navigate to="/" />
+                  }
+                /> */}
               </Route>
             </Route>
           </Route>
