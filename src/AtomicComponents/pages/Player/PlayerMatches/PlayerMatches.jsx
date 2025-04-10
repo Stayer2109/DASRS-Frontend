@@ -26,6 +26,15 @@ import Button from "@/AtomicComponents/atoms/Button/Button";
 import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import { number } from "prop-types";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/AtomicComponents/atoms/shadcn/collapsible";
+import { ChevronDown } from "lucide-react";
+import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
+import { Button as ButtonShadcn } from "@/AtomicComponents/atoms/shadcn/button";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
@@ -45,6 +54,8 @@ const PlayerMatches = () => {
   const playerId = auth?.id;
   const location = useLocation();
   const roundNameFromState = location.state?.roundName;
+  const [scoreDetails, setScoreDetails] = useState({});
+  const [loadingScores, setLoadingScores] = useState({});
 
   // BREADCRUM ITEMS
   const breadcrumbItems = [
@@ -86,10 +97,24 @@ const PlayerMatches = () => {
       const response = await apiClient.put(
         `matches/assign/${assignData.matchTeamid}?assigner=${assignData.assigner}&assignee=${assignData.assignee}`
       );
-
-      console.log("Assign Player Response:", response.data);
+      if (response.data.http_status === 200) {
+        Toast({
+          title: "Success",
+          message: response.data.message,
+          type: "success",
+        });
+        setAssignModalShow(false);
+      }
     } catch (error) {
-      console.error("Error assigning player:", error);
+      if (error.response?.status === 400 && error.response.data?.data) {
+        const serverErrors = NormalizeServerErrors(error.response.data.data);
+
+        // Merge existing and new errors
+        setUpdateProfileErrors((prev) => ({
+          ...prev,
+          ...serverErrors,
+        }));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -160,6 +185,27 @@ const PlayerMatches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const fetchScoreDetails = async (matchId, teamId) => {
+    console.log("Fetching score details for:", matchId, teamId); // Add this for debugging
+    setLoadingScores((prev) => ({ ...prev, [`${matchId}-${teamId}`]: true }));
+    try {
+      const response = await apiClient.get(
+        `matches/score-details/${matchId}/${teamId}`
+      );
+      setScoreDetails((prev) => ({
+        ...prev,
+        [`${matchId}-${teamId}`]: response.data.data,
+      }));
+    } catch (error) {
+      console.error("Error fetching score details:", error);
+    } finally {
+      setLoadingScores((prev) => ({
+        ...prev,
+        [`${matchId}-${teamId}`]: false,
+      }));
+    }
+  };
+
   return (
     <>
       {isLoading && <Spinner />}
@@ -218,16 +264,6 @@ const PlayerMatches = () => {
 
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                    <div className="font-medium text-blue-600">
-                      {/* {match?.teams[0]?.team_name || "No Team"} */}
-                    </div>
-                    <div className="text-lg font-bold text-gray-700">VS</div>
-                    <div className="font-medium text-red-600">
-                      {/* {match?.teams[1]?.team_name || "Team Not Available"} */}
-                    </div>
-                  </div>
-
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2 text-gray-500" />
@@ -246,15 +282,116 @@ const PlayerMatches = () => {
                     </span>
 
                     {match.status === "FINISHED" && (
-                      <>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-2 text-gray-500" />
-                          <span className="text-muted-foreground">Score:</span>
-                        </div>
-                        <span className="text-right font-medium">
-                          {match.team1_score || 0} - {match.team2_score || 0}
-                        </span>
-                      </>
+                      <div className="col-span-2">
+                        <Collapsible>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-gray-800 p-2">
+                            <span>Score Details</span>
+                            <ChevronDown className="h-4 w-4" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            {loadingScores[
+                              `${match.match_id}-${match.team_id}`
+                            ] ? (
+                              <div className="flex justify-center py-2">
+                                <LoadingIndicator size="small" />
+                              </div>
+                            ) : scoreDetails[
+                                `${match.match_id}-${match.team_id}`
+                              ] ? (
+                              <div className="p-2 space-y-4">
+                                {scoreDetails[
+                                  `${match.match_id}-${match.team_id}`
+                                ].map((player) => (
+                                  <div
+                                    key={player.player_id}
+                                    className="border rounded-lg p-3 bg-gray-50"
+                                  >
+                                    <div className="flex justify-between items-center mb-2">
+                                      <div className="font-medium">
+                                        {player.player_name}
+                                      </div>
+                                      <Badge variant="secondary">
+                                        Score: {player.team_score}
+                                      </Badge>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                                      <div className="text-gray-600">Lap:</div>
+                                      <div className="text-right">
+                                        {player.lap}
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Fastest Lap:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.fastest_lap_time}s
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Collision:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.collision}
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Off Track:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.off_track}
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Assist Usage:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.assist_usage}
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Top Speed:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.top_speed} km/h
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Avg Speed:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.average_speed} km/h
+                                      </div>
+
+                                      <div className="text-gray-600">
+                                        Distance:
+                                      </div>
+                                      <div className="text-right">
+                                        {player.total_distance} m
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <ButtonShadcn
+                                variant="ghost"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => {
+                                  console.log("Button clicked"); // Add this for debugging
+                                  fetchScoreDetails(
+                                    match.match_id,
+                                    match.team_id
+                                  );
+                                }}
+                              >
+                                Load Score Details
+                              </ButtonShadcn>
+                            )}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </div>
                     )}
                   </div>
 
@@ -327,14 +464,15 @@ const PlayerMatches = () => {
             {/* Select slot */}
             <div className="">
               <label className="block mb-1">Select empty slot</label>
-              {selectedMatch?.match_team?.filter((m) => !m.player_id).length ===
-              0 ? (
+              {!selectedMatch?.match_team ||
+              selectedMatch.match_team.filter((m) => !m.player_id).length ===
+                0 ? (
                 <p className="text-md text-red-500">
                   All slots are already assigned
                 </p>
               ) : (
                 <Select
-                  options={selectedMatch?.match_team
+                  options={selectedMatch.match_team
                     .filter((m) => !m.player_id)
                     .map((m) => ({
                       value: m.match_team_id,
