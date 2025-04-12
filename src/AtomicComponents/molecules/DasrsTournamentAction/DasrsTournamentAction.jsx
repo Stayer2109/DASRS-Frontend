@@ -1,4 +1,3 @@
-import React from "react";
 import { PencilIcon, TrashIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import {
@@ -11,11 +10,13 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/dropdown-menu";
 import PropTypes from "prop-types";
 
-export const TournamentActions = ({
+export const DasrsTournamentActions = ({
   tournamentId,
   onEdit,
+  status,
   onDelete,
   onChangeStatus,
+  onClick,
 }) => {
   return (
     <>
@@ -41,38 +42,46 @@ export const TournamentActions = ({
             Edit Tournament
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+
           <DropdownMenuLabel>Change Status</DropdownMenuLabel>
           <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "PENDING")}
+            disabled={status === "PENDING"}
+            onClick={() => {
+              onChangeStatus(tournamentId, "PENDING");
+              onClick();
+            }}
           >
             Set to Pending
           </DropdownMenuItem>
+
           <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "ACTIVE")}
+            disabled={status === "ACTIVE"}
+            onClick={() => {
+              onChangeStatus(tournamentId, "ACTIVE");
+              onClick();
+            }}
           >
             Set to Active
           </DropdownMenuItem>
+
           <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "COMPLETED")}
+            disabled={status === "COMPLETED"}
+            onClick={() => {
+              onChangeStatus(tournamentId, "COMPLETED");
+              onClick();
+            }}
           >
             Set to Completed
           </DropdownMenuItem>
+
           <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "TERMINATED")}
+            disabled={status === "TERMINATED"}
+            onClick={() => {
+              onChangeStatus(tournamentId, "TERMINATED");
+              onClick();
+            }}
           >
             Set to Terminated
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="hover:text-red-600 cursor-pointer"
-            onClick={() => onDelete(tournamentId)}
-          >
-            <TrashIcon className="h-4 w-4 mr-1" />
-            Delete Tournament
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -80,9 +89,11 @@ export const TournamentActions = ({
   );
 };
 
-TournamentActions.propTypes = {
+DasrsTournamentActions.propTypes = {
   tournamentId: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
+  status: PropTypes.string.isRequired,
   onDelete: PropTypes.func.isRequired,
   onChangeStatus: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
