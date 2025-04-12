@@ -28,6 +28,10 @@ import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRou
 import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
 import AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
 import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
+import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
+import OrganizerTemplate from "./AtomicComponents/templates/Organizer/OrganizerTemplate";
+import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
+import { Settings } from "./AtomicComponents/organisms/Settings/Settings";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -77,9 +81,6 @@ const AppRoutes = () => {
 
                   <Route path="add-player" element={<AddPlayerByImport />} />
                 </Route>
-                <Route path="leaderboard">
-                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
-                </Route>
                 {/* For Tournaments */}
                 <Route path="tournaments" element={<TournamentList />} />
                 <Route
@@ -103,11 +104,17 @@ const AppRoutes = () => {
         return (
           <Route element={<PersistLogin />}>
             <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
-              <Route path="/" element={<OrganizerPage />}>
-                {/* Main tournaments page */}
-                <Route path="tournaments" element={<Tournament />} />
+              <Route path="/" element={<OrganizerCommonLayout />}>
+                {/* <Route index element={<OrganizerTemplate />} /> */}
+                <Route index element={<Overview />} />
+                {/* <Route path="tournaments" element={<Tournament />} /> */}
+                <Route path="tournaments" element={<TournamentList />} />
+                <Route path="player-management">
+                  <Route path="player-list" element={<PlayerList />} />
 
-                {/* Fixed nested routes - removed leading slash */}
+                  <Route path="add-player" element={<AddPlayerByImport />} />
+                </Route>
+                <Route path="my-profile" element={<h1>My Profile</h1>} />
                 <Route
                   path="tournaments/:tournamentId/rounds"
                   element={<TournamentRounds />}
@@ -116,11 +123,14 @@ const AppRoutes = () => {
                   path="tournaments/:tournamentId/rounds/:roundId/matches"
                   element={<RoundMatches />}
                 />
-                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
                 <Route
                   path="tournaments/:tournamentId/teams"
                   element={<TournamentTeams />}
                 />
+                <Route path="leaderboard">
+                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+                </Route>
+                <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
           </Route>

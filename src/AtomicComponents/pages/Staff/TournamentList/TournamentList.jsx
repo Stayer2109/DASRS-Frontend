@@ -9,11 +9,22 @@ import {
 import { apiClient } from "@/config/axios/axios";
 import { useEffect, useState } from "react";
 import { ConvertDate } from "../../../../utils/DateConvert";
-import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { useDebounce } from "@/hooks/useDebounce"; // adjust path if needed
-import Input from "@/AtomicComponents/atoms/Input/Input";
 import { TournamentNavCards } from "@/AtomicComponents/molecules/TournamentNavCards/TournamentNavCards";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
+import { DasrsTournamentActions } from "@/AtomicComponents/molecules/DasrsTournamentAction/DasrsTournamentAction";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/AtomicComponents/atoms/shadcn/dialog";
+// import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import Input from "@/AtomicComponents/atoms/Input/Input";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 const sortKeyMap = {
   tournament_id: "SORT_BY_ID",
@@ -35,6 +46,11 @@ export const TournamentList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [sortByKey, setSortByKey] = useState("tournament_id"); // default sort key
   const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
+  const [confirmModalShow, setConfirmModalShow] = useState(false);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState({
+    tournamentId: null,
+    newStatus: "",
+  });
 
   const columns = [
     { key: "tournament_id", label: "ID", sortable: true },
@@ -44,6 +60,7 @@ export const TournamentList = () => {
     { key: "end_date", label: "End Date", sortable: true },
     { key: "team_number", label: "Total of Teams", sortable: true },
     { key: "status", label: "Status", sortable: false },
+    { key: "actions", label: "Actions", sortable: false },
   ];
 
   // GET SORT PARAMS
@@ -99,6 +116,53 @@ export const TournamentList = () => {
   const handleChangePageSize = (newSize) => {
     setPageSize(newSize);
     setPageIndex(1);
+  };
+  //#endregion
+
+  // HANDLE CHANGE TOURNAMENT STATUS
+  const handleChangeTournamentStatus = (tournamentId, status) => {
+    setPendingStatusUpdate({ tournamentId, newStatus: status });
+    setConfirmModalShow(true); // open modal
+  };
+
+  // HANDLE CONFIRM STATUS CHANGE
+  const handleConfirmStatusChange = async () => {
+    const { tournamentId, newStatus } = pendingStatusUpdate;
+    try {
+      setIsLoading(true);
+      await apiClient.put(
+        `/tournaments/status/${tournamentId}?status=${newStatus}`
+      );
+
+      // Update UI
+      setTournamentList((prev) =>
+        prev.map((t) =>
+          t.tournament_id === tournamentId ? { ...t, status: newStatus } : t
+        )
+      );
+
+      // Reset modal
+      setConfirmModalShow(false);
+      setPendingStatusUpdate({ tournamentId: null, newStatus: "" });
+    } catch (error) {
+      console.error("Failed to update tournament status", error);
+      Toast({
+        title: "Error",
+        type: "error",
+        message: error.response.data.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  //#region MODAL CONTROL
+  const handleOpenConfirmModal = () => {
+    setConfirmModalShow(true);
+  };
+
+  const handleCloseConfirmModal = () => {
+    setConfirmModalShow(false);
   };
   //#endregion
 
@@ -205,8 +269,7 @@ export const TournamentList = () => {
             {tournamentList.map((row, idx) => (
               <TableRow key={idx}>
                 {columns.map((col) => {
-                  // Check if column is tournament name then navigate to tournament detail
-                  if ("tournament_name" === col.key) {
+                  if (col.key === "tournament_name") {
                     return (
                       <TableCell
                         key={col.key}
@@ -220,7 +283,6 @@ export const TournamentList = () => {
                     );
                   }
 
-                  // Check if column is date type then convert it
                   if (
                     ["created_date", "start_date", "end_date"].includes(col.key)
                   ) {
@@ -231,7 +293,6 @@ export const TournamentList = () => {
                     );
                   }
 
-                  // Check if column is team_number then show current team/total team
                   if (col.key === "team_number") {
                     return (
                       <TableCell key={col.key}>
@@ -240,7 +301,6 @@ export const TournamentList = () => {
                     );
                   }
 
-                  // Check if column is status then apply styled class
                   if (col.key === "status") {
                     return (
                       <TableCell
@@ -249,6 +309,21 @@ export const TournamentList = () => {
                       >
                         {row[col.key]}
                       </TableCell>
+                    );
+                  }
+
+                  if (col.key === "actions") {
+                    return (
+                      <>
+                        <TableCell className="text-center">
+                          <DasrsTournamentActions
+                            tournamentId={row.tournament_id}
+                            status={row.status}
+                            onChangeStatus={handleChangeTournamentStatus}
+                            onClick={handleOpenConfirmModal}
+                          />
+                        </TableCell>
+                      </>
                     );
                   }
 
@@ -278,6 +353,24 @@ export const TournamentList = () => {
           />
         )}
       </div>
+
+      <Dialog open={confirmModalShow} onOpenChange={handleCloseConfirmModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Status Change</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to change status of this tournament to:{" "}
+            <strong>{pendingStatusUpdate.newStatus}</strong>?
+          </p>
+          <DialogFooter>
+            <Button variant="secondary" onClick={handleCloseConfirmModal}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmStatusChange}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
