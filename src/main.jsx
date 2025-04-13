@@ -1,9 +1,7 @@
 /** @format */
 
-import { StrictMode } from "react";
+import { _StrictMode } from "react";
 import { createRoot } from "react-dom/client"; // main.jsx
-import "react-date-picker/dist/DatePicker.css";
-import "react-calendar/dist/Calendar.css";
 import { BrowserRouter as Router } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";

@@ -1,0 +1,4 @@
+/* Copy the content from: node_modules/react-calendar/dist/Calendar.css */
+/* Or run this in terminal to copy directly */
+
+cp node_modules/react-calendar/dist/Calendar.css src/styles/react-calendar.css
