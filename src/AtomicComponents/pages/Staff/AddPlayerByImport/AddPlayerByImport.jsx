@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Spreadsheet from "react-spreadsheet";
 import * as XLSX from "xlsx";
-import Button from "@/AtomicComponents/atoms/Button/Button";
+import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import { apiClient } from "@/config/axios/axios";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";

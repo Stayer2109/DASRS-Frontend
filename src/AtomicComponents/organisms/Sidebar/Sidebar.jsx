@@ -15,6 +15,7 @@ import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Separator } from "@/AtomicComponents/atoms/shadcn/separator";
 import useLogout from "@/hooks/useLogout";
 import { Car } from "lucide-react";
+import PropTypes from "prop-types";
 
 export const Sidebar = ({ activeTab, setActiveTab }) => {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -149,4 +150,9 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
       </div>
     </div>
   );
+};
+
+Sidebar.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
 };
