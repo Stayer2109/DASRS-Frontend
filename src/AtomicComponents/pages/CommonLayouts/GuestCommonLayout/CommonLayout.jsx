@@ -13,7 +13,7 @@ import Input from "../../../atoms/Input/Input";
 import Footer from "../../../organisms/Footer";
 import Header from "../../../organisms/Header/Header";
 import CircularButton from "../../../atoms/CircularButton/CircularButton";
-import Button from "../../../atoms/Button/Button";
+import { Button } from "../../../atoms/Button/Button";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import { apiAuth } from "@/config/axios/axios";

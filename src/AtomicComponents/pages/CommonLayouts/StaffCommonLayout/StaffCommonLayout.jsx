@@ -96,7 +96,7 @@ const StaffCommonLayout = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="flex relative h-screen">
+    <div className="flex relative h-screen overflow-y-hidden">
       {isMobile && isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40"

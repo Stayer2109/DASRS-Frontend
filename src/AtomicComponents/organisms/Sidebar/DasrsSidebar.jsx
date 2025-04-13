@@ -111,7 +111,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       >
         <div className="flex flex-col h-full">
           {/* Headers */}
-          <div className="relative h-17 mb-12">
+          <div className="relative h-17 mb-4">
             {/* Title */}
             <motion.span
               animate={{

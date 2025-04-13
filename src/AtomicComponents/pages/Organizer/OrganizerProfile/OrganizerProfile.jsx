@@ -1,4 +1,4 @@
-import Button from "@/AtomicComponents/atoms/Button/Button";
+import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import useAuth from "@/hooks/useAuth";
@@ -57,7 +57,7 @@ const OrganizerProfile = () => {
   };
 
   //#region MODAL CONTROL
-  
+
   const updateProfileModalShow = () => {
     if (!user) return;
 
@@ -212,7 +212,7 @@ const OrganizerProfile = () => {
             <div className="text-center">
               <Button
                 className="mt-6 w-auto !px-6"
-                bgColor="black"
+                bgColor="#000"
                 content="Update Profile"
                 onClick={updateProfileModalShow}
               />
@@ -403,7 +403,7 @@ const OrganizerProfile = () => {
                   onClick={() =>
                     handleUpdateProfileValidation(updateProfileData)
                   }
-                  bgColor="black"
+                  bgColor="#000"
                   type="submit"
                 />
               </div>

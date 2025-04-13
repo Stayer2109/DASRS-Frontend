@@ -35,7 +35,7 @@ export const DasrsTournamentActions = ({
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => onEdit(tournamentId)}
+            onClick={() => onEdit()}
             className="cursor-pointer"
           >
             <PencilIcon className="h-4 w-4 mr-2" />

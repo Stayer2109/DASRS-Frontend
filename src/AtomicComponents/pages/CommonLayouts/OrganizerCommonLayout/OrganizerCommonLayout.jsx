@@ -102,7 +102,7 @@ const OrganizerCommonLayout = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="flex relative h-screen">
+    <div className="flex relative h-screen overflow-y-hidden">
       {isMobile && isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
@@ -125,8 +125,8 @@ const OrganizerCommonLayout = () => {
 
       {/* Main content */}
       <div
-        className={`flex-1 transition-all duration-300 z-0 p-10 max-h-screen flex flex-col overflow-auto ${
-          isMobile ? "" : ""
+        className={`flex-1 transition-all duration-300 p-10 max-h-screen flex flex-col overflow-auto ${
+          isMobile ? "z-0" : "z-[50]"
         } p-10`}
       >
         <Outlet />

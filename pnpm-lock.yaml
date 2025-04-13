@@ -101,9 +101,18 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.0.0
+      react-calendar:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-clock:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-date-picker:
         specifier: ^11.0.0
         version: 11.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-datetime-picker:
+        specifier: ^6.0.1
+        version: 6.0.1(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-day-picker:
         specifier: ^8.10.1
         version: 8.10.1(date-fns@4.1.0)(react@19.0.0)
@@ -2605,8 +2614,28 @@ packages:
       '@types/react':
         optional: true
 
+  react-clock@5.1.0:
+    resolution: {integrity: sha512-DKmr29VOK6M8wpbzGUZZa9PwGnG9uC6QXtDLwGwcc2r3vdS/HxNhf5xMMjudXLk7m096mNJQf7AgfjiDpzAYYw==}
+    peerDependencies:
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   react-date-picker@11.0.0:
     resolution: {integrity: sha512-l+siu5HSZ/ciGL1293KCAHl4o9aD5rw16V4tB0C43h7QbMv2dWGgj7Dxgt8iztLaPVtEfOt/+sxNiTYw4WVq6A==}
+    peerDependencies:
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-datetime-picker@6.0.1:
+    resolution: {integrity: sha512-G7W8bK0SLuO66RVWYGD2q1bD4Wk4pUOpJCq9r44A4P33uq0aAtd3dT1HNEu2fvlmMpYxC4J571ZPI9bUG46pDA==}
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -2721,6 +2750,16 @@ packages:
     peerDependencies:
       '@types/react': '*'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  react-time-picker@7.0.0:
+    resolution: {integrity: sha512-k6mUjkI+OsY73mg0yjMxqkLXv/UXR1LN7AARNqfyGZOwqHqo1JrjL3lLHTHWQ86HmPTBL/dZACbIX/fV1NLmWg==}
+    peerDependencies:
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -5499,6 +5538,16 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.10
 
+  react-clock@5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      '@wojtekmaj/date-utils': 1.5.1
+      clsx: 2.1.1
+      get-user-locale: 2.3.2
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+    optionalDependencies:
+      '@types/react': 19.0.10
+
   react-date-picker@11.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@wojtekmaj/date-utils': 1.5.1
@@ -5510,6 +5559,24 @@ snapshots:
       react-dom: 19.0.0(react@19.0.0)
       react-fit: 2.0.1(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       update-input-width: 1.4.2
+    optionalDependencies:
+      '@types/react': 19.0.10
+    transitivePeerDependencies:
+      - '@types/react-dom'
+
+  react-datetime-picker@6.0.1(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      '@wojtekmaj/date-utils': 1.5.1
+      clsx: 2.1.1
+      get-user-locale: 2.3.2
+      make-event-props: 1.6.2
+      react: 19.0.0
+      react-calendar: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-clock: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-date-picker: 11.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-dom: 19.0.0(react@19.0.0)
+      react-fit: 2.0.1(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-time-picker: 7.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
     optionalDependencies:
       '@types/react': 19.0.10
     transitivePeerDependencies:
@@ -5620,6 +5687,22 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.0.10
+
+  react-time-picker@7.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      '@wojtekmaj/date-utils': 1.5.1
+      clsx: 2.1.1
+      get-user-locale: 2.3.2
+      make-event-props: 1.6.2
+      react: 19.0.0
+      react-clock: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-dom: 19.0.0(react@19.0.0)
+      react-fit: 2.0.1(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      update-input-width: 1.4.2
+    optionalDependencies:
+      '@types/react': 19.0.10
+    transitivePeerDependencies:
+      - '@types/react-dom'
 
   react-tooltip@5.28.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
