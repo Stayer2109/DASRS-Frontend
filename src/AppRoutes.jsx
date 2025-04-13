@@ -24,7 +24,7 @@ import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/To
 import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
 import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
 import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
-import AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
+import _AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
 import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
 import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
 import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
