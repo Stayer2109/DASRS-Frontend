@@ -4,6 +4,8 @@ import "./Input.scss";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import PropTypes from "prop-types";
+import "@/styles/react-calendar.css"; // now safe
+import "react-date-picker/dist/DatePicker.css"; // this one usually works fine
 import DatePicker from "react-date-picker";
 
 const VALID_AUTOCOMPLETE_VALUES = [
