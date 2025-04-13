@@ -1,4 +1,4 @@
-import Button from "@/AtomicComponents/atoms/Button/Button";
+import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import {

@@ -22,7 +22,7 @@ import {
 // import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
-import Button from "@/AtomicComponents/atoms/Button/Button";
+import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import { number } from "prop-types";

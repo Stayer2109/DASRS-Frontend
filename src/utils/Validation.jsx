@@ -62,3 +62,25 @@ export const UpdateProfileValidation = (data) => {
 
   return errors;
 };
+
+export const TournamentManagementValidation = (data) => {
+  const errors = {};
+
+  if (data.tournament_name.trim() === "") {
+    errors.tournament_name = "Tournament name is required";
+  }
+
+  if (data.start_date === "") {
+    errors.start_date = "Start date is required";
+  }
+
+  if (data.end_date === "") {
+    errors.end_date = "End date is required";
+  }
+
+  if (data.tournament_context.trim() === "") {
+    errors.tournament_context = "Tournament context is required";
+  }
+
+  return errors;
+};
