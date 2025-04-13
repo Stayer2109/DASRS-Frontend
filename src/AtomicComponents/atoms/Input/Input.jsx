@@ -1,8 +1,6 @@
 /** @format */
 
 import "./Input.scss";
-import "react-date-picker/dist/DatePicker.css";
-import "react-calendar/dist/Calendar.css";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import PropTypes from "prop-types";
