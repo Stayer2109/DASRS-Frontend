@@ -1,6 +1,19 @@
 .input-container {
   &:focus {
-    outline: .13em solid #3b82f6; /* Blue border on hover */
+    outline: 0.13em solid #3b82f6; /* Blue border on hover */
     transition: all 0.1s linear;
   }
+}
+
+.react-date-picker__wrapper {
+  width: 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.react-date-picker__inputGroup {
+  border: none !important;
+  outline: none !important;
+  width: 100% !important;
 }
