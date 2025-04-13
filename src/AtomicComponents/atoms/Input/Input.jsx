@@ -1,7 +1,12 @@
 /** @format */
 
 import "./Input.scss";
+import "react-date-picker/dist/DatePicker.css";
+import "react-calendar/dist/Calendar.css";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 import PropTypes from "prop-types";
+import DatePicker from "react-date-picker";
 
 const VALID_AUTOCOMPLETE_VALUES = [
   "on",
@@ -66,6 +71,28 @@ const Input = ({
         VALID_AUTOCOMPLETE_VALUES.includes(autoComplete) ? autoComplete : "off"
       }
     />
+  ) : type === "date" ? (
+    <div className={`relative w-full ${commonInputClass}`}>
+      <DatePicker
+        id={id}
+        ref={ref}
+        onChange={(date) =>
+          onChange({
+            target: {
+              value: date ? format(date, "yyyy-MM-dd") : "",
+            },
+          })
+        }
+        value={value ? new Date(value) : null}
+        format="dd-MM-y"
+        className="react-date-picker w-full"
+        calendarClassName="react-calendar"
+        clearIcon={null}
+        calendarIcon={
+          <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+        }
+      />
+    </div>
   ) : (
     <input
       id={id}
