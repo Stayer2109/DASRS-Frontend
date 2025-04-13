@@ -1,7 +1,7 @@
 /** @format */
 
 import { useEffect, useRef, useState } from "react";
-import "./StaffCommonLayout.scss";
+import "./OrganizerCommonLayout.scss";
 import { motion, useAnimation } from "framer-motion";
 import { useMediaQuery } from "react-responsive";
 import {
@@ -9,6 +9,7 @@ import {
   HomeIcon,
   LeaderboardIcon,
   ListIcon,
+  SettingIcon,
   SidebarIcon,
   TournamentIcon,
   UserIcon,
@@ -17,7 +18,7 @@ import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 
-const StaffCommonLayout = () => {
+const OrganizerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -62,6 +63,11 @@ const StaffCommonLayout = () => {
       icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
       link: "/leaderboard",
     },
+    {
+      item: "Settings",
+      icon: <SettingIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/settings",
+    },
   ];
 
   useEffect(() => {
@@ -81,9 +87,9 @@ const StaffCommonLayout = () => {
   }, [isMobile]);
 
   useEffect(() => {
-    document.body.classList.add("has-staff-layout");
+    document.body.classList.add("has-organizer-layout");
     return () => {
-      document.body.classList.remove("has-staff-layout");
+      document.body.classList.remove("has-organizer-layout");
     };
   }, []);
 
@@ -129,7 +135,7 @@ const StaffCommonLayout = () => {
   );
 };
 
-export default StaffCommonLayout;
+export default OrganizerCommonLayout;
 
 const DraggableSidebarToggle = ({ onClick }) => {
   const controls = useAnimation();

@@ -41,6 +41,7 @@
     "postcss": "^8.5.3",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
+    "react-date-picker": "^11.0.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",

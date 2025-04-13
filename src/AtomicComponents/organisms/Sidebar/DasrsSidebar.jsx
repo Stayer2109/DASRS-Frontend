@@ -101,7 +101,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       <motion.nav
         initial={hasMounted ? { opacity: 0 } : false}
         animate={{
-          width: isOpened ? (isMobile ? "70dvw" : 280) : isMobile ? 0 : 73,
+          width: isOpened ? (isMobile ? "70dvw" : 280) : isMobile ? 0 : 76,
           x: isOpened || !isMobile ? 0 : "-150px",
         }}
         transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}

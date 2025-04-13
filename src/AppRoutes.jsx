@@ -1,7 +1,7 @@
 /** @format */
 
 // import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
@@ -16,10 +16,8 @@ import StaffCommonLayout from "./AtomicComponents/pages/CommonLayouts/StaffCommo
 import StaffHomePage from "./AtomicComponents/pages/Staff/HomePage/StaffHomePage";
 import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
 import "react-tooltip/dist/react-tooltip.css";
-import OrganizerPage from "./AtomicComponents/pages/Organizer/OrganizerPage/OrganizerPage";
 import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
-import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
 import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
@@ -28,6 +26,10 @@ import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRou
 import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
 import AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
 import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
+import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
+import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
+import { Settings } from "./AtomicComponents/organisms/Settings/Settings";
+import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -77,9 +79,6 @@ const AppRoutes = () => {
 
                   <Route path="add-player" element={<AddPlayerByImport />} />
                 </Route>
-                <Route path="leaderboard">
-                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
-                </Route>
                 {/* For Tournaments */}
                 <Route path="tournaments" element={<TournamentList />} />
                 <Route
@@ -103,11 +102,17 @@ const AppRoutes = () => {
         return (
           <Route element={<PersistLogin />}>
             <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
-              <Route path="/" element={<OrganizerPage />}>
-                {/* Main tournaments page */}
-                <Route path="tournaments" element={<Tournament />} />
+              <Route path="/" element={<OrganizerCommonLayout />}>
+                {/* <Route index element={<OrganizerTemplate />} /> */}
+                <Route index element={<Overview />} />
+                {/* <Route path="tournaments" element={<Tournament />} /> */}
+                <Route path="tournaments" element={<TournamentList />} />
+                <Route path="player-management">
+                  <Route path="player-list" element={<PlayerList />} />
 
-                {/* Fixed nested routes - removed leading slash */}
+                  <Route path="add-player" element={<AddPlayerByImport />} />
+                </Route>
+                <Route path="my-profile" element={<OrganizerProfile />} />
                 <Route
                   path="tournaments/:tournamentId/rounds"
                   element={<TournamentRounds />}
@@ -116,11 +121,14 @@ const AppRoutes = () => {
                   path="tournaments/:tournamentId/rounds/:roundId/matches"
                   element={<RoundMatches />}
                 />
-                {/* <Route path="tournaments/:tournamentId/leaderboard" element={<TournamentLeaderboard />} /> */}
                 <Route
                   path="tournaments/:tournamentId/teams"
                   element={<TournamentTeams />}
                 />
+                <Route path="leaderboard">
+                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+                </Route>
+                <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
           </Route>
