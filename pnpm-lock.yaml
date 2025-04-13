@@ -104,6 +104,9 @@ importers:
       react-calendar:
         specifier: ^5.1.0
         version: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-clock:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-date-picker:
         specifier: ^11.0.0
         version: 11.0.0(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
