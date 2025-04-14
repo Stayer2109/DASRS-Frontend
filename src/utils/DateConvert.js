@@ -10,7 +10,17 @@ export const ConvertDate = (dateString) => {
 
 export const FormatToISODate = (input) => {
   const date = new Date(input);
-  return isNaN(date.getTime()) ? "" : date.toISOString().split(".")[0];
+  if (isNaN(date.getTime())) return "";
+
+  date.setHours(7, 0, 0, 0); // set to 07:00:00 local time
+
+  // Get local timezone offset in milliseconds
+  const tzOffsetMs = date.getTimezoneOffset() * 60000;
+
+  // Convert to UTC time by subtracting offset
+  const localTime = new Date(date.getTime() - tzOffsetMs);
+
+  return localTime.toISOString().split(".")[0]; // returns: "YYYY-MM-DDT07:00:00"
 };
 
 export const GetTimeFromDate = (dateString) => {
