@@ -52,11 +52,13 @@ export const TournamentNavCards = ({
         className="bg-white rounded-lg p-8 max-w-4xl w-full shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">{tournamentName}</h2>
+        <div className="flex flex-wrap items-center justify-between mb-6 gap-5">
+          <h2 className="text-2xl font-bold max-w-full md:max-w-[80%] truncate">
+            {tournamentName}
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 shrink-0"
           >
             <XMarkIcon className="h-6 w-6 cursor-pointer" />
           </button>
