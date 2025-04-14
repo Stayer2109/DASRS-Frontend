@@ -1,11 +1,10 @@
-// Table.js
 import PropTypes from "prop-types";
 
 export const Table = ({ children, title = "" }) => (
-  <div className="w-full border border-gray-300 rounded-[4px] shadow-md overflow-auto bg-white">
+  <div className="bg-white shadow-md border border-gray-300 rounded-[4px] w-full overflow-auto">
     {title && (
-      <div className="p-4 border-b border-gray-300 text-center">
-        <h2 className="text-h2 font-bold">{title}</h2>
+      <div className="p-4 border-gray-300 border-b text-center">
+        <h2 className="font-bold text-h2">{title}</h2>
       </div>
     )}
     <table className="w-full border-collapse">{children}</table>
@@ -14,7 +13,11 @@ export const Table = ({ children, title = "" }) => (
 
 export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
   <thead>
-    <tr className="bg-gray-100 text-gray-700 text-sm uppercase tracking-wide text-h5">
+    <tr className="bg-gray-100 text-gray-700 text-h5 text-sm uppercase tracking-wide">
+      {/* Add No column at the beginning */}
+      <th className="px-6 py-3 border-gray-300 border-b font-semibold text-center whitespace-nowrap select-none">
+        No
+      </th>
       {columns.map((col) => {
         const isSorted = sortBy === col.key;
         const sortIcon = isSorted
@@ -22,18 +25,17 @@ export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
             ? "▲"
             : "▼"
           : col.sortable
-          ? "⇅"
-          : "";
+            ? "⇅"
+            : "";
 
         return (
           <th
             key={col.key}
             onClick={() => col.sortable && onSort?.(col.key)}
-            className={`px-6 py-3 border-b border-gray-300 text-center font-semibold select-none whitespace-nowrap transition-colors duration-150 ${
-              col.sortable ? "cursor-pointer hover:text-blue-600" : ""
-            } ${isSorted ? "text-blue-600" : ""}`}
+            className={`px-6 py-3 border-b border-gray-300 text-center font-semibold select-none whitespace-nowrap transition-colors duration-150 ${col.sortable ? "cursor-pointer hover:text-blue-600" : ""
+              } ${isSorted ? "text-blue-600" : ""}`}
           >
-            <div className="flex items-center justify-center gap-1">
+            <div className="flex justify-center items-center gap-1">
               <span>{col.label}</span>
               {sortIcon && <span className="text-xs">{sortIcon}</span>}
             </div>
@@ -46,12 +48,42 @@ export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
 
 export const TableBody = ({ children }) => <tbody>{children}</tbody>;
 
-export const TableRow = ({ children }) => (
-  <tr className="hover:bg-gray-100">{children}</tr>
-);
+export const TableRow = ({ children, index, pageIndex = 1, pageSize = 10 }) => {
+  // Debugging: Check if we are receiving proper values
+  console.log("Page Index:", pageIndex);
+  console.log("Page Size:", pageSize);
+  console.log("Index:", index);
 
-export const TableCell = ({ children, className = "", onClick = () => {} }) => (
-  <td className={`px-4 py-4 text-center border-b border-gray-200 ${className}`} onClick={onClick}>
+  // Default values for pageIndex and pageSize in case they're undefined
+  const currentPageIndex = pageIndex || 1;
+  const currentPageSize = pageSize || 10;
+
+  // Proper index calculation
+  const rowIndex = (currentPageIndex - 1) * currentPageSize + index + 1;
+  console.log("Row Index:", rowIndex); // Debugging line
+
+  return (
+    <tr className="hover:bg-gray-100">
+      {/* Display row number as the first column */}
+      <td className="px-4 py-4 border-gray-200 border-b font-semibold text-center">
+        #{rowIndex}
+      </td>
+      {children}
+    </tr>
+  );
+};
+
+export const TableCell = ({
+  children,
+  className = "",
+  onClick = () => { },
+  colSpan,
+}) => (
+  <td
+    className={`px-4 py-4 text-center border-b border-gray-200 ${className}`}
+    onClick={onClick}
+    colSpan={colSpan}
+  >
     {children}
   </td>
 );
@@ -76,10 +108,14 @@ TableBody.propTypes = {
 
 TableRow.propTypes = {
   children: PropTypes.node.isRequired,
+  index: PropTypes.number,
+  pageIndex: PropTypes.number,
+  pageSize: PropTypes.number,
 };
 
 TableCell.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   onClick: PropTypes.func,
+  colSpan: PropTypes.number,
 };

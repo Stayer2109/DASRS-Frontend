@@ -1,22 +1,18 @@
-import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/AtomicComponents/molecules/Table/Table";
-import { apiClient } from "@/config/axios/axios";
-import { useEffect, useState } from "react";
+/**
+ * TournamentList Component
+ * ------------------------
+ * Handles the listing, creation, editing, and termination of tournaments.
+ * Includes table display, pagination, filtering, and form modal management.
+ *
+ * startDate and endDate must not be the same day.
+ * startDate and endDate of a tournament ideally suggests a 7-day period.
+ */
+
 import {
   ConvertDate,
   FormatDateInput,
   FormatToISODate,
 } from "../../../../utils/DateConvert";
-import { useDebounce } from "@/hooks/useDebounce";
-import { TournamentNavCards } from "@/AtomicComponents/molecules/TournamentNavCards/TournamentNavCards";
-import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
-import { DasrsTournamentActions } from "@/AtomicComponents/molecules/DasrsTournamentAction/DasrsTournamentAction";
 import {
   Dialog,
   DialogContent,
@@ -24,37 +20,63 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/AtomicComponents/atoms/shadcn/dialog";
-import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import Input from "@/AtomicComponents/atoms/Input/Input";
-import { Button } from "@/AtomicComponents/atoms/shadcn/button";
-import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
-import { Button as ButtonIcon } from "./../../../atoms/Button/Button";
 import {
   Modal,
   ModalBody,
   ModalHeader,
 } from "@/AtomicComponents/organisms/Modal/Modal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/AtomicComponents/molecules/Table/Table";
+import { useEffect, useState } from "react";
+
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import { Button as ButtonIcon } from "./../../../atoms/Button/Button";
+import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+import { DasrsTournamentActions } from "@/AtomicComponents/molecules/DasrsTournamentAction/DasrsTournamentAction";
+import Input from "@/AtomicComponents/atoms/Input/Input";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import { Textarea } from "@/AtomicComponents/atoms/shadcn/textarea";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { TournamentManagementValidation } from "@/utils/Validation";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
+import Select from "@/AtomicComponents/atoms/Select/Select";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import { Textarea } from "@/AtomicComponents/atoms/shadcn/textarea";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
+import { TournamentManagementValidation } from "@/utils/Validation";
+import { TournamentNavCards } from "@/AtomicComponents/molecules/TournamentNavCards/TournamentNavCards";
+import { apiClient } from "@/config/axios/axios";
+import { useDebounce } from "@/hooks/useDebounce";
 
+// INITIAL FORM DATA
 const initialFormData = () => ({
   tournament_name: "",
-  start_date: FormatToISODate(new Date()),
+  start_date: "",
   end_date: "",
   tournament_context: "",
-  team_number: 2,
+  team_number: 0,
 });
 
+// KEY MAPPING FOR SORT
 const sortKeyMap = {
   tournament_id: "SORT_BY_ID",
   team_number: "SORT_BY_TEAM",
   created_date: "SORT_BY_CREATED",
   start_date: "SORT_BY_START",
   end_date: "SORT_BY_END",
+};
+
+// KEY MAPPING FOR TOURNAMENT STATUS
+const tournamentStatusMap = {
+  all: "ALL",
+  active: "ACTIVE",
+  terminated: "TERMINATED",
+  complete: "COMPLETED",
 };
 
 export const TournamentList = () => {
@@ -67,8 +89,14 @@ export const TournamentList = () => {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [sortByKey, setSortByKey] = useState("tournament_id");
   const [sortDirection, setSortDirection] = useState("ASC");
-
+  const [showByStatus, setShowByStatus] = useState("all");
   const [formData, setFormData] = useState(initialFormData);
+  const statusOptions = [
+    { value: "all", label: "All" },
+    { value: "active", label: "Active" },
+    { value: "complete", label: "Complete" },
+    { value: "terminated", label: "Terminated" },
+  ];
   const [formMode, setFormMode] = useState("create");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTournament, setSelectedTournament] = useState(null);
@@ -99,6 +127,11 @@ export const TournamentList = () => {
     return baseKey ? `${baseKey}_${sortDirection}` : null;
   };
 
+  // GET STATUS PARAMS
+  const getStatusParam = () => {
+    return tournamentStatusMap[showByStatus] || null;
+  };
+
   // HANDLE SORT
   const handleSort = (columnKey) => {
     const isSameColumn = sortByKey === columnKey;
@@ -118,6 +151,8 @@ export const TournamentList = () => {
   // HANDLE SUBMIT TOURNAMENT MANAGEMENT
   const handleSubmitTournamentManagement = async (e) => {
     e.preventDefault();
+
+    // Validate form data
     const normalizedData = NormalizeData({
       ...formData,
       start_date: FormatToISODate(formData.start_date),
@@ -133,9 +168,9 @@ export const TournamentList = () => {
       const apiCall =
         formMode === "edit"
           ? apiClient.put(
-              `/tournaments/${selectedTournament.tournament_id}`,
-              normalizedData
-            )
+            `/tournaments/${selectedTournament.tournament_id}`,
+            normalizedData
+          )
           : apiClient.post("/tournaments", normalizedData);
 
       const response = await apiCall;
@@ -200,18 +235,17 @@ export const TournamentList = () => {
   const handleConfirmStatusChange = async () => {
     try {
       setIsLoading(true);
-      // ✅ Hardcoded API call to terminate endpoint
       await apiClient.put(
         `/tournaments/terminate/${selectedTournament.tournament_id}`
       );
-      // ✅ Update local state to reflect new status
       fetchTournamentList(); // Refresh the tournament list
       Toast({
         title: "Success",
         message: "Tournament has been terminated.",
         type: "success",
       });
-      // ✅ Close modal & reset
+
+      // Close modal and set selected tournament to null
       setConfirmModalShow(false);
       setSelectedTournament(null);
     } catch (error) {
@@ -233,11 +267,13 @@ export const TournamentList = () => {
       setIsLoading(true);
 
       const sortByParam = getSortByParam();
+      const statusParam = getStatusParam();
 
       const response = await apiClient.get("tournaments", {
         params: {
           pageNo: pageIndex - 1,
           pageSize,
+          status: statusParam,
           sortBy: sortByParam,
           keyword: debouncedSearchTerm || undefined, // ← pass search param
         },
@@ -283,15 +319,23 @@ export const TournamentList = () => {
     setConfirmModalShow(false);
   };
 
+  // DATA MANIPULATION FOR TOURNAMENT MANAGEMENT MODAL WHEN OPENED
+  /**
+   * Opens the tournament modal in create or edit mode.
+   * @param {object|null} tournament - The tournament to edit. If null, creates a new one. Default value is NULL.
+   */
   const handleOpenTournamentManagementModal = (tournament = null) => {
     setTournamentManagementModalShow(true);
     setSelectedTournament(tournament);
     setFormMode(tournament ? "edit" : "create");
+
     setFormData({
       tournament_name: tournament?.tournament_name || "",
       start_date:
         FormatDateInput(tournament?.start_date) || FormatToISODate(new Date()),
-      end_date: FormatDateInput(tournament?.end_date) || "",
+      end_date:
+        FormatDateInput(tournament?.end_date) ||
+        FormatToISODate(new Date(new Date().getTime() + 7 * 86400000)),
       tournament_context: tournament?.tournament_context || "",
       team_number: tournament?.team_number || 2,
     });
@@ -311,18 +355,26 @@ export const TournamentList = () => {
     fetchTournamentList();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize, pageIndex, sortByKey, sortDirection, debouncedSearchTerm]);
+  }, [
+    pageSize,
+    pageIndex,
+    sortByKey,
+    sortDirection,
+    debouncedSearchTerm,
+    showByStatus,
+  ]);
 
+  /**
+   * No use for now.
+   */
   // SET START DATE AND END DATE FOR CREATE TOURNAMENT
   useEffect(() => {
-    if (formMode === "create" && formData.start_date) {
-      const nextDay = new Date(
-        new Date(formData.start_date).getTime() + 86400000
-      );
-      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // if (formMode === "create" && formData.start_date) {
+    //   const nextDay = new Date(
+    //     new Date(formData.start_date).getTime() + 7 * 86400000
+    //   );
+    //   setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
+    // }
   }, [formData.start_date]);
   //#endregion
 
@@ -332,9 +384,9 @@ export const TournamentList = () => {
 
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* Search */}
-      <div className="p-4">
-        <div className="mb-4 flex justify-between flex-wrap gap-2">
+      {/* Search and Status Select*/}
+      <div className="flex flex-col p-4">
+        <div className="flex flex-wrap justify-between gap-2 mb-4">
           <Input
             type="text"
             placeholder="Search tournaments..."
@@ -343,13 +395,26 @@ export const TournamentList = () => {
               setSearchTerm(e.target.value);
               setPageIndex(1); // Reset to page 1 on search
             }}
-            className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xl"
+            className="px-4 py-2 border border-gray-300 rounded w-full sm:max-w-xl"
+          />
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-2 mb-4">
+          <Select
+            options={statusOptions}
+            placeHolder={"Select status"}
+            value={showByStatus}
+            onChange={(e) => {
+              setShowByStatus(e.target.value);
+            }}
+            className="w-full sm:max-w-xl"
           />
         </div>
       </div>
 
+      {/* Create New Tournament */}
       <div className="flex justify-between items-center px-4">
-        <h3 className="text-lg font-medium">Tournament Management</h3>
+        <h3 className="font-medium text-lg">Tournament Management</h3>
         <ButtonIcon
           bgColor="#000"
           content="New Tournament"
@@ -367,77 +432,100 @@ export const TournamentList = () => {
             onSort={handleSort}
           />
           <TableBody>
-            {tournamentList.map((row, idx) => (
-              <TableRow key={idx}>
-                {columns.map((col) => {
-                  if (col.key === "tournament_name") {
-                    return (
-                      <TableCell
-                        key={col.key}
-                        className="hover:text-blue-600 cursor-pointer"
-                        onClick={() => setTournamentForView(row)}
-                      >
-                        {row.tournament_name}
-                      </TableCell>
-                    );
-                  }
-
-                  if (
-                    ["created_date", "start_date", "end_date"].includes(col.key)
-                  ) {
-                    return (
-                      <TableCell key={col.key}>
-                        {ConvertDate(row[col.key])}
-                      </TableCell>
-                    );
-                  }
-
-                  if (col.key === "team_number") {
-                    return (
-                      <TableCell key={col.key}>
-                        {`${row.team_list?.length || 0}/${row.team_number}`}
-                      </TableCell>
-                    );
-                  }
-
-                  if (col.key === "status") {
-                    return (
-                      <TableCell
-                        key={col.key}
-                        className={statusClass(row[col.key])}
-                      >
-                        {row[col.key]}
-                      </TableCell>
-                    );
-                  }
-
-                  if (col.key === "actions") {
-                    return (
-                      <>
-                        <TableCell className="text-center">
-                          <DasrsTournamentActions
-                            status={row.status}
-                            onEdit={() =>
-                              handleOpenTournamentManagementModal(row)
-                            }
-                            onClick={() => {
-                              handleOpenConfirmModal;
-                              handleChangeTournamentStatus(row);
-                            }}
-                          />
-                        </TableCell>
-                      </>
-                    );
-                  }
-
-                  return <TableCell key={col.key}>{row[col.key]}</TableCell>;
-                })}
+            {/* If Tournament List Is Empty */}
+            {tournamentList.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-h2 text-red-600 text-center"
+                >
+                  No tournaments found.
+                </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              /* Or Else */
+              tournamentList.map((row, idx) => (
+                <TableRow key={idx}
+                  pageIndex={pageIndex}
+                  pageSize={pageSize}
+                  index={idx}>
+                  {columns.map((col) => {
+                    // Render TOURNAMENT NAME column
+                    if (col.key === "tournament_name") {
+                      return (
+                        <TableCell
+                          key={col.key}
+                          className="hover:text-blue-600 cursor-pointer"
+                          onClick={() => setTournamentForView(row)}
+                        >
+                          {row.tournament_name}
+                        </TableCell>
+                      );
+                    }
+                    // Render DATE columns
+                    if (
+                      ["created_date", "start_date", "end_date"].includes(
+                        col.key
+                      )
+                    ) {
+                      return (
+                        <TableCell key={col.key}>
+                          {ConvertDate(row[col.key])}
+                        </TableCell>
+                      );
+                    }
+
+                    // Render TEAM NUMBER column
+                    if (col.key === "team_number") {
+                      return (
+                        <TableCell key={col.key}>
+                          {`${row.team_list?.length || 0}/${row.team_number}`}
+                        </TableCell>
+                      );
+                    }
+
+                    // Render STATUS column
+                    if (col.key === "status") {
+                      return (
+                        <TableCell
+                          key={col.key}
+                          className={statusClass(row[col.key])}
+                        >
+                          {row[col.key]}
+                        </TableCell>
+                      );
+                    }
+
+                    // Render ACTIONS column
+                    if (col.key === "actions") {
+                      return (
+                        <>
+                          <TableCell className="text-center">
+                            <DasrsTournamentActions
+                              status={row.status}
+                              onEdit={() =>
+                                handleOpenTournamentManagementModal(row)
+                              }
+                              onClick={() => {
+                                handleOpenConfirmModal;
+                                handleChangeTournamentStatus(row);
+                              }}
+                            />
+                          </TableCell>
+                        </>
+                      );
+                    }
+
+                    return <TableCell key={col.key}>{row[col.key]}</TableCell>;
+                  })}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
 
-        <div className="flex items-center justify-between mt-4 flex-wrap gap-4">
+        {/* Pagination */}
+        <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
           <DasrsPagination
             pageSize={pageSize}
             pageIndex={pageIndex}
@@ -484,7 +572,7 @@ export const TournamentList = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Tournament Modal */}
+      {/* Tournament Management Modal */}
       <Modal
         size="xl"
         onHide={handleCloseTournamentManagementModal}
@@ -505,7 +593,7 @@ export const TournamentList = () => {
             {formMode === "edit" ? (
               <>
                 {/* Tournament Name */}
-                <div className="grid w-full gap-2">
+                <div className="gap-2 grid w-full">
                   <Label htmlFor="tournament_name">Tournament Name</Label>
                   <Input
                     id="tournament_name"
@@ -520,139 +608,21 @@ export const TournamentList = () => {
                     placeholder="Enter tournament name"
                   />
                   {tournamentManagementErrors.tournament_name && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {tournamentManagementErrors.tournament_name}
                     </p>
                   )}
                 </div>
 
                 {/* Start Date */}
-                <div className="grid w-full gap-2">
+                <div className="gap-2 grid w-full">
                   <Label htmlFor="start_date">Start Date</Label>
                   <Input
                     type="date"
                     id="start_date"
                     name="start_date"
-                    disabled
                     value={formData.start_date || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        start_date: e.target.value,
-                      });
-                    }}
-                  />
-                  {tournamentManagementErrors.start_date && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {tournamentManagementErrors.start_date}
-                    </p>
-                  )}
-                </div>
-
-                {/* End Date */}
-                <div className="grid w-full gap-2">
-                  <Label htmlFor="end_date">End Date</Label>
-                  <Input
-                    type="date"
-                    value={formData.end_date || ""}
-                    disabled
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        end_date: e.target.value,
-                      });
-                    }}
-                  />
-                  {tournamentManagementErrors.end_date && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {tournamentManagementErrors.end_date}
-                    </p>
-                  )}
-                </div>
-
-                {/* Tournament Content */}
-                <div className="grid w-full gap-2">
-                  <Label htmlFor="tournament_context">Tournament Context</Label>
-                  <Textarea
-                    id="tournament_context"
-                    name="tournament_context"
-                    value={formData.tournament_context || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        tournament_context: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter tournament context"
-                    rows={4}
-                  />
-                  {tournamentManagementErrors.tournament_context && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {tournamentManagementErrors.tournament_context}
-                    </p>
-                  )}
-                </div>
-
-                {/* Team numbers */}
-                <div className="grid w-full gap-2">
-                  <Label htmlFor="team_number">Number of Teams</Label>
-                  <Input
-                    type="number"
-                    id="team_number"
-                    name="team_number"
-                    min="2"
-                    max="100"
-                    step="1"
-                    value={formData.team_number || 2}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        team_number: parseInt(e.target.value),
-                      });
-                    }}
-                    required
-                  />
-                  {tournamentManagementErrors.team_number && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {tournamentManagementErrors.team_number}
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              // When Form Is Create Mode
-              <>
-                {/* Tournament Name */}
-                <div className="grid w-full gap-2">
-                  <Label htmlFor="tournament_name">Tournament Name</Label>
-                  <Input
-                    id="tournament_name"
-                    name="tournament_name"
-                    value={formData?.tournament_name || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        tournament_name: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter tournament name"
-                  />
-                  {tournamentManagementErrors.tournament_name && (
-                    <p className="text-xs text-red-500 mt-1">
-                      {tournamentManagementErrors.tournament_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Start Date */}
-                <div className="grid w-full gap-2">
-                  <Label htmlFor="start_date">Start Date</Label>
-                  <Input
-                    type="date"
-                    id="start_date"
-                    name="start_date"
                     min={new Date()}
-                    value={formData.start_date || ""}
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -661,14 +631,14 @@ export const TournamentList = () => {
                     }}
                   />
                   {tournamentManagementErrors.start_date && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {tournamentManagementErrors.start_date}
                     </p>
                   )}
                 </div>
 
                 {/* End Date */}
-                <div className="grid w-full gap-2">
+                <div className="gap-2 grid w-full">
                   <Label htmlFor="end_date">End Date</Label>
                   <Input
                     type="date"
@@ -686,14 +656,14 @@ export const TournamentList = () => {
                     }}
                   />
                   {tournamentManagementErrors.end_date && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {tournamentManagementErrors.end_date}
                     </p>
                   )}
                 </div>
 
                 {/* Tournament Content */}
-                <div className="grid w-full gap-2">
+                <div className="gap-2 grid w-full">
                   <Label htmlFor="tournament_context">Tournament Context</Label>
                   <Textarea
                     id="tournament_context"
@@ -709,21 +679,21 @@ export const TournamentList = () => {
                     rows={4}
                   />
                   {tournamentManagementErrors.tournament_context && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {tournamentManagementErrors.tournament_context}
                     </p>
                   )}
                 </div>
 
                 {/* Team numbers */}
-                <div className="grid w-full gap-2">
+                <div className="gap-2 grid w-full">
                   <Label htmlFor="team_number">Number of Teams</Label>
                   <Input
                     type="number"
                     id="team_number"
                     name="team_number"
                     min="2"
-                    max="100"
+                    max="20"
                     step="1"
                     value={formData.team_number || 2}
                     onChange={(e) => {
@@ -735,7 +705,129 @@ export const TournamentList = () => {
                     required
                   />
                   {tournamentManagementErrors.team_number && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
+                      {tournamentManagementErrors.team_number}
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : (
+              // When Form Is Create Mode
+              <>
+                {/* Tournament Name */}
+                <div className="gap-2 grid w-full">
+                  <Label htmlFor="tournament_name">Tournament Name</Label>
+                  <Input
+                    id="tournament_name"
+                    name="tournament_name"
+                    value={formData?.tournament_name || ""}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        tournament_name: e.target.value,
+                      });
+                    }}
+                    placeholder="Enter tournament name"
+                  />
+                  {tournamentManagementErrors.tournament_name && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {tournamentManagementErrors.tournament_name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Start Date */}
+                <div className="gap-2 grid w-full">
+                  <Label htmlFor="start_date">Start Date</Label>
+                  <Input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    min={new Date()}
+                    value={formData.start_date || ""}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        start_date: e.target.value,
+                      });
+                    }}
+                  />
+                  {tournamentManagementErrors.start_date && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {tournamentManagementErrors.start_date}
+                    </p>
+                  )}
+                </div>
+
+                {/* End Date */}
+                <div className="gap-2 grid w-full">
+                  <Label htmlFor="end_date">End Date</Label>
+                  <Input
+                    type="date"
+                    value={formData.end_date || ""}
+                    min={FormatToISODate(
+                      new Date(
+                        new Date(formData.start_date).getTime() + 1 * 86400000
+                      )
+                    )}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        end_date: e.target.value,
+                      });
+                    }}
+                  />
+                  {tournamentManagementErrors.end_date && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {tournamentManagementErrors.end_date}
+                    </p>
+                  )}
+                </div>
+
+                {/* Tournament Content */}
+                <div className="gap-2 grid w-full">
+                  <Label htmlFor="tournament_context">Tournament Context</Label>
+                  <Textarea
+                    id="tournament_context"
+                    name="tournament_context"
+                    value={formData.tournament_context || ""}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        tournament_context: e.target.value,
+                      });
+                    }}
+                    placeholder="Enter tournament context"
+                    rows={4}
+                  />
+                  {tournamentManagementErrors.tournament_context && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {tournamentManagementErrors.tournament_context}
+                    </p>
+                  )}
+                </div>
+
+                {/* Team numbers */}
+                <div className="gap-2 grid w-full">
+                  <Label htmlFor="team_number">Number of Teams</Label>
+                  <Input
+                    type="number"
+                    id="team_number"
+                    name="team_number"
+                    min="2"
+                    max="20"
+                    step="1"
+                    value={formData.team_number || 2}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        team_number: parseInt(e.target.value),
+                      });
+                    }}
+                    required
+                  />
+                  {tournamentManagementErrors.team_number && (
+                    <p className="mt-1 text-red-500 text-xs">
                       {tournamentManagementErrors.team_number}
                     </p>
                   )}

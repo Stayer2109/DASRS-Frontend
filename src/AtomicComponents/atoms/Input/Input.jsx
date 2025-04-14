@@ -1,15 +1,14 @@
-/** @format */
-
 import "./Input.scss";
-import { CalendarIcon } from "lucide-react";
 import "@/styles/react-calendar.css";
 import "react-datetime-picker/dist/DateTimePicker.css";
 import "react-date-picker/dist/DatePicker.css";
 import "react-calendar/dist/Calendar.css";
 import "react-clock/dist/Clock.css";
-import PropTypes from "prop-types";
-import DateTimePicker from "react-datetime-picker";
+
+import { CalendarIcon } from "lucide-react";
 import DatePicker from "react-date-picker";
+import DateTimePicker from "react-datetime-picker";
+import PropTypes from "prop-types";
 import { format } from "date-fns";
 
 const VALID_AUTOCOMPLETE_VALUES = [
@@ -60,10 +59,10 @@ const Input = ({
   placeholder = "",
   className = "",
   autoComplete = "off",
-  onChange = () => {},
+  onChange = () => { },
 }) => {
-  const commonInputClass = `input-container ${className} px-standard-x py-standard-y 
-      rounded-xl border-border-line border-1 focus:border-main-blue focus:outline-none 
+  const commonInputClass = `input-container ${className} px-standard-x py-standard-y bg-white
+      rounded-xl border-solid border-1 focus:border-main-blue focus:outline-none border-border-line
       text-h6 shadow-md w-full`;
 
   return type === "file" ? (
