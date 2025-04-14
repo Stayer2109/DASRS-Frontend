@@ -53,6 +53,7 @@ const Input = ({
   type = "text",
   timeInput = false,
   min,
+  disabled = false,
   max,
   step,
   value = "",
@@ -71,6 +72,7 @@ const Input = ({
       ref={ref}
       type="file"
       accept={accept}
+      disabled={disabled}
       placeholder={placeholder}
       value={value}
       className={commonInputClass}
@@ -96,6 +98,7 @@ const Input = ({
           minDate={min ? new Date(min) : undefined}
           maxDate={max ? new Date(max) : undefined}
           format="dd-MM-y HH:mm"
+          disabled={disabled}
           className={`react-datetime-picker w-full ${commonInputClass}`}
           calendarClassName="react-calendar"
           clearIcon={null}
@@ -118,6 +121,7 @@ const Input = ({
           minDate={min ? new Date(min) : undefined}
           maxDate={max ? new Date(max) : undefined}
           format="dd-MM-y"
+          disabled={disabled}
           className={`react-date-picker w-full ${commonInputClass}`}
           calendarClassName="react-calendar"
           clearIcon={null}
@@ -133,6 +137,7 @@ const Input = ({
       type="number"
       ref={ref}
       value={value}
+      disabled={disabled}
       min={min}
       max={max}
       step={step}
@@ -149,6 +154,7 @@ const Input = ({
       type={type}
       ref={ref}
       value={value}
+      disabled={disabled}
       placeholder={placeholder}
       className={commonInputClass}
       onChange={onChange}
@@ -168,6 +174,7 @@ Input.propTypes = {
   timeInput: PropTypes.bool,
   placeholder: PropTypes.string,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
   min: PropTypes.number,
   max: PropTypes.number,
   step: PropTypes.number,

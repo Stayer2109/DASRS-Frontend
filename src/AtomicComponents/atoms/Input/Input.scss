@@ -27,6 +27,10 @@
   align-items: center;
   gap: 0.5rem;
   background-color: white;
+
+  .react-date-picker--disabled & {
+    background-color: transparent !important;
+  }
 }
 
 .react-datetime-picker__calendar,

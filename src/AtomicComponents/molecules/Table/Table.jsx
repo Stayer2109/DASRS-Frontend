@@ -2,7 +2,7 @@
 import PropTypes from "prop-types";
 
 export const Table = ({ children, title = "" }) => (
-  <div className="w-full border border-gray-300 rounded-[10px] shadow-md overflow-auto bg-white">
+  <div className="w-full border border-gray-300 rounded-[4px] shadow-md overflow-auto bg-white">
     {title && (
       <div className="p-4 border-b border-gray-300 text-center">
         <h2 className="text-h2 font-bold">{title}</h2>
