@@ -1,17 +1,18 @@
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow,
   TableCell,
+  TableHeader,
+  TableRow,
 } from "@/AtomicComponents/molecules/Table/Table";
-import { useState, useEffect } from "react";
-import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import Input from "@/AtomicComponents/atoms/Input/Input";
-import { apiClient } from "@/config/axios/axios";
-import { Tooltip } from "react-tooltip";
-import { useDebounce } from "@/hooks/useDebounce";
+import { useEffect, useState } from "react";
+
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+import Input from "@/AtomicComponents/atoms/Input/Input";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import { Tooltip } from "react-tooltip";
+import { apiClient } from "@/config/axios/axios";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const sortKeyMap = {
   account_id: "SORT_BY_ID",
@@ -108,7 +109,7 @@ const PlayerList = () => {
     <>
       {isLoading && <Spinner />}
       <div className="p-4">
-        <div className="mb-4 flex justify-between flex-wrap gap-2">
+        <div className="flex flex-wrap justify-between gap-2 mb-4">
           <Input
             type="text"
             placeholder="Search players by last name or team name..."
@@ -117,7 +118,7 @@ const PlayerList = () => {
               setSearchTerm(e.target.value);
               setPageIndex(1); // Reset to page 1 on search
             }}
-            className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xl"
+            className="px-4 py-2 border border-gray-300 rounded w-full sm:max-w-xl"
           />
         </div>
       </div>
@@ -132,13 +133,13 @@ const PlayerList = () => {
           />
           <TableBody>
             {playerList.map((row, idx) => (
-              <TableRow key={idx}>
+              <TableRow key={idx} pageIndex={pageIndex} pageSize={pageSize} index={idx}>
                 {columns.map((col) => (
                   <TableCell key={col.key}>
                     {col.key === "email" ? (
                       <a
                         href={`mailto:${row[col.key]}`}
-                        className="text-blue-600 underline hover:text-blue-800"
+                        className="text-blue-600 hover:text-blue-800 underline"
                         data-tooltip-id="my-tooltip"
                         data-tooltip-content={`Send email to ${row[col.key]}`}
                         data-tooltip-place="top"
@@ -160,7 +161,7 @@ const PlayerList = () => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-between mt-4 flex-wrap gap-4">
+      <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
         <DasrsPagination
           pageSize={pageSize}
           pageIndex={pageIndex}
