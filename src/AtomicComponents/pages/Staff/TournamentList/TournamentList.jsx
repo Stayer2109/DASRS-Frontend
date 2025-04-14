@@ -41,6 +41,14 @@ import { TournamentManagementValidation } from "@/utils/Validation";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
 
+const initialFormData = () => ({
+  tournament_name: "",
+  start_date: FormatToISODate(new Date()),
+  end_date: "",
+  tournament_context: "",
+  team_number: 2,
+});
+
 const sortKeyMap = {
   tournament_id: "SORT_BY_ID",
   team_number: "SORT_BY_TEAM",
@@ -53,29 +61,24 @@ export const TournamentList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [tournamentList, setTournamentList] = useState([]);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedTournament, setSelectedTournament] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const [tournamentForView, setTournamentForView] = useState(null);
-  const [tournamentManagementModalShow, setTournamentManagementModalShow] =
-    useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortByKey, setSortByKey] = useState("tournament_id"); // default sort key
-  const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const [sortByKey, setSortByKey] = useState("tournament_id");
+  const [sortDirection, setSortDirection] = useState("ASC");
+
+  const [formData, setFormData] = useState(initialFormData);
+  const [formMode, setFormMode] = useState("create");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedTournament, setSelectedTournament] = useState(null);
+  const [tournamentForView, setTournamentForView] = useState(null);
   const [confirmModalShow, setConfirmModalShow] = useState(false);
+  const [tournamentManagementModalShow, setTournamentManagementModalShow] =
+    useState(false);
   const [tournamentManagementErrors, setTournamentManagementErrors] = useState(
     {}
   );
-  const [formData, setFormData] = useState({
-    tournament_name: "",
-    start_date: FormatToISODate(new Date()),
-    end_date: "",
-    tournament_context: "",
-    team_number: 2,
-  });
-  const [formMode, setFormMode] = useState("create"); // or 'edit' if needed
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // TABLE COLUMNS
   const columns = [
@@ -99,13 +102,8 @@ export const TournamentList = () => {
   // HANDLE SORT
   const handleSort = (columnKey) => {
     const isSameColumn = sortByKey === columnKey;
-    let newDirection = "ASC";
-
-    // Check if the same column is clicked and change sort direction
-    if (isSameColumn && sortDirection === "ASC") {
-      newDirection = "DESC";
-    }
-
+    const newDirection =
+      isSameColumn && sortDirection === "ASC" ? "DESC" : "ASC";
     setSortByKey(columnKey);
     setSortDirection(newDirection);
     setPageIndex(1);
@@ -120,50 +118,49 @@ export const TournamentList = () => {
   // HANDLE SUBMIT TOURNAMENT MANAGEMENT
   const handleSubmitTournamentManagement = async (e) => {
     e.preventDefault();
+    const normalizedData = NormalizeData({
+      ...formData,
+      start_date: FormatToISODate(formData.start_date),
+      end_date: FormatToISODate(formData.end_date),
+    });
 
-    const normalizedData = NormalizeData(formData);
     if (Object.keys(tournamentManagementErrors).length > 0) return;
 
     try {
       setIsSubmitting(true);
       setIsLoading(true);
 
-      // If formMode is edit
-      if (formMode === "edit" && selectedTournament.tournament_id) {
-        await apiClient.put(
-          `/tournaments/${selectedTournament.tournament_id}`,
-          normalizedData
-        );
+      const apiCall =
+        formMode === "edit"
+          ? apiClient.put(
+              `/tournaments/${selectedTournament.tournament_id}`,
+              normalizedData
+            )
+          : apiClient.post("/tournaments", normalizedData);
+
+      const response = await apiCall;
+
+      if (
+        response.data.http_status === 201 ||
+        response.data.http_status === 200
+      ) {
         Toast({
           title: "Success",
-          message: "Tournament updated successfully!",
+          message: response.data.message,
           type: "success",
         });
-      } else {
-        // If formMode is create
-        const response = await apiClient.post("/tournaments", normalizedData);
-        if (response.data.http_status === 201) {
-          Toast({
-            title: "Success",
-            message: response.data.message,
-            type: "success",
-          });
-          fetchTournamentList(); // Refresh the tournament list
-          handleCloseTournamentManagementModal(); // Close the modal
-        }
+        fetchTournamentList();
+        handleCloseTournamentManagementModal();
       }
     } catch (error) {
-      const serverErrors = NormalizeServerErrors(error.response.data.data);
-      setTournamentManagementErrors((prev) => ({
-        ...prev,
-        ...serverErrors,
-      }));
+      const serverErrors = NormalizeServerErrors(
+        error.response?.data?.data || {}
+      );
+      setTournamentManagementErrors((prev) => ({ ...prev, ...serverErrors }));
       Toast({
         title: "Error",
         type: "error",
-        message:
-          error.response.data.message ??
-          "There was an error processing your request. Please try again.",
+        message: error.response?.data?.message || "Error processing request.",
       });
     } finally {
       setIsSubmitting(false);
@@ -290,10 +287,10 @@ export const TournamentList = () => {
     setTournamentManagementModalShow(true);
     setSelectedTournament(tournament);
     setFormMode(tournament ? "edit" : "create");
-
     setFormData({
       tournament_name: tournament?.tournament_name || "",
-      start_date: FormatDateInput(tournament?.start_date) || "",
+      start_date:
+        FormatDateInput(tournament?.start_date) || FormatToISODate(new Date()),
       end_date: FormatDateInput(tournament?.end_date) || "",
       tournament_context: tournament?.tournament_context || "",
       team_number: tournament?.team_number || 2,
@@ -303,15 +300,8 @@ export const TournamentList = () => {
   const handleCloseTournamentManagementModal = () => {
     setTournamentManagementModalShow(false);
     setSelectedTournament(null);
-    setFormData({
-      tournament_name: "",
-      start_date: "",
-      end_date: "",
-      tournament_context: "",
-      team_number: 2,
-    });
+    setFormData(initialFormData);
     setFormMode("create");
-    // setSelectedTournamentId(null);
   };
   //#endregion
 
@@ -323,31 +313,15 @@ export const TournamentList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize, pageIndex, sortByKey, sortDirection, debouncedSearchTerm]);
 
-  // SHOW TOAST MESSAGE AFTER CREATING TOURNAMENT
-  useEffect(() => {
-    let successMessage = localStorage.getItem("successMessage");
-    if (successMessage) {
-      Toast({
-        title: "Success",
-        message: successMessage,
-        type: "success",
-      });
-      localStorage.removeItem("successMessage");
-    }
-  }, []);
-
   // SET START DATE AND END DATE FOR CREATE TOURNAMENT
   useEffect(() => {
     if (formMode === "create" && formData.start_date) {
-      const newEndDate = FormatToISODate(
-        new Date(new Date(formData.start_date).getTime() + 1 * 86400000)
+      const nextDay = new Date(
+        new Date(formData.start_date).getTime() + 86400000
       );
-
-      setFormData((prev) => ({
-        ...prev,
-        end_date: newEndDate,
-      }));
+      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.start_date]);
   //#endregion
@@ -677,7 +651,7 @@ export const TournamentList = () => {
                     type="date"
                     id="start_date"
                     name="start_date"
-                    min={FormatToISODate(new Date())}
+                    min={new Date()}
                     value={formData.start_date || ""}
                     onChange={(e) => {
                       setFormData({
