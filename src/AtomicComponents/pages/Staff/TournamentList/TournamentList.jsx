@@ -108,13 +108,6 @@ export const TournamentList = () => {
     {}
   );
 
-  // HANDLE GET START DATE OF TOURNAMENT PASS TODAY
-  const notPassedToday = (date) => {
-    const today = new Date();
-    const tournamentDate = new Date(date);
-    return tournamentDate < today;
-  }
-
   // TABLE COLUMNS
   const columns = [
     { key: "tournament_id", label: "ID", sortable: true },
@@ -371,20 +364,69 @@ export const TournamentList = () => {
     showByStatus,
   ]);
 
-  /**
-   * No use for now.
-   */
   // SET START DATE AND END DATE FOR CREATE TOURNAMENT
   useEffect(() => {
     if (formMode === "create" && formData.start_date) {
-      const nextDay = new Date(
-        new Date(formData.start_date).getTime() + 1 * 86400000
-      );
       setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
     }
 
+    const nextDay = new Date(
+      new Date(formData.start_date).getTime() + 1 * 86400000
+    );
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.start_date]);
+
+  // SET START DATE AND END DATE FOR EDIT TOURNAMENT`
+  useEffect(() => {
+    if (
+      formMode === "edit" &&
+      selectedTournament?.start_date &&
+      selectedTournament?.end_date
+    ) {
+      // Get current date, start date and end date of selected tournament
+      const now = new Date();
+      const originalStart = new Date(selectedTournament.start_date);
+      const originalEnd = new Date(selectedTournament.end_date);
+
+      // Check if both dates are before now
+      const isPastStart = originalStart <= now;
+      const isPastEnd = originalEnd <= now;
+
+      // For start date
+      if (isPastStart) {
+        const newStart = new Date(now.getTime() + 1 * 86400000); // tomorrow
+
+        setFormData((prev) => ({
+          ...prev,
+          start_date: FormatToISODate(newStart),
+        }));
+      } else {
+        // Keep original dates (just normalize them)
+        setFormData((prev) => ({
+          ...prev,
+          start_date: FormatToISODate(selectedTournament.start_date),
+        }));
+      }
+
+      // For end date
+      if (isPastEnd) {
+        const newEnd = new Date(originalStart.getTime() + 1 * 86400000); // day after start date
+
+        setFormData((prev) => ({
+          ...prev,
+          end_date: FormatToISODate(newEnd),
+        }));
+      } else {
+        // Keep original end date (just normalize it)
+        setFormData((prev) => ({
+          ...prev,
+          end_date: FormatToISODate(selectedTournament.end_date),
+        }));
+      }
+    }
+  }, [formMode, selectedTournament]);
+
   //#endregion
 
   return (
@@ -512,7 +554,7 @@ export const TournamentList = () => {
                           <TableCell className="text-center">
                             <DasrsTournamentActions
                               status={row.status}
-                              editable={notPassedToday(row.start_date)}
+                              preventEdit={row.is_started || row.status.toString().toLowerCase() === "terminated"}
                               onEdit={() =>
                                 handleOpenTournamentManagementModal(row)
                               }
@@ -631,9 +673,8 @@ export const TournamentList = () => {
                     type="date"
                     id="start_date"
                     name="start_date"
-                    value={formData.start_date || ""}
-                    disabled={notPassedToday(formData.start_date)}
-                    min={FormatToISODate(new Date(Date.now() + 86400000))}
+                    value={FormatDateInput(formData.start_date) || ""}
+                    min={FormatDateInput(new Date(Date.now() + 86400000))} // start date will be the day after
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -653,8 +694,8 @@ export const TournamentList = () => {
                   <Label htmlFor="end_date">End Date</Label>
                   <Input
                     type="date"
-                    value={formData.end_date || ""}
-                    min={FormatToISODate(new Date(formData.start_date).getTime() + 1 * 86400000)}
+                    value={FormatDateInput(formData.end_date) || ""}
+                    min={FormatDateInput(new Date(new Date(formData.start_date).getTime()))}
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -750,8 +791,8 @@ export const TournamentList = () => {
                     type="date"
                     id="start_date"
                     name="start_date"
-                    min={FormatToISODate(new Date(Date.now() + 86400000))}
-                    value={formData.start_date || ""}
+                    value={FormatDateInput(formData.start_date) || ""}
+                    min={FormatDateInput(new Date(Date.now() + 86400000))}
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -771,8 +812,8 @@ export const TournamentList = () => {
                   <Label htmlFor="end_date">End Date</Label>
                   <Input
                     type="date"
-                    value={formData.end_date || ""}
-                    min={FormatToISODate(new Date(formData.start_date).getTime() + 1 * 86400000)}
+                    value={FormatDateInput(formData.end_date) || ""}
+                    min={FormatDateInput(new Date(formData.start_date).getTime() + 1 * 86400000)}
                     onChange={(e) => {
                       setFormData({
                         ...formData,

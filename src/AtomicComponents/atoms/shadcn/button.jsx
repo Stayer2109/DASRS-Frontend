@@ -4,6 +4,7 @@ import { cva } from "class-variance-authority";
 
 import { cn } from "@/lib/utils"
 import PropTypes from "prop-types";
+import { Tooltip } from "react-tooltip";
 
 const buttonVariants = cva(
   "inline-flex justify-center items-center gap-2 disabled:opacity-50 aria-invalid:border-destructive focus-visible:border-ring rounded-md outline-none aria-invalid:ring-destructive/20 focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 font-medium text-sm whitespace-nowrap transition-all [&_svg]:pointer-events-none disabled:pointer-events-none shrink-0 [&_svg]:shrink-0",
@@ -42,17 +43,28 @@ function Button({
   disabled,
   size,
   asChild = false,
+  tooltipData = "",
+  toolTipPos = "top",
   ...props
 }) {
   const Comp = asChild ? Slot : "button"
 
   return (
     <>
-      <Comp
-        data-slot="button"
-        disabled={disabled}
-        className={cn(buttonVariants({ variant, size, className }))}
-        {...props} />
+      <div
+        data-tooltip-id="my-tooltip"
+        data-tooltip-content={tooltipData}
+        data-tooltip-place={toolTipPos}
+        className="inline-block"
+      >
+        <Comp
+          disabled={disabled}
+          className={cn(buttonVariants({ variant, size, className }))}
+          {...props}
+        />
+      </div>
+      <Tooltip id="my-tooltip" style={{ borderRadius: "12px" }} />
+
     </>
 
   );

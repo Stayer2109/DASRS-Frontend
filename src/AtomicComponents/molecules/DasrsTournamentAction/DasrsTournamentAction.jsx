@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
 export const DasrsTournamentActions = ({
   onEdit,
   status,
-  editable,
+  preventEdit,
   onClick,
 }) => {
   return (
@@ -22,7 +22,9 @@ export const DasrsTournamentActions = ({
         <Button
           variant="ghost"
           size="sm"
-          disabled={editable}
+          toolTipPos="top"
+          tooltipData={`${preventEdit ? "The tournament has started or been terminated." : ""}`}
+          disabled={preventEdit}
           className="hover:bg-white-hover p-0 w-8 h-8 cursor-pointer"
         >
           <span className="sr-only">Open menu</span>
@@ -60,7 +62,7 @@ DasrsTournamentActions.propTypes = {
   tournamentId: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   status: PropTypes.string.isRequired,
-  editable: PropTypes.bool.isRequired,
+  preventEdit: PropTypes.bool.isRequired,
   onChangeStatus: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
 };

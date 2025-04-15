@@ -23,6 +23,17 @@ export const FormatToISODate = (input) => {
   return localTime.toISOString().split(".")[0]; // returns: "YYYY-MM-DDT07:00:00"
 };
 
+export const FormatDateInput = (input) => {
+  const date = new Date(input);
+  if (isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`; // for <input type="date" />
+};
+
 export const GetTimeFromDate = (dateString) => {
   const date = new Date(dateString);
   const hours = String(date.getHours()).padStart(2, "0");
@@ -37,15 +48,4 @@ export const GetDateFromDate = (dateString) => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
-};
-
-export const FormatDateInput = (input) => {
-  const date = new Date(input);
-  if (isNaN(date.getTime())) return "";
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`; // for <input type="date" />
 };
