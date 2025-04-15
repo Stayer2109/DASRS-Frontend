@@ -1,12 +1,12 @@
-import React from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/AtomicComponents/atoms/shadcn/dialog";
 import { RoundForm } from "@/AtomicComponents/molecules/RoundForm/RoundForm";
+import PropTypes from "prop-types";
 
 export const RoundModal = ({
   isOpen,
@@ -30,19 +30,19 @@ export const RoundModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] h-[90vh] flex flex-col p-0">
+      <DialogContent className="flex flex-col p-0 sm:max-w-[700px] h-[90vh]">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>
             {formMode === "edit" ? "Edit Round" : "Create New Round"}
           </DialogTitle>
           <DialogDescription>
-            {formMode === "edit" 
+            {formMode === "edit"
               ? "Update the round details and scoring rules."
               : "Add a new round to the tournament with scoring rules."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 flex-1 overflow-hidden">
+        <div className="flex-1 px-6 overflow-hidden">
           <RoundForm
             formData={formData}
             formMode={formMode}
@@ -63,5 +63,18 @@ export const RoundModal = ({
   );
 };
 
-
-
+RoundModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onOpenChange: PropTypes.func.isRequired,
+  formData: PropTypes.object.isRequired,
+  formMode: PropTypes.string.isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  onDateChange: PropTypes.func.isRequired,
+  onNumberChange: PropTypes.func.isRequired,
+  onSelectChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  resources: PropTypes.array.isRequired,
+  environments: PropTypes.array.isRequired,
+  matchTypes: PropTypes.array.isRequired,
+};
