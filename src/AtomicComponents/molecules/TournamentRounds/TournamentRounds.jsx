@@ -1,116 +1,59 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
+import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/AtomicComponents/atoms/shadcn/card";
-import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import { Plus, Calendar, Map, Users, Flag } from "lucide-react";
-import { apiAuth } from "@/config/axios/axios";
-import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
-import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { toast } from "sonner";
 import { RoundModal } from "@/AtomicComponents/organisms/RoundModal/RoundModal";
-import { RoundStatusBadge } from "../RoundCard/RoundCard";
+import { apiClient } from "@/config/axios/axios";
+import useAuth from "@/hooks/useAuth";
 import { formatDateString } from "@/utils/dateUtils";
+import { Calendar, Flag, Map, Plus, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { EnvironmentDetails } from "../CollapsibleDetails/EnvironmentDetails";
 import { MapDetails } from "../CollapsibleDetails/MapDetails";
 import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
-import useAuth from "@/hooks/useAuth";
+import { RoundStatusBadge } from "../RoundCard/RoundCard";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 
 export const TournamentRounds = () => {
+  const navigate = useNavigate();
   const { auth } = useAuth();
   const { tournamentId } = useParams();
-  const navigate = useNavigate();
-  const [rounds, setRounds] = useState([]);
-  const [tournament, setTournament] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingResources, setIsLoadingResources] = useState(true);
+  const [rounds, setRounds] = useState([]);
+  const [tournament, setTournament] = useState(null);
   const [resources, setResources] = useState([]);
   const [environments, setEnvironments] = useState([]);
   const [matchTypes, setMatchTypes] = useState([]);
   const [formData, setFormData] = useState({
-    tournament_id: tournamentId,
-    round_name: "",
     description: "",
+    round_name: "",
+    round_duration: 0,
+    lap_number: 0,
+    finish_type: "",
+    team_limit: 0,
+    is_last: false,
     start_date: "",
     end_date: "",
-    environment_id: "",
-    match_type_id: "",
-    scored_method_id: "",
-    team_limit: "",
-    is_last: false,
-    scoreMethod: {
-      lap: 0,
-      assistUsageCount: 0,
-      collision: 0,
-      total_race_time: 0,
-      off_track: 0,
-      average_speed: 0,
-      total_distance: 0,
-      match_finish_type: "LAP",
-    },
+    tournament_id: tournamentId,
+    scored_method_id: 0,
+    match_type_id: 0,
+    environment_id: 0,
+    resource_id: 0
   });
   const [formMode, setFormMode] = useState("create"); // 'create' or 'edit'
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!tournamentId) return;
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const [tournamentRes, roundsRes] = await Promise.all([
-          apiAuth.get(`tournaments/${tournamentId}`),
-          apiAuth.get(`rounds/tournament/${tournamentId}`),
-        ]);
-
-        setTournament(tournamentRes.data.data);
-        setRounds(roundsRes.data.data || []);
-      } catch (err) {
-        console.error("Error fetching tournament rounds:", err);
-        setError("Failed to load rounds. Please try again.");
-        toast.error("Failed to load rounds");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [tournamentId]);
-
-  useEffect(() => {
-    const fetchResources = async () => {
-      setIsLoadingResources(true);
-      try {
-        const [resourcesRes, environmentsRes, matchTypesRes] =
-          await Promise.all([
-            apiAuth.get("resources/map?pageSize=100"),
-            apiAuth.get("environments"),
-            apiAuth.get("match-types"),
-          ]);
-
-        setResources(resourcesRes.data.data.content || []);
-        setEnvironments(environmentsRes.data.data.content || []);
-        setMatchTypes(matchTypesRes.data.data.content || []);
-      } catch (err) {
-        console.error("Error fetching resources:", err);
-        toast.error("Failed to load resources");
-      } finally {
-        setIsLoadingResources(false);
-      }
-    };
-
-    fetchResources();
-  }, []); // Empty dependency array as we only need to fetch once
-
+  // BREADCRUMB ITEMS
   const breadcrumbItems = [
     { label: "Tournaments", href: "/tournaments" },
     {
@@ -120,6 +63,7 @@ export const TournamentRounds = () => {
     { label: "Rounds" },
   ];
 
+  // HANDLE CREATE ROUND
   const handleCreateRound = () => {
     if (isLoadingResources) {
       toast.error("Please wait while resources are loading...");
@@ -129,32 +73,38 @@ export const TournamentRounds = () => {
     setIsModalOpen(true);
   };
 
+  // HANDLE NAVIGATE BACK TO TOUNRNAMENTS
   const handleBackToTournament = () => {
     navigate("/tournaments", { replace: true });
   };
 
+  // HANDLE VIEW MATCHES OF ROUND
   const handleViewMatches = (roundId) => {
     navigate(`/tournaments/${tournamentId}/rounds/${roundId}/matches`);
   };
 
+  // HANDLE VIEW LEADERBOARD OF ROUND
   const handleViewLeaderboard = (roundId) => {
     navigate(`${roundId}/matches`);
   };
 
+  // HANDLE INPUT CHANGE
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // HANDLE DATE CHANGE
   const handleDateChange = (field, date) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: date ? 
-        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` 
+      [field]: date ?
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
         : "",
     }));
   };
 
+  // HANDLE NUMBER CHANGE
   const handleNumberChange = (e, section = null) => {
     const { name, value } = e.target;
 
@@ -174,6 +124,7 @@ export const TournamentRounds = () => {
     }
   };
 
+  // HANDLE SELECT CHANGE
   const handleSelectChange = (field, value, section = null) => {
     if (section === "scoreMethod") {
       setFormData((prev) => ({
@@ -191,12 +142,13 @@ export const TournamentRounds = () => {
     }
   };
 
+  // HANDLE FORM SUBMIT
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
       if (formMode === "edit") {
         // Update round
-        await apiAuth.put("rounds", {
+        await apiClient.put("rounds", {
           round_id: formData.round_id,
           description: formData.description,
           round_name: formData.round_name,
@@ -211,7 +163,7 @@ export const TournamentRounds = () => {
         });
 
         // Update score method
-        await apiAuth.put(
+        await apiClient.put(
           `scored-methods?scoredMethodId=${formData.scored_method_id}`,
           {
             lap: formData.scoreMethod.lap,
@@ -228,7 +180,7 @@ export const TournamentRounds = () => {
         toast.success("Round updated successfully");
       } else {
         // create score method
-        const response = await apiAuth.post(`scored-methods`, {
+        const response = await apiClient.post(`scored-methods`, {
           lap: formData.scoreMethod.lap,
           assistUsageCount: formData.scoreMethod.assistUsageCount,
           collision: formData.scoreMethod.collision,
@@ -244,25 +196,26 @@ export const TournamentRounds = () => {
         roundData.scored_method_id = response.data.data.scored_method_id;
 
         // Create new round (existing logic)
-        await apiAuth.post("rounds", roundData);
+        await apiClient.post("rounds", roundData);
         toast.success("Round created successfully");
       }
 
       setIsModalOpen(false);
       // Refresh rounds list
-      const roundsRes = await apiAuth.get(`rounds/tournament/${tournamentId}`);
+      const roundsRes = await apiClient.get(`rounds/tournament/${tournamentId}`);
       setRounds(roundsRes.data.data || []);
     } catch (err) {
       console.error("Error saving round:", err);
       toast.error(
         err.response?.data?.message ||
-          (formMode === "edit"
-            ? "Failed to update round"
-            : "Failed to create round")
+        (formMode === "edit"
+          ? "Failed to update round"
+          : "Failed to create round")
       );
     }
   };
 
+  // HANDLE EDIT ROUND
   const handleEditRound = async (round) => {
     try {
       // Format dates to match the expected format
@@ -270,7 +223,7 @@ export const TournamentRounds = () => {
       const endDate = new Date(round.end_date).toISOString().split("T")[0];
 
       // Fetch score method data
-      const scoreMethodData = await apiAuth.get(
+      const scoreMethodData = await apiClient.get(
         "scored-methods/" + round.scored_method_id
       );
 
@@ -308,6 +261,7 @@ export const TournamentRounds = () => {
     }
   };
 
+  // HANDLE MODAL CLOSE
   const handleModalClose = (open) => {
     if (!open) {
       setFormMode("create");
@@ -338,8 +292,66 @@ export const TournamentRounds = () => {
     setIsModalOpen(open);
   };
 
+  //#region USEEFFECT SCOPES
+  // FETCH TOURNAMENT and ITS ROUNDS
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!tournamentId) return;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const [tournamentRes, roundsRes] = await Promise.all([
+          apiClient.get(`tournaments/${tournamentId}`), // Tournament details
+          apiClient.get(`rounds/tournament/${tournamentId}`), // Rounds of a tournament
+        ]);
+
+        setTournament(tournamentRes.data.data);
+        setRounds(roundsRes.data.data || []);
+      } catch (err) {
+        console.error("Error fetching tournament rounds:", err);
+        setError("Failed to load rounds. Please try again.");
+        toast.error("Failed to load rounds");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [tournamentId]);
+
+  // FETCH RECOURCES SUCH AS MAPS, ENVIRONMENTS AND MATCH TYPES
+  useEffect(() => {
+    const fetchResources = async () => {
+      setIsLoadingResources(true);
+
+      try {
+        const [resourcesRes, environmentsRes, matchTypesRes] =
+          await Promise.all([
+            apiClient.get("resources/map?pageSize=100"),
+            apiClient.get("environments"),
+            apiClient.get("match-types"),
+          ]);
+
+        setResources(resourcesRes.data.data.content || []);
+        setEnvironments(environmentsRes.data.data.content || []);
+        setMatchTypes(matchTypesRes.data.data.content || []);
+      } catch (err) {
+        console.error("Error fetching resources:", err);
+        toast.error("Failed to load resources");
+      } finally {
+        setIsLoadingResources(false);
+      }
+    };
+
+    fetchResources();
+  }, []); // Empty dependency array as we only need to fetch once
+  //#endregion
+
+  // RENDER SPINNER IF LOADING
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <Spinner />;
   }
 
   return (
@@ -347,7 +359,7 @@ export const TournamentRounds = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="flex justify-between items-center gap-5">
-        <h2 className="text-2xl font-bold">
+        <h2 className="font-bold text-2xl">
           {tournament?.tournament_name} - Rounds
         </h2>
         <div className="space-x-2">
@@ -360,26 +372,27 @@ export const TournamentRounds = () => {
           </Button>
           {auth?.role === "ORGANIZER" && (
             <Button onClick={handleCreateRound} className="cursor-pointer">
-              <Plus className="h-4 w-4 mr-2" /> Create Round
+              <Plus className="mr-2 w-4 h-4" /> Create Round
             </Button>
           )}
         </div>
       </div>
 
+      {/* Display Errors If Any Found */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+        <div className="bg-red-50 px-4 py-3 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Round Card Render */}
+      <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3">
         {rounds.length === 0 ? (
           <Card className="col-span-full">
-            <CardContent className="flex flex-col items-center justify-center p-6">
+            <CardContent className="flex flex-col justify-center items-center p-6">
               <p
-                className={`text-muted-foreground ${
-                  auth?.role === "ORGANIZER" ? "mb-4" : ""
-                }`}
+                className={`text-muted-foreground ${auth?.role === "ORGANIZER" ? "mb-4" : ""
+                  }`}
               >
                 No rounds found for this tournament.
               </p>
@@ -389,7 +402,7 @@ export const TournamentRounds = () => {
                   onClick={handleCreateRound}
                   className="cursor-pointer"
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Create First Round
+                  <Plus className="mr-2 w-4 h-4" /> Create First Round
                 </Button>
               )}
             </CardContent>
@@ -398,15 +411,15 @@ export const TournamentRounds = () => {
           rounds.map((round) => (
             <Card
               key={round.round_id}
-              className="hover:shadow-md transition-shadow overflow-hidden flex flex-col h-full"
+              className="flex flex-col hover:shadow-md h-full overflow-hidden transition-shadow"
             >
-              <CardHeader className="bg-gray-50 p-4 pb-3 border-b h-[120px] flex flex-col justify-between shrink-0">
+              <CardHeader className="flex flex-col justify-between bg-gray-50 p-4 pb-3 border-b h-[120px] shrink-0">
                 <div className="flex justify-between items-start w-full">
-                  <CardTitle className="text-lg font-bold group relative">
-                    <span className="truncate block max-w-[200px] group-hover:text-clip">
+                  <CardTitle className="group relative font-bold text-lg">
+                    <span className="block max-w-[200px] truncate group-hover:text-clip">
                       {round.round_name || `Round ${round.round_no}`}
                     </span>
-                    <span className="invisible group-hover:visible absolute -top-8 left-0 bg-black/75 text-white px-2 py-1 rounded text-sm whitespace-nowrap z-50">
+                    <span className="invisible group-hover:visible -top-8 left-0 z-50 absolute bg-black/75 px-2 py-1 rounded text-white text-sm whitespace-nowrap">
                       {round.round_name || `Round ${round.round_no}`}
                     </span>
                   </CardTitle>
@@ -435,14 +448,14 @@ export const TournamentRounds = () => {
               <CardContent className="p-4 h-[400px] overflow-y-auto">
                 <div className="space-y-3">
                   {round.description && (
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-gray-600 text-sm line-clamp-2">
                       {round.description}
                     </p>
                   )}
 
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="gap-2 grid grid-cols-2 text-sm">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                      <Calendar className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">Start:</span>
                     </div>
                     <span className="text-right">
@@ -450,7 +463,7 @@ export const TournamentRounds = () => {
                     </span>
 
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                      <Calendar className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">End:</span>
                     </div>
                     <span className="text-right">
@@ -458,25 +471,25 @@ export const TournamentRounds = () => {
                     </span>
 
                     <div className="flex items-center">
-                      <Map className="h-4 w-4 mr-2 text-gray-500" />
+                      <Map className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">Match Type:</span>
                     </div>
-                    <span className="text-right font-medium truncate">
+                    <span className="font-medium text-right truncate">
                       {round.match_type_name}
                     </span>
 
                     <div className="flex items-center">
-                      <Flag className="h-4 w-4 mr-2 text-gray-500" />
+                      <Flag className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">
                         Finish Type:
                       </span>
                     </div>
-                    <span className="text-right font-medium truncate">
+                    <span className="font-medium text-right truncate">
                       {round.finish_type}
                     </span>
 
                     <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-2 text-gray-500" />
+                      <Users className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">
                         Qualification Spots:
                       </span>
@@ -522,6 +535,7 @@ export const TournamentRounds = () => {
           ))
         )}
       </div>
+
       {isModalOpen && !isLoadingResources && (
         <RoundModal
           isOpen={isModalOpen}

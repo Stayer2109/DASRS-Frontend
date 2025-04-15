@@ -1,5 +1,6 @@
-import React from "react";
+import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import { Checkbox } from "@/AtomicComponents/atoms/shadcn/checkbox";
 import { Input } from "@/AtomicComponents/atoms/shadcn/input";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import {
@@ -9,12 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/AtomicComponents/atoms/shadcn/select";
-import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import PropTypes from "prop-types";
+import React from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { Checkbox } from "@/AtomicComponents/atoms/shadcn/checkbox";
 
 export const RoundForm = ({
   formData,
@@ -47,10 +48,10 @@ export const RoundForm = ({
   }, []);
 
   return (
-    <div className="flex flex-col h-full pb-6">
+    <div className="flex flex-col pb-6 h-full">
       <form onSubmit={onSubmit} className="flex flex-col h-full">
-        <div className="flex-1 overflow-y-auto pr-4 -mr-4">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
+          <div className="gap-4 grid grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="round_name">Round Name</Label>
               <Input
@@ -80,10 +81,10 @@ export const RoundForm = ({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full justify-start"
+                  className="justify-start w-full"
                   onClick={() => setStartDateOpen(!startDateOpen)}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 w-4 h-4" />
                   {formData.start_date ? (
                     format(new Date(formData.start_date), "PPP")
                   ) : (
@@ -91,7 +92,7 @@ export const RoundForm = ({
                   )}
                 </Button>
                 {startDateOpen && (
-                  <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+                  <div className="top-full left-0 z-50 absolute bg-white shadow-lg mt-1 p-2 border rounded-md">
                     <DayPicker
                       mode="single"
                       selected={
@@ -117,10 +118,10 @@ export const RoundForm = ({
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full justify-start"
+                  className="justify-start w-full"
                   onClick={() => setEndDateOpen(!endDateOpen)}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 w-4 h-4" />
                   {formData.end_date ? (
                     format(new Date(formData.end_date), "PPP")
                   ) : (
@@ -128,7 +129,7 @@ export const RoundForm = ({
                   )}
                 </Button>
                 {endDateOpen && (
-                  <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+                  <div className="top-full left-0 z-50 absolute bg-white shadow-lg mt-1 p-2 border rounded-md">
                     <DayPicker
                       mode="single"
                       selected={
@@ -154,8 +155,8 @@ export const RoundForm = ({
 
             {/* Score Method Section */}
             <div className="col-span-2">
-              <h3 className="text-lg font-semibold mb-3">Score Method</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <h3 className="mb-3 font-semibold text-lg">Score Method</h3>
+              <div className="gap-4 grid grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="lap">Lap Points</Label>
                   <Input
@@ -254,9 +255,9 @@ export const RoundForm = ({
             </div>
 
             {/* Selection Cards */}
-            <div className="col-span-2 space-y-4">
+            <div className="space-y-4 col-span-2">
               <Label>Resource</Label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="gap-4 grid grid-cols-3">
                 {resources?.map((resource) => (
                   <div
                     key={resource.resource_id}
@@ -270,7 +271,7 @@ export const RoundForm = ({
                     }
                   >
                     <h4 className="font-medium">{resource.resource_name}</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {resource.resource_type}
                     </p>
                   </div>
@@ -278,9 +279,9 @@ export const RoundForm = ({
               </div>
             </div>
 
-            <div className="col-span-2 space-y-4">
+            <div className="space-y-4 col-span-2">
               <Label>Environment</Label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="gap-4 grid grid-cols-3">
                 {environments?.map((env) => (
                   <div
                     key={env.environment_id}
@@ -299,9 +300,9 @@ export const RoundForm = ({
               </div>
             </div>
 
-            <div className="col-span-2 space-y-4">
+            <div className="space-y-4 col-span-2">
               <Label>Match Type</Label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="gap-4 grid grid-cols-3">
                 {matchTypes?.map((type) => (
                   <div
                     key={type.match_type_id}
@@ -315,10 +316,10 @@ export const RoundForm = ({
                     }
                   >
                     <h4 className="font-medium">{type.match_type_name}</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Duration: {type.match_duration}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Type: {type.finish_type}
                     </p>
                   </div>
@@ -326,7 +327,7 @@ export const RoundForm = ({
               </div>
             </div>
 
-            <div className="col-span-2 space-y-2">
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="description">Description</Label>
               <Input
                 id="description"
@@ -336,7 +337,7 @@ export const RoundForm = ({
               />
             </div>
 
-            <div className="col-span-2 flex items-center space-x-2">
+            <div className="flex items-center space-x-2 col-span-2">
               <Checkbox
                 id="is_last"
                 checked={formData.is_last}
@@ -370,4 +371,30 @@ export const RoundForm = ({
       </form>
     </div>
   );
+};
+
+RoundForm.propTypes = {
+  formData: PropTypes.shape({
+    round_name: PropTypes.string.isRequired,
+    team_limit: PropTypes.number.isRequired,
+    start_date: PropTypes.string,
+    end_date: PropTypes.string,
+    scoreMethod: PropTypes.object.isRequired,
+    resource_id: PropTypes.string.isRequired,
+    environment_id: PropTypes.string.isRequired,
+    match_type_id: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    is_last: PropTypes.bool.isRequired,
+  }).isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  onDateChange: PropTypes.func.isRequired,
+  onNumberChange: PropTypes.func.isRequired,
+  onSelectChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  resources: PropTypes.arrayOf(PropTypes.object).isRequired,
+  environments: PropTypes.arrayOf(PropTypes.object).isRequired,
+  matchTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  formMode: PropTypes.oneOf(["create", "edit"]).isRequired,
 };
