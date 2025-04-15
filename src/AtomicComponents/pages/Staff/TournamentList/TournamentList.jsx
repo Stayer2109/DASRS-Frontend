@@ -9,11 +9,6 @@
  */
 
 import {
-  ConvertDate,
-  FormatDateInput,
-  FormatToISODate,
-} from "../../../../utils/DateConvert";
-import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -21,37 +16,42 @@ import {
   DialogTitle,
 } from "@/AtomicComponents/atoms/shadcn/dialog";
 import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@/AtomicComponents/organisms/Modal/Modal";
-import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
 } from "@/AtomicComponents/molecules/Table/Table";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 import { useEffect, useState } from "react";
+import {
+  ConvertDate,
+  FormatDateInput,
+  FormatToISODate,
+} from "../../../../utils/DateConvert";
 
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
-import { Button } from "@/AtomicComponents/atoms/shadcn/button";
-import { Button as ButtonIcon } from "./../../../atoms/Button/Button";
-import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
-import { DasrsTournamentActions } from "@/AtomicComponents/molecules/DasrsTournamentAction/DasrsTournamentAction";
 import Input from "@/AtomicComponents/atoms/Input/Input";
-import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { NormalizeData } from "@/utils/InputProces";
-import { NormalizeServerErrors } from "@/utils/NormalizeError";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import { Textarea } from "@/AtomicComponents/atoms/shadcn/textarea";
+import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+import { DasrsTournamentActions } from "@/AtomicComponents/molecules/DasrsTournamentAction/DasrsTournamentAction";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
-import { TournamentManagementValidation } from "@/utils/Validation";
 import { TournamentNavCards } from "@/AtomicComponents/molecules/TournamentNavCards/TournamentNavCards";
 import { apiClient } from "@/config/axios/axios";
 import { useDebounce } from "@/hooks/useDebounce";
+import { NormalizeData } from "@/utils/InputProces";
+import { NormalizeServerErrors } from "@/utils/NormalizeError";
+import { TournamentManagementValidation } from "@/utils/Validation";
+import { Button as ButtonIcon } from "./../../../atoms/Button/Button";
 
 // INITIAL FORM DATA
 const initialFormData = () => ({
@@ -107,6 +107,13 @@ export const TournamentList = () => {
   const [tournamentManagementErrors, setTournamentManagementErrors] = useState(
     {}
   );
+
+  // HANDLE GET START DATE OF TOURNAMENT PASS TODAY
+  const notPassedToday = (date) => {
+    const today = new Date();
+    const tournamentDate = new Date(date);
+    return tournamentDate < today;
+  }
 
   // TABLE COLUMNS
   const columns = [
@@ -329,13 +336,13 @@ export const TournamentList = () => {
     setSelectedTournament(tournament);
     setFormMode(tournament ? "edit" : "create");
 
+    // Set end date to start day + 7 because it is recommended
     setFormData({
       tournament_name: tournament?.tournament_name || "",
       start_date:
-        FormatDateInput(tournament?.start_date) || FormatToISODate(new Date()),
+        FormatDateInput(tournament?.start_date) || FormatToISODate(new Date().getTime() + 1 * 86400000),
       end_date:
-        FormatDateInput(tournament?.end_date) ||
-        FormatToISODate(new Date(new Date().getTime() + 7 * 86400000)),
+        FormatDateInput(tournament?.end_date) || "",
       tournament_context: tournament?.tournament_context || "",
       team_number: tournament?.team_number || 2,
     });
@@ -369,12 +376,14 @@ export const TournamentList = () => {
    */
   // SET START DATE AND END DATE FOR CREATE TOURNAMENT
   useEffect(() => {
-    // if (formMode === "create" && formData.start_date) {
-    //   const nextDay = new Date(
-    //     new Date(formData.start_date).getTime() + 7 * 86400000
-    //   );
-    //   setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
-    // }
+    if (formMode === "create" && formData.start_date) {
+      const nextDay = new Date(
+        new Date(formData.start_date).getTime() + 1 * 86400000
+      );
+      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.start_date]);
   //#endregion
 
@@ -503,6 +512,7 @@ export const TournamentList = () => {
                           <TableCell className="text-center">
                             <DasrsTournamentActions
                               status={row.status}
+                              editable={notPassedToday(row.start_date)}
                               onEdit={() =>
                                 handleOpenTournamentManagementModal(row)
                               }
@@ -622,7 +632,8 @@ export const TournamentList = () => {
                     id="start_date"
                     name="start_date"
                     value={formData.start_date || ""}
-                    min={new Date()}
+                    disabled={notPassedToday(formData.start_date)}
+                    min={FormatToISODate(new Date(Date.now() + 86400000))}
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -643,11 +654,7 @@ export const TournamentList = () => {
                   <Input
                     type="date"
                     value={formData.end_date || ""}
-                    min={FormatToISODate(
-                      new Date(
-                        new Date(formData.start_date).getTime() + 1 * 86400000
-                      )
-                    )}
+                    min={FormatToISODate(new Date(formData.start_date).getTime() + 1 * 86400000)}
                     onChange={(e) => {
                       setFormData({
                         ...formData,
@@ -743,7 +750,7 @@ export const TournamentList = () => {
                     type="date"
                     id="start_date"
                     name="start_date"
-                    min={new Date()}
+                    min={FormatToISODate(new Date(Date.now() + 86400000))}
                     value={formData.start_date || ""}
                     onChange={(e) => {
                       setFormData({
@@ -765,11 +772,7 @@ export const TournamentList = () => {
                   <Input
                     type="date"
                     value={formData.end_date || ""}
-                    min={FormatToISODate(
-                      new Date(
-                        new Date(formData.start_date).getTime() + 1 * 86400000
-                      )
-                    )}
+                    min={FormatToISODate(new Date(formData.start_date).getTime() + 1 * 86400000)}
                     onChange={(e) => {
                       setFormData({
                         ...formData,

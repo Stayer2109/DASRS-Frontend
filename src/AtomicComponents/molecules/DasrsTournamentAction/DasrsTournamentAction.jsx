@@ -13,6 +13,7 @@ import PropTypes from "prop-types";
 export const DasrsTournamentActions = ({
   onEdit,
   status,
+  editable,
   onClick,
 }) => {
   return (
@@ -21,19 +22,21 @@ export const DasrsTournamentActions = ({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 hover:bg-white-hover cursor-pointer"
+          disabled={editable}
+          className="hover:bg-white-hover p-0 w-8 h-8 cursor-pointer"
         >
           <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal className="w-4 h-4" />
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
         {/* Edit Tournament */}
         <DropdownMenuItem onClick={() => onEdit()} className="cursor-pointer">
-          <PencilIcon className="h-4 w-4 mr-2" />
+          <PencilIcon className="mr-2 w-4 h-4" />
           Edit Tournament
         </DropdownMenuItem>
 
@@ -57,6 +60,7 @@ DasrsTournamentActions.propTypes = {
   tournamentId: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   status: PropTypes.string.isRequired,
+  editable: PropTypes.bool.isRequired,
   onChangeStatus: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
 };

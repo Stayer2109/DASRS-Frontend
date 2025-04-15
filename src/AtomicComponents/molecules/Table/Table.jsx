@@ -49,18 +49,12 @@ export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
 export const TableBody = ({ children }) => <tbody>{children}</tbody>;
 
 export const TableRow = ({ children, index, pageIndex = 1, pageSize = 10 }) => {
-  // Debugging: Check if we are receiving proper values
-  console.log("Page Index:", pageIndex);
-  console.log("Page Size:", pageSize);
-  console.log("Index:", index);
-
-  // Default values for pageIndex and pageSize in case they're undefined
+  // Default values if pageIndex and pageSize are not provided
   const currentPageIndex = pageIndex || 1;
   const currentPageSize = pageSize || 10;
 
-  // Proper index calculation
+  // Calculate the row index, adjust from 0-based to 1-based
   const rowIndex = (currentPageIndex - 1) * currentPageSize + index + 1;
-  console.log("Row Index:", rowIndex); // Debugging line
 
   return (
     <tr className="hover:bg-gray-100">
@@ -88,7 +82,6 @@ export const TableCell = ({
   </td>
 );
 
-// PropTypes
 Table.propTypes = {
   title: PropTypes.string,
   children: PropTypes.node.isRequired,
