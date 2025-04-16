@@ -42,7 +42,7 @@ export const RoundModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 px-6 overflow-hidden">
+        <div className="flex-1 px-5 overflow-hidden">
           <RoundForm
             formData={formData}
             formMode={formMode}

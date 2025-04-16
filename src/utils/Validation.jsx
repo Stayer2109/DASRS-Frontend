@@ -7,6 +7,7 @@ const PHONE_REGEX = new RegExp(import.meta.env.PHONE_REGEX);
 var errors = {};
 var error = "";
 
+// LOGIN VALIDATION
 export const LoginValidation = (data) => {
   // Set Errors object to empty
   errors = {};
@@ -22,6 +23,7 @@ export const LoginValidation = (data) => {
   return errors;
 };
 
+// FORGET PASSWORD VALIDATION
 export const ForgetPasswordValidation = (data) => {
   // Set Errors object to empty
   error = "";
@@ -33,6 +35,7 @@ export const ForgetPasswordValidation = (data) => {
   return error;
 };
 
+// UPDATE PROFILE VALIDATION
 export const UpdateProfileValidation = (data) => {
   const errors = {};
 
@@ -63,6 +66,7 @@ export const UpdateProfileValidation = (data) => {
   return errors;
 };
 
+// TOURNAMENT MANAGEMENT VALIDATION
 export const TournamentManagementValidation = (data) => {
   const errors = {};
 
@@ -84,3 +88,82 @@ export const TournamentManagementValidation = (data) => {
 
   return errors;
 };
+
+// ROUND MANAGEMENT VALIDATION
+export const RoundManagementValidation = (data) => {
+  const errors = {};
+
+  if (data.description.trim() === "") {
+    errors.description = "Round description is required";
+  }
+
+  if (data.round_name.trim() === "") {
+    errors.round_name = "Round name is required";
+  }
+
+  if (data.round_duration === 0) {
+    errors.round_duration = "Round duration is required";
+  }
+
+  if (data.lap_number === 0) {
+    errors.lap_number = "Lap number is required";
+  }
+
+  if (data.finish_type.trim() === "") {
+    errors.finish_type = "Finish type is required";
+  }
+
+  if (!data.is_last && data.team_limit === 0) {
+    errors.team_limit = "Team limit is required";
+  }
+
+  if (data.start_date === "") {
+    errors.start_date = "Start date is required";
+  }
+
+  if (data.end_date === "") {
+    errors.end_date = "End date is required";
+  }
+
+  if (data.environment_id === 0) {
+    errors.environment_id = "Environment selection is required";
+  }
+
+  if (data.match_type_id === 0) {
+    errors.match_type_id = "Match type selection is required";
+  }
+
+  if (data.resource_id === 0) {
+    errors.resource_id = "Map selection is required";
+  }
+
+  if (data.lap < 0) {
+    errors.lap = "Lap bonus points must be greater than 0";
+  }
+
+  if (data.collision > 0) {
+    errors.collision = "Collision penalty points must be less than 0";
+  }
+
+  if (data.total_race_time > 0) {
+    errors.total_race_time = "Total race time penalty points must be less than 0";
+  }
+
+  if (data.off_track > 0) {
+    errors.off_track = "Off track penalty points must be less than 0";
+  }
+
+  if (data.assist_usage > 0) {
+    errors.assist_usage = "Assist usage penalty points must be less than 0";
+  }
+
+  if (data.average_speed < 0) {
+    errors.average_speed = "Average speed bonus points must be greater than 0";
+  }
+
+  if (data.total_distance < 0) {
+    errors.total_distance = "Total distance bonus points must be greater than 0";
+  }
+
+  return errors;
+}
