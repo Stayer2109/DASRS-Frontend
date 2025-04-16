@@ -165,9 +165,9 @@ const PlayerMatches = () => {
         const response = await apiClient.get(`teams/members/${auth?.teamId}`);
 
         if (response.status === 200) {
-          setTeamMember(response.data);
+          setTeamMember(response.data.data);
           setPlayerOptions(
-            response.data.map((member) => ({
+            response.data.data.map((member) => ({
               value: member.id,
               label: member.full_name,
             }))
@@ -476,7 +476,7 @@ const PlayerMatches = () => {
                     .filter((m) => !m.player_id)
                     .map((m) => ({
                       value: m.match_team_id,
-                      label: `Slot ${m.match_team_id}`,
+                      label: `Slot ${selectedMatch.match_team.findIndex(t => t.match_team_id === m.match_team_id) + 1}`,
                     }))}
                   placeHolder="Select slot"
                   onChange={(e) =>
