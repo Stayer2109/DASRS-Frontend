@@ -1,0 +1,6 @@
+.select-container {
+  &:focus {
+    outline: 0.13em solid #3b82f6; /* Blue border on hover */
+    transition: all 0.1s linear;
+  }
+}

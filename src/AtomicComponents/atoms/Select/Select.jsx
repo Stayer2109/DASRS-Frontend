@@ -1,21 +1,41 @@
+import "./Select.scss";
+
+import { ChevronDown } from "lucide-react";
 import PropTypes from "prop-types";
 
 const Select = ({ placeHolder, value, onChange, options, className }) => {
-  const commonSelectClassname = `input-container ${className} px-standard-x py-standard-y 
-      rounded-xl border-border-line border-1 focus:border-main-blue focus:outline-none 
-      text-h6 shadow-md w-full`;
-
   return (
-    <select className={commonSelectClassname} value={value} onChange={onChange}>
-      <option value="" disabled selected>
-        {placeHolder}
-      </option>
-      {(options || []).map((option, index) => (
-        <option key={index} value={option.value}>
-          {option.label}
+    <div className={`relative w-full ${className} group focus-within:z-10`}>
+      {/* Chevron on the left */}
+      <div
+        className={`
+          absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 -rotate-90
+          text-gray-500 group-focus-within:rotate-0
+        `}
+      >
+        <ChevronDown className="w-4 h-4" />
+      </div>
+
+      <select
+        className={`
+          select-container
+          appearance-none pl-10 pr-4 py-standard-y
+          rounded-xl border border-border-line focus:border-main-blue focus:outline-none
+          text-h6 shadow-md w-full bg-white
+        `}
+        value={value}
+        onChange={onChange}
+      >
+        <option value="" disabled hidden>
+          {placeHolder}
         </option>
-      ))}
-    </select>
+        {(options || []).map((option, index) => (
+          <option key={index} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 };
 

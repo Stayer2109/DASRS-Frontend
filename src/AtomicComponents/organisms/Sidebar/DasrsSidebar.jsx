@@ -83,17 +83,18 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       setSelectedItem("/" + activeItem);
     }
 
-    // Auto-expand submenu if current route matches any submenu item
-    const matchedParent = data.find((item) =>
-      item.subMenu?.some((sub) => location.pathname.includes(sub.link))
-    );
+    // Add null check for data array
+    if (data && data.length > 0) {
+      // Auto-expand submenu if current route matches any submenu item
+      const matchedParent = data.find((item) =>
+        item?.subMenu?.some((sub) => location.pathname.includes(sub.link))
+      );
 
-    if (matchedParent && activeSubmenu !== matchedParent.item) {
-      setActiveSubmenu(matchedParent.item);
+      if (matchedParent && activeSubmenu !== matchedParent.item) {
+        setActiveSubmenu(matchedParent.item);
+      }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location.pathname]); // Add proper dependency
 
   return (
     <>
@@ -101,7 +102,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       <motion.nav
         initial={hasMounted ? { opacity: 0 } : false}
         animate={{
-          width: isOpened ? (isMobile ? "70dvw" : 280) : isMobile ? 0 : 73,
+          width: isOpened ? (isMobile ? "70dvw" : 280) : isMobile ? 0 : 76,
           x: isOpened || !isMobile ? 0 : "-150px",
         }}
         transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}
@@ -111,7 +112,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       >
         <div className="flex flex-col h-full">
           {/* Headers */}
-          <div className="relative h-17 mb-12">
+          <div className="relative h-17 mb-4">
             {/* Title */}
             <motion.span
               animate={{
@@ -126,7 +127,9 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                   text={`${TruncateText("Welcome Back", 18)}`}
                   isVisible={isOpened}
                 />
-                {auth?.isLeader && <span className="text-yellow-500">Leader</span>}
+                {auth?.isLeader && (
+                  <span className="text-yellow-500">Leader</span>
+                )}
               </h1>
             </motion.span>
 

@@ -1,4 +1,4 @@
-import { PencilIcon, TrashIcon, MoreHorizontal } from "lucide-react";
+import { PencilIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import {
   DropdownMenu,
@@ -11,81 +11,50 @@ import {
 import PropTypes from "prop-types";
 
 export const DasrsTournamentActions = ({
-  tournamentId,
   onEdit,
   status,
-  onDelete,
-  onChangeStatus,
+  preventEdit,
   onClick,
 }) => {
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 hover:bg-white-hover cursor-pointer"
-          >
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => onEdit(tournamentId)}
-            className="cursor-pointer"
-          >
-            <PencilIcon className="h-4 w-4 mr-2" />
-            Edit Tournament
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          toolTipPos="top"
+          tooltipData={`${preventEdit ? "The tournament has started or been terminated." : ""}`}
+          disabled={preventEdit}
+          className="hover:bg-white-hover p-0 w-8 h-8 cursor-pointer"
+        >
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
 
-          <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-          <DropdownMenuItem
-            disabled={status === "PENDING"}
-            onClick={() => {
-              onChangeStatus(tournamentId, "PENDING");
-              onClick();
-            }}
-          >
-            Set to Pending
-          </DropdownMenuItem>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            disabled={status === "ACTIVE"}
-            onClick={() => {
-              onChangeStatus(tournamentId, "ACTIVE");
-              onClick();
-            }}
-          >
-            Set to Active
-          </DropdownMenuItem>
+        {/* Edit Tournament */}
+        <DropdownMenuItem onClick={() => onEdit()} className="cursor-pointer">
+          <PencilIcon className="mr-2 w-4 h-4" />
+          Edit Tournament
+        </DropdownMenuItem>
 
-          <DropdownMenuItem
-            disabled={status === "COMPLETED"}
-            onClick={() => {
-              onChangeStatus(tournamentId, "COMPLETED");
-              onClick();
-            }}
-          >
-            Set to Completed
-          </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Change Status</DropdownMenuLabel>
 
-          <DropdownMenuItem
-            disabled={status === "TERMINATED"}
-            onClick={() => {
-              onChangeStatus(tournamentId, "TERMINATED");
-              onClick();
-            }}
-          >
-            Set to Terminated
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+        {/* Only Terminated Option */}
+        <DropdownMenuItem
+          disabled={status === "TERMINATED"}
+          onClick={onClick}
+          className="cursor-pointer"
+        >
+          Set to Terminated
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -93,7 +62,7 @@ DasrsTournamentActions.propTypes = {
   tournamentId: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   status: PropTypes.string.isRequired,
-  onDelete: PropTypes.func.isRequired,
+  preventEdit: PropTypes.bool.isRequired,
   onChangeStatus: PropTypes.func.isRequired,
   onClick: PropTypes.func.isRequired,
 };

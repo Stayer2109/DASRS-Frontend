@@ -1,6 +1,43 @@
 .input-container {
   &:focus {
-    outline: .13em solid #3b82f6; /* Blue border on hover */
+    outline: 0.13em solid #3b82f6; /* Blue border on hover */
     transition: all 0.1s linear;
   }
+}
+
+.react-datetime-picker__wrapper {
+  box-shadow: none !important;
+  width: 100% !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+}
+
+.react-date-picker__wrapper {
+  box-shadow: none !important;
+  width: 100% !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+
+  .react-date-picker--disabled & {
+    background-color: transparent !important;
+  }
+}
+
+.react-datetime-picker__calendar,
+.react-datetime-picker__clock {
+  z-index: 9999;
+  position: absolute;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 0.5rem;
 }

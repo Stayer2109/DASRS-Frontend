@@ -1,6 +1,7 @@
 import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Select from "@/AtomicComponents/atoms/Select/Select";
+import useAuth from "@/hooks/useAuth";
 import {
   Avatar,
   AvatarFallback,
@@ -21,18 +22,18 @@ import {
   ModalHeader,
 } from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
-import useAuth from "@/hooks/useAuth";
 import { ConvertDate } from "@/utils/DateConvert";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
 import { UpdateProfileValidation } from "@/utils/Validation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useState } from "react";
 const inputCommonClassname = "w-full mb-1";
 
-const PlayerProfile = () => {
+const OrganizerProfile = () => {
   const { auth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [player, setPlayer] = useState(null);
+  const [user, setUlayer] = useState(null);
   const [updateProfileShow, setUpdateProfileShow] = useState(false);
   const [updateProfileErrors, setUpdateProfileErrors] = useState({});
   const genderOptions = [
@@ -56,16 +57,17 @@ const PlayerProfile = () => {
   };
 
   //#region MODAL CONTROL
+
   const updateProfileModalShow = () => {
-    if (!player) return;
+    if (!user) return;
 
     setUpdateProfileData({
-      address: player.address || "",
-      gender: player.gender || "",
-      dob: player.dob || "",
-      phone: player.phone || "",
-      first_name: player.first_name || "",
-      last_name: player.last_name || "",
+      address: user.address || "",
+      gender: user.gender || "",
+      dob: user.dob || "",
+      phone: user.phone || "",
+      first_name: user.first_name || "",
+      last_name: user.last_name || "",
     });
 
     setUpdateProfileErrors({});
@@ -88,10 +90,10 @@ const PlayerProfile = () => {
       });
 
       if (response.data.http_status === 200) {
-        setPlayer(response.data.data);
+        setUlayer(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching player data:", error);
+      console.error("Error fetching user data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -149,23 +151,31 @@ const PlayerProfile = () => {
       {isLoading && <Spinner />}
 
       <div className="flex justify-center items-center min-h-[80vh]">
-        {player ? (
+        {user ? (
           <Card className="w-full max-w-md p-6 rounded-xl shadow-md bg-white">
             <CardHeader className="flex flex-col items-center gap-4 pb-2">
               <Avatar className="w-24 h-24 ring-2 ring-blue-500 mb-2">
-                <AvatarImage src={player.avatar || ""} />
+                <AvatarImage src={user.avatar || ""} />
                 <AvatarFallback className="text-4xl bg-gray-200 text-gray-600">
-                  {player.last_name?.charAt(0)}
+                  {user.last_name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <CardTitle className="text-xl font-bold">
-                {player.first_name + " " + player.last_name}
+                {user.first_name + " " + user.last_name}
               </CardTitle>
               <Badge
-                className="text-xs"
-                variant={player.is_leader ? "default" : "secondary"}
+                className={`text-xs ${
+                  auth?.role !== "PLAYER" ? "bg-yellow-400" : ""
+                }`}
+                variant={user.is_leader ? "default" : "secondary"}
               >
-                {player.is_leader ? "👑 Leader" : "Player"}
+                {auth?.role !== "PLAYER" ? (
+                  <span className="font-bold">{auth?.role}</span>
+                ) : user.is_leader ? (
+                  "👑 Leader"
+                ) : (
+                  "Player"
+                )}
               </Badge>
             </CardHeader>
 
@@ -173,27 +183,27 @@ const PlayerProfile = () => {
               <div className="mt-4 space-y-1 text-sm text-center text-muted-foreground">
                 <div>
                   <span className="font-medium text-gray-700">Gender:</span>{" "}
-                  {player.gender}
+                  {user.gender}
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Phone:</span>{" "}
-                  {player.phone}
+                  {user.phone}
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Birthday:</span>{" "}
-                  {ConvertDate(player.dob)}
+                  {ConvertDate(user.dob)}
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Address:</span>{" "}
-                  {player.address}
+                  {user.address}
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Email:</span>{" "}
                   <a
                     className="text-blue-600 underline"
-                    href={`mailto:${player.email}`}
+                    href={`mailto:${user.email}`}
                   >
-                    {player.email}
+                    {user.email}
                   </a>
                 </div>
               </div>
@@ -202,7 +212,7 @@ const PlayerProfile = () => {
             <div className="text-center">
               <Button
                 className="mt-6 w-auto !px-6"
-                bgColor="black"
+                bgColor="#000"
                 content="Update Profile"
                 onClick={updateProfileModalShow}
               />
@@ -393,7 +403,7 @@ const PlayerProfile = () => {
                   onClick={() =>
                     handleUpdateProfileValidation(updateProfileData)
                   }
-                  bgColor="black"
+                  bgColor="#000"
                   type="submit"
                 />
               </div>
@@ -404,5 +414,4 @@ const PlayerProfile = () => {
     </>
   );
 };
-
-export default PlayerProfile;
+export default OrganizerProfile;

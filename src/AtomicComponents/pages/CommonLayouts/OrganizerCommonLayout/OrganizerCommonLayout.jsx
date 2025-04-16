@@ -1,9 +1,5 @@
-/** @format */
-
-import { useEffect, useRef, useState } from "react";
 import "./OrganizerCommonLayout.scss";
-import { motion, useAnimation } from "framer-motion";
-import { useMediaQuery } from "react-responsive";
+
 import {
   AddPlayerIcon,
   HomeIcon,
@@ -14,9 +10,13 @@ import {
   TournamentIcon,
   UserIcon,
 } from "@/assets/icon-svg";
-import PropTypes from "prop-types";
-import { Outlet } from "react-router-dom";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
+import { Outlet } from "react-router-dom";
+import PropTypes from "prop-types";
+import { useMediaQuery } from "react-responsive";
 
 const OrganizerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -102,10 +102,10 @@ const OrganizerCommonLayout = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="flex relative h-screen">
+    <div className="relative flex h-screen overflow-hidden">
       {isMobile && isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="z-40 fixed inset-0 bg-black/50"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -125,9 +125,8 @@ const OrganizerCommonLayout = () => {
 
       {/* Main content */}
       <div
-        className={`flex-1 transition-all duration-300 z-0 p-10 max-h-screen flex flex-col overflow-auto ${
-          isMobile ? "" : ""
-        } p-10`}
+        className={`flex-1 transition-all duration-300 p-10 max-h-screen flex flex-col overflow-auto ${isMobile ? "z-0" : "z-[50]"
+          } p-10`}
       >
         <Outlet />
       </div>
@@ -167,7 +166,7 @@ const DraggableSidebarToggle = ({ onClick }) => {
   };
 
   return (
-    <div ref={wrapperRef} className="fixed inset-0 z-50 pointer-events-none">
+    <div ref={wrapperRef} className="z-50 fixed inset-0 pointer-events-none">
       <motion.div
         ref={iconRef}
         drag
@@ -184,7 +183,7 @@ const DraggableSidebarToggle = ({ onClick }) => {
         onClick={onClick}
         onDragEnd={handleDragEnd}
         animate={controls}
-        className="absolute top-4 left-0 bg-navbar-color p-3 rounded-full shadow-md cursor-pointer touch-none pointer-events-auto"
+        className="top-4 left-0 absolute bg-navbar-color shadow-md p-3 rounded-full touch-none cursor-pointer pointer-events-auto"
         style={{ width: "fit-content" }}
       >
         <SidebarIcon color="white" height={25} width={25} />

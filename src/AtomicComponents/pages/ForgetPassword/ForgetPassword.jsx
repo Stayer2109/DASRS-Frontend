@@ -6,7 +6,7 @@ import {
   HomeIcon,
   KeyIcon,
 } from "@/assets/icon-svg";
-import Button from "@/AtomicComponents/atoms/Button/Button";
+import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { apiAuth } from "@/config/axios/axios";
@@ -86,12 +86,16 @@ const ForgetPassword = () => {
       <div className="reset-password-container h-dvh flex justify-center items-center">
         <form
           className="bg-[#FAF9F6] w-[95%] sm:w-[40%] max-h-[70%] h-auto rounded-2xl px-standard-x py-standard-y relative overflow-auto"
-          onSubmit={handleResetPasswordSubmit}>
+          onSubmit={handleResetPasswordSubmit}
+        >
           <div
             className="absolute flex items-end justify-center cursor-pointer group translate-y-[20%]"
-            onClick={() => navigate("/")}>
+            onClick={() => navigate("/")}
+          >
             <HomeIcon className="" />
-            <h5 className="text-h5 group-hover:text-main-blue sm:block hidden">Home</h5>
+            <h5 className="text-h5 group-hover:text-main-blue sm:block hidden">
+              Home
+            </h5>
           </div>
 
           <h1 className="text-h1 text-center text-main-blue">Reset Password</h1>
@@ -117,7 +121,8 @@ const ForgetPassword = () => {
 
               <div
                 className="absolute top-0 right-0 -translate-x-2 translate-y-[3px] cursor-pointer active:scale-92 active:translate-y-[4px]"
-                onClick={() => setShowPassword(!showPassword)}>
+                onClick={() => setShowPassword(!showPassword)}
+              >
                 {showPassword ? (
                   <EyeOpenIcon width={24} />
                 ) : (
@@ -168,7 +173,8 @@ const ConditionText = ({ isValid, text }) => {
     <div
       className={`password-condition ${
         isValid ? "text-green-600" : "text-gray-500"
-      }`}>
+      }`}
+    >
       {isValid ? (
         <span>
           {"\u{2714}"} {text}

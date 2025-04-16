@@ -1,7 +1,7 @@
 /** @format */
 
 // import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
@@ -16,20 +16,17 @@ import StaffCommonLayout from "./AtomicComponents/pages/CommonLayouts/StaffCommo
 import StaffHomePage from "./AtomicComponents/pages/Staff/HomePage/StaffHomePage";
 import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
 import "react-tooltip/dist/react-tooltip.css";
-import OrganizerPage from "./AtomicComponents/pages/Organizer/OrganizerPage/OrganizerPage";
 import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
-import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
 import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
 import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
 import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
 import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
 import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
 import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
-import AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
+import _AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
 import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
 import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
-import OrganizerTemplate from "./AtomicComponents/templates/Organizer/OrganizerTemplate";
 import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
 import { Settings } from "./AtomicComponents/organisms/Settings/Settings";
 import { PlayerTeams } from "./AtomicComponents/pages/Player/PlayerTeams/PlayerTeams";
@@ -38,6 +35,7 @@ import { MyTeam } from "./AtomicComponents/pages/Player/MyTeam/MyTeam";
 import { TournamentRegistration } from "./AtomicComponents/pages/Player/TournamentRegistration/TournamentRegistration";
 import { MyTournaments } from "./AtomicComponents/pages/Player/MyTournaments/MyTournaments";
 import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTournamentRounds/TeamTournamentRounds";
+import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -120,7 +118,7 @@ const AppRoutes = () => {
 
                   <Route path="add-player" element={<AddPlayerByImport />} />
                 </Route>
-                <Route path="my-profile" element={<h1>My Profile</h1>} />
+                <Route path="my-profile" element={<OrganizerProfile />} />
                 <Route
                   path="tournaments/:tournamentId/rounds"
                   element={<TournamentRounds />}

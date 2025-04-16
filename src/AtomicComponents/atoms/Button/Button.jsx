@@ -3,11 +3,12 @@ import "./Button.scss";
 import PropTypes from "prop-types";
 import { Tooltip } from "react-tooltip";
 
-const Button = ({
+export const Button = ({
   className = "",
   content = "Button",
   tooltipData = "",
   toolTipPos = "top",
+  borderColor = "#000",
   disabled = false,
   onClick = () => {},
   bgColor = "#4683FF", // Default color is blue
@@ -15,25 +16,50 @@ const Button = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Darkens the background
-  const darkenColor = (hex, percent) => {
+  const expandShortHex = (hex) => {
+    if (hex.length === 4) {
+      return "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+    return hex;
+  };
+
+  const adjustColorBrightness = (hex, percent) => {
+    hex = expandShortHex(hex);
+
     let r = parseInt(hex.substring(1, 3), 16);
     let g = parseInt(hex.substring(3, 5), 16);
     let b = parseInt(hex.substring(5, 7), 16);
 
-    r = Math.max(0, Math.floor(r * (1 - percent)));
-    g = Math.max(0, Math.floor(g * (1 - percent)));
-    b = Math.max(0, Math.floor(b * (1 - percent)));
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const isDark = luminance < 0.5;
+
+    const boost = Math.round(255 * percent);
+
+    r = isDark ? Math.min(255, r + boost + 30) : Math.max(0, r - boost - 30);
+    g = isDark ? Math.min(255, g + boost + 30) : Math.max(0, g - boost - 30);
+    b = isDark ? Math.min(255, b + boost + 30) : Math.max(0, b - boost - 30);
 
     return `rgb(${r}, ${g}, ${b})`;
   };
 
   // Calculates luminance to determine if bg is light or dark
-  const getTextColor = (hex) => {
-    const r = parseInt(hex.substring(1, 3), 16);
-    const g = parseInt(hex.substring(3, 5), 16);
-    const b = parseInt(hex.substring(5, 7), 16);
-    // Formula based on WCAG guidelines
+  const getTextColor = (color) => {
+    let r, g, b;
+
+    if (color.startsWith("#")) {
+      const hex = expandShortHex(color);
+      r = parseInt(hex.substring(1, 3), 16);
+      g = parseInt(hex.substring(3, 5), 16);
+      b = parseInt(hex.substring(5, 7), 16);
+    } else if (color.startsWith("rgb")) {
+      const values = color.match(/\d+/g);
+      if (!values || values.length < 3) return "#000000";
+      [r, g, b] = values.map(Number);
+    } else {
+      // fallback for unknown color formats
+      return "#000000";
+    }
+
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     return luminance > 0.5 ? "#000000" : "#ffffff";
   };
@@ -42,9 +68,9 @@ const Button = ({
   const handleLeave = () => setIsHovered(false);
 
   const currentBg = disabled
-    ? darkenColor(bgColor, 0.3)
+    ? adjustColorBrightness(bgColor, 0.3)
     : isHovered
-    ? darkenColor(bgColor, 0.1)
+    ? adjustColorBrightness(bgColor, 0.1)
     : bgColor;
 
   const textColor = getTextColor(currentBg);
@@ -55,7 +81,7 @@ const Button = ({
         data-tooltip-id="my-tooltip"
         data-tooltip-content={tooltipData}
         data-tooltip-place={toolTipPos}
-        className={`${className} px-standard-x py-standard-y rounded-[12px]`}
+        className={`${className} px-standard-x py-standard-y rounded-[2px]`}
         onMouseEnter={handleHover}
         onMouseLeave={handleLeave}
         disabled={disabled}
@@ -65,6 +91,8 @@ const Button = ({
           backgroundColor: currentBg,
           color: textColor,
           cursor: disabled ? "not-allowed" : "pointer",
+          borderColor: borderColor,
+          borderWidth: "1px",
         }}
       >
         {content}
@@ -78,11 +106,10 @@ Button.propTypes = {
   className: PropTypes.string,
   content: PropTypes.string,
   onClick: PropTypes.func,
+  borderColor: PropTypes.string,
   disabled: PropTypes.bool,
   tooltipData: PropTypes.string,
   toolTipPos: PropTypes.string,
   bgColor: PropTypes.string,
   type: PropTypes.string,
 };
-
-export default Button;

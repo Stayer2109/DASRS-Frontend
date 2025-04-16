@@ -1,5 +1,5 @@
-import React from "react";
 import { Loader2 } from "lucide-react";
+import PropTypes from "prop-types";
 
 export const LoadingIndicator = ({ size = "large" }) => {
   const sizeClass = size === "small" ? "h-4 w-4" : "h-8 w-8";
@@ -10,3 +10,7 @@ export const LoadingIndicator = ({ size = "large" }) => {
     </div>
   );
 };
+
+LoadingIndicator.propTypes = {
+  size: PropTypes.oneOf(["small", "large"]),
+}
