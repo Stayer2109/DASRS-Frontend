@@ -29,6 +29,10 @@ import { formatDateString } from "@/utils/dateUtils";
 import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
 import { Button as ButtonIcon } from './../../atoms/Button/Button';
+import { NormalizeData } from "@/utils/InputProces";
+import Toast from "../Toaster/Toaster";
+import { NormalizeServerErrors } from "@/utils/NormalizeError";
+import { RoundManagementValidation } from "@/utils/Validation";
 
 const initialFormData = {
   description: "",
@@ -69,7 +73,8 @@ export const TournamentRounds = () => {
   const [matchTypes, setMatchTypes] = useState([]);
   const [_isLoadingResources, setIsLoadingResources] = useState(true);
   const [selectedRound, setSelectedRound] = useState(null);
-  const [isSubmitting, _setIsSubmitting] = useState(false);
+  const [roundManagementErrors, setRoundManagementErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [rounds, setRounds] = useState([]);
   const [tournament, setTournament] = useState(null);
   const [roundsManagementModalShow, setRoundManagementModalShow] = useState(false);
@@ -101,9 +106,91 @@ export const TournamentRounds = () => {
     navigate(`${roundId}/matches`);
   };
 
+  // HANDLE TOURNAMENT MANAGEMENT DATA VALIDATION
+  const handleRoundManagementValidation = (data) => {
+    const errors = RoundManagementValidation(data);
+    setRoundManagementErrors(errors);
+  };
+
+  // FETCH TOURNAMENT AND ROUNDS
+  const fetchTournamentRounds = async () => {
+    if (!tournamentId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [tournamentRes, roundsRes] = await Promise.all([
+        apiClient.get(`tournaments/${tournamentId}`), // Tournament details
+        apiClient.get(`rounds/tournament/${tournamentId}`), // Rounds of a tournament
+      ]);
+
+      setTournament(tournamentRes.data.data);
+      setRounds(roundsRes.data.data || []);
+    } catch (err) {
+      console.error("Error fetching tournament rounds:", err);
+      setError("Failed to load rounds. Please try again.");
+      toast.error("Failed to load rounds");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   // HANDLE ROUND MANAGEMENT FORM SUBMIT
   const handleRoundManagementFormSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate form data
+    const normalizedData = NormalizeData({
+      ...formData,
+      start_date: FormatToISODate(formData.start_date),
+      end_date: FormatToISODate(formData.end_date),
+    });
+
+    if (Object.keys(roundManagementErrors).length > 0) return;
+
+    try {
+      setIsSubmitting(true);
+      setIsLoading(true);
+
+      const apiCall =
+        formMode === "edit"
+          ? apiClient.put(
+            `/rounds`,
+            normalizedData
+          )
+          : apiClient.post("/rounds", normalizedData);
+
+      const response = await apiCall;
+
+      if (
+        response.data.http_status === 201 ||
+        response.data.http_status === 200
+      ) {
+        Toast({
+          title: "Success",
+          message: response.data.message,
+          type: "success",
+        });
+
+        fetchTournamentRounds();
+        handleCloseRoundManagementModal();
+      }
+    } catch (error) {
+      const serverErrors = NormalizeServerErrors(
+        error.response?.data?.data || {}
+      );
+      setRoundManagementErrors((prev) => ({ ...prev, ...serverErrors }));
+      Toast({
+        title: "Error",
+        type: "error",
+        message: error.response?.data?.message || "Error processing request.",
+      });
+    } finally {
+      setIsSubmitting(false);
+      setIsLoading(false);
+    }
+
   }
 
   // HANDLE SELECT CHANGE
@@ -125,9 +212,9 @@ export const TournamentRounds = () => {
     setFormData({
       description: round?.description || "",
       round_name: round?.round_name || "",
-      round_duration: round?.round_duration || 0,
-      lap_number: round?.lap_number || 0,
-      finish_type: round?.finish_type || "",
+      round_duration: round?.round_duration || 300,
+      lap_number: round?.lap_number || 1,
+      finish_type: MatchFinishTypeOptions[0].value,
       team_limit: round?.team_limit || 0,
       is_last: round?.is_last || false,
       start_date:
@@ -157,32 +244,11 @@ export const TournamentRounds = () => {
   //#endregion
 
   //#region USEEFFECT SCOPES
-  // FETCH ROUND and ITS ROUNDS
+  // FETCH TOURNAMENT and ITS ROUNDS
   useEffect(() => {
-    const fetchData = async () => {
-      if (!tournamentId) return;
+    fetchTournamentRounds();
 
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const [tournamentRes, roundsRes] = await Promise.all([
-          apiClient.get(`tournaments/${tournamentId}`), // Tournament details
-          apiClient.get(`rounds/tournament/${tournamentId}`), // Rounds of a tournament
-        ]);
-
-        setTournament(tournamentRes.data.data);
-        setRounds(roundsRes.data.data || []);
-      } catch (err) {
-        console.error("Error fetching tournament rounds:", err);
-        setError("Failed to load rounds. Please try again.");
-        toast.error("Failed to load rounds");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournamentId]);
 
   // FETCH RECOURCES SUCH AS MAPS, ENVIRONMENTS AND MATCH TYPES
@@ -476,18 +542,26 @@ export const TournamentRounds = () => {
           <form onSubmit={handleRoundManagementFormSubmit} className="flex flex-col h-full">
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
               <div className="gap-4 grid grid-cols-2 px-1">
+                {/* Round Name */}
                 <div className="space-y-2">
-                  {/* Round Name */}
                   <Label htmlFor="round_name">Round Name</Label>
                   <Input
                     id="round_name"
                     name="round_name"
+                    placeholder="Enter round name"
                     value={formData?.round_name || ""}
                     onChange={(e) => {
                       setFormData((prev) => ({ ...prev, round_name: e.target.value }));
                     }}
                     required
                   />
+                  {
+                    roundManagementErrors?.round_name && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.round_name}
+                      </p>
+                    )
+                  }
                 </div>
 
                 {/* Qualification Spot */}
@@ -496,8 +570,9 @@ export const TournamentRounds = () => {
                   <Input
                     id="team_limit"
                     name="team_limit"
+                    disabled={formData?.is_last}
                     type="number"
-                    value={formData?.team_limit || 0}
+                    value={formData.is_last ? 0 : formData?.team_limit}
                     min={0}
                     max={50}
                     onChange={(e) => {
@@ -505,6 +580,13 @@ export const TournamentRounds = () => {
                     }}
                     required
                   />
+                  {
+                    roundManagementErrors?.team_limit && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.team_limit}
+                      </p>
+                    )
+                  }
                 </div>
 
                 {/* Start Date */}
@@ -523,6 +605,11 @@ export const TournamentRounds = () => {
                         });
                       }}
                     />
+                    {roundManagementErrors?.start_date && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.start_date}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -542,137 +629,234 @@ export const TournamentRounds = () => {
                         });
                       }}
                     />
+                    {
+                      roundManagementErrors?.end_date && (
+                        <p className="text-red-500 text-xs">
+                          {roundManagementErrors.end_date}
+                        </p>
+                      )
+                    }
                   </div>
                 </div>
 
-                {/* Score Method Section */}
+                {/* Match Finish Type */}
+                <div className="space-y-2">
+                  <Label>Match Type</Label>
+                  <Select
+                    options={MatchFinishTypeOptions}
+                    placeHolder={"Select Finish Type"}
+                    value={formData?.finish_type}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, finish_type: e.target.value }));
+                    }}
+                  />
+                  {
+                    roundManagementErrors?.finish_type && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.finish_type}
+                      </p>
+                    )
+                  }
+                </div>
+
+                {/* If Match Type Is Lap */}
+                {
+                  formData?.finish_type === "TIME" ? (
+                    // Round Duration
+                    <div className="space-y-2">
+                      <Label htmlFor="team_limit">Round Duration (seconds)</Label>
+                      <Input
+                        id="team_limit"
+                        name="team_limit"
+                        type="number"
+                        value={formData?.round_duration || 0}
+                        min={0}
+                        max={300}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, round_duration: e.target.value }));
+                        }}
+                        required
+                      />
+                      {
+                        roundManagementErrors?.round_duration && (
+                          <p className="text-red-500 text-xs">
+                            {roundManagementErrors.round_duration}
+                          </p>
+                        )
+                      }
+                    </div>
+                  ) : (
+                    // Lap number
+                    <div className="space-y-2">
+                      <Label htmlFor="team_limit">Number of Laps</Label>
+                      <Input
+                        id="team_limit"
+                        name="team_limit"
+                        type="number"
+                        value={formData?.lap_number || 0}
+                        min={1}
+                        max={3}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, lap_number: e.target.value }));
+                        }}
+                        required
+                      />
+                      {
+                        roundManagementErrors?.lap_number && (
+                          <p className="text-red-500 text-xs">
+                            {roundManagementErrors.lap_number}
+                          </p>
+                        )
+                      }
+                    </div>
+                  )
+                }
+
+                {/* ------------------- Score Method Section ------------------- */}
                 <div className="col-span-2">
-                  <h3 className="mb-3 font-semibold text-lg">Scoring Method</h3>
-                  <div className="gap-4 grid grid-cols-2 px-1">
-                    {/* Lap Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="lap">Lap Points</Label>
-                      <Input
-                        id="lap"
-                        name="lap"
-                        type="number"
-                        value={formData?.lap}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, lap: e.target.value }));
-                        }}
-                        required
-                      />
-                    </div>
+                  <h3 className="mb-2 font-semibold text-lg">Scoring Method</h3>
+                  {/* Bonus Point Container */}
+                  <div className="mb-5 bonus-pointer-container">
+                    <h4 className="mb-1 font-semibold text-md">Bonus Points</h4>
+                    <div className="gap-4 grid grid-cols-2 px-1">
+                      {/* Lap Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="lap">Lap Points</Label>
+                        <Input
+                          id="lap"
+                          name="lap"
+                          type="number"
+                          min={0}
+                          max={1000}
+                          value={formData?.lap}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, lap: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
 
-                    {/* Assist Usage Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="assistUsageCount">Assist Usage Points</Label>
-                      <Input
-                        id="assistUsageCount"
-                        name="assistUsageCount"
-                        type="number"
-                        value={formData?.assist_usage}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, assist_usage: e.target.value }));
-                        }}
-                        required
-                      />
-                    </div>
+                      {/* Average Speed Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="average_speed">Average Speed Points</Label>
+                        <Input
+                          id="average_speed"
+                          name="average_speed"
+                          type="number"
+                          min={0}
+                          max={1000}
+                          value={formData?.average_speed}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, average_speed: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
 
-                    {/* Collision Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="collision">Collision Points</Label>
-                      <Input
-                        id="collision"
-                        name="collision"
-                        type="number"
-                        value={formData?.collision}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, collision: e.target.value }));
-                        }}
-                        required
-                      />
+                      {/* Distance Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="total_distance">Distance Points</Label>
+                        <Input
+                          id="total_distance"
+                          name="total_distance"
+                          type="number"
+                          min={0}
+                          max={1000}
+                          value={formData?.total_distance}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, total_distance: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Race Time Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="total_race_time">Race Time Points</Label>
-                      <Input
-                        id="total_race_time"
-                        name="total_race_time"
-                        type="number"
-                        value={formData?.total_race_time}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, total_race_time: e.target.value }));
-                        }}
-                        required
-                      />
+                  {/* Penalty Point Container */}
+                  <div className="mb-5 bonus-pointer-container">
+                    <h4 className="mb-2 font-semibold text-md">Penalty Points</h4>
+                    <div className="gap-4 grid grid-cols-2 px-1">
+                      {/* Assist Usage Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="assistUsageCount">Assist Usage Points</Label>
+                        <Input
+                          id="assistUsageCount"
+                          name="assistUsageCount"
+                          type="number"
+                          min={-1000}
+                          max={0}
+                          value={formData?.assist_usage}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, assist_usage: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
+
+                      {/* Collision Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="collision">Collision Points</Label>
+                        <Input
+                          id="collision"
+                          name="collision"
+                          type="number"
+                          min={-1000}
+                          max={0}
+                          value={formData?.collision}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, collision: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
+
+                      {/* Race Time Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="total_race_time">Race Time Points</Label>
+                        <Input
+                          id="total_race_time"
+                          name="total_race_time"
+                          type="number"
+                          min={-1000}
+                          max={0}
+                          value={formData?.total_race_time}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, total_race_time: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
+
+                      {/* Off Track Points */}
+                      <div className="space-y-2">
+                        <Label htmlFor="off_track">Off Track Points</Label>
+                        <Input
+                          id="off_track"
+                          name="off_track"
+                          type="number"
+                          min={-1000}
+                          max={0}
+                          value={formData?.off_track}
+                          onChange={(e) => {
+                            setFormData((prev) => ({ ...prev, off_track: e.target.value }));
+                          }}
+                          required
+                        />
+                      </div>
                     </div>
-
-                    {/* Off Track Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="off_track">Off Track Points</Label>
-                      <Input
-                        id="off_track"
-                        name="off_track"
-                        type="number"
-                        value={formData?.off_track}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, off_track: e.target.value }));
-                        }}
-                        required
-                      />
-                    </div>
-
-                    {/* Average Speed Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="average_speed">Average Speed Points</Label>
-                      <Input
-                        id="average_speed"
-                        name="average_speed"
-                        type="number"
-                        value={formData?.average_speed}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, average_speed: e.target.value }));
-                        }}
-                        required
-                      />
-                    </div>
-
-                    {/* Distance Points */}
-                    <div className="space-y-2">
-                      <Label htmlFor="total_distance">Distance Points</Label>
-                      <Input
-                        id="total_distance"
-                        name="total_distance"
-                        type="number"
-                        value={formData?.total_distance}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, total_distance: e.target.value }));
-                        }}
-                        required
-                      />
-                    </div>
-
-                    {/* Match Finish Type */}
-                    <div className="space-y-2">
-                      <Label>Match Finish Type</Label>
-                      <Select
-                        options={MatchFinishTypeOptions}
-                        placeHolder={"Select Finish Type"}
-                        value={formData?.finish_type}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, finish_type: e.target.value }));
-                        }}
-                      />
-                    </div>
-
                   </div>
                 </div>
 
-                {/* Selection Cards */}
+                {/* Maps */}
                 <div className="space-y-4 col-span-2">
                   <Label>Resource</Label>
+                  {
+                    roundManagementErrors?.resource_id && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.resource_id}
+                      </p>
+                    )
+                  }
                   <div className="gap-4 grid grid-cols-3">
                     {resources?.map((resource) => (
                       <div
@@ -689,13 +873,22 @@ export const TournamentRounds = () => {
                         <p className="text-muted-foreground text-sm">
                           {resource.resource_type}
                         </p>
+                        { }
                       </div>
                     ))}
                   </div>
                 </div>
 
+                {/* Environments */}
                 <div className="space-y-4 col-span-2">
                   <Label>Environment</Label>
+                  {
+                    roundManagementErrors?.environment_id && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.environment_id}
+                      </p>
+                    )
+                  }
                   <div className="gap-4 grid grid-cols-3">
                     {environments?.map((env) => (
                       <div
@@ -714,8 +907,16 @@ export const TournamentRounds = () => {
                   </div>
                 </div>
 
+                {/* Match Types */}
                 <div className="space-y-4 col-span-2">
                   <Label>Match Type</Label>
+                  {
+                    roundManagementErrors?.match_type_id && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.match_type_id}
+                      </p>
+                    )
+                  }
                   <div className="gap-4 grid grid-cols-3">
                     {matchTypes?.map((type) => (
                       <div
@@ -746,13 +947,22 @@ export const TournamentRounds = () => {
                   <Input
                     id="description"
                     name="description"
+                    placeholder="Enter round description"
                     value={formData?.description}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, description: e.target.value }))
                     }
                   />
+                  {
+                    roundManagementErrors?.description && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.description}
+                      </p>
+                    )
+                  }
                 </div>
 
+                {/* Is Fianl Round */}
                 <div className="flex items-center space-x-2 col-span-2">
                   <Checkbox
                     id="is_last"
@@ -761,7 +971,7 @@ export const TournamentRounds = () => {
                       setFormData((prev) => ({ ...prev, is_last: checked }))
                     }
                   />
-                  <Label htmlFor="is_last">Is Final Round</Label>
+                  <Label htmlFor="is_last">Final Round</Label>
                 </div>
               </div>
             </div>
@@ -776,6 +986,7 @@ export const TournamentRounds = () => {
               <ButtonIcon
                 type="submit"
                 bgColor="#FFF"
+                onClick={() => handleRoundManagementValidation(formData)}
                 disabled={isSubmitting}
                 content={
                   isSubmitting ? (

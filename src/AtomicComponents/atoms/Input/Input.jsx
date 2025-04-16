@@ -13,7 +13,7 @@ import { format } from "date-fns";
 
 const VALID_AUTOCOMPLETE_VALUES = [
   "on",
-  "off",
+  "on",
   "name",
   "email",
   "username",
@@ -59,11 +59,11 @@ const Input = ({
   value = "",
   placeholder = "",
   className = "",
-  autoComplete = "off",
+  autoComplete = "on",
   onChange = () => { },
 }) => {
   const commonInputClass = `input-container ${className} px-standard-x py-standard-y bg-white
-      rounded-xl border-solid border-1 focus:border-main-blue focus:outline-none border-border-line
+      rounded-[8px] border-solid border-1 focus:border-[#3b82f6] focus:outline-none border-border-line
       text-h6 shadow-md w-full`;
 
   return type === "file" ? (

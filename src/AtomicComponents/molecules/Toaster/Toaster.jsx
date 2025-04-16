@@ -49,7 +49,7 @@ const Toast = ({ type, title, message }) => {
         </div>
       ),
       {
-        duration: 2200,
+        duration: 3000,
       }
     );
   };
