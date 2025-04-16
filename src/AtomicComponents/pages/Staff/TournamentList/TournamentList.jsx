@@ -329,7 +329,6 @@ export const TournamentList = () => {
     setSelectedTournament(tournament);
     setFormMode(tournament ? "edit" : "create");
 
-    // Set end date to start day + 7 because it is recommended
     setFormData({
       tournament_name: tournament?.tournament_name || "",
       start_date:
@@ -364,15 +363,15 @@ export const TournamentList = () => {
     showByStatus,
   ]);
 
-  // SET START DATE AND END DATE FOR CREATE TOURNAMENT
+  // SET END DATE FOR CREATE TOURNAMENT
   useEffect(() => {
-    if (formMode === "create" && formData.start_date) {
-      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
-    }
-
     const nextDay = new Date(
       new Date(formData.start_date).getTime() + 1 * 86400000
     );
+
+    if (formMode === "create" && formData.start_date) {
+      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.start_date]);
@@ -882,7 +881,6 @@ export const TournamentList = () => {
             <DialogFooter>
               <ButtonIcon
                 type="button"
-                variant="outline"
                 onClick={handleCloseTournamentManagementModal}
                 content="Cancel"
               />
