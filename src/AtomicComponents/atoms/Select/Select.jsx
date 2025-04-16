@@ -9,7 +9,7 @@ const Select = ({ placeHolder, value, onChange, options, className }) => {
       {/* Chevron on the left */}
       <div
         className={`
-          absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 -rotate-90
+          absolute left-3 top-1/2 -translate-y-[55%] pointer-events-none transition-transform duration-200 -rotate-90
           text-gray-500 group-focus-within:rotate-0
         `}
       >
@@ -20,7 +20,7 @@ const Select = ({ placeHolder, value, onChange, options, className }) => {
         className={`
           select-container
           appearance-none pl-10 pr-4 py-standard-y
-          rounded-xl border border-border-line focus:border-main-blue focus:outline-none
+          rounded-[8px] border border-border-line focus:border-main-blue focus:outline-none
           text-h6 shadow-md w-full bg-white
         `}
         value={value}

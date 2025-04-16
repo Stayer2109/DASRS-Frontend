@@ -142,7 +142,7 @@ export const TournamentList = () => {
     setPageIndex(1);
   };
 
-  // HANDLE UPDATE PROFILE DATA VALIDATION
+  // HANDLE TOURNAMENT MANAGEMENT DATA VALIDATION
   const handleTournamentManagementValidation = (data) => {
     const errors = TournamentManagementValidation(data);
     setTournamentManagementErrors(errors);
@@ -329,7 +329,6 @@ export const TournamentList = () => {
     setSelectedTournament(tournament);
     setFormMode(tournament ? "edit" : "create");
 
-    // Set end date to start day + 7 because it is recommended
     setFormData({
       tournament_name: tournament?.tournament_name || "",
       start_date:
@@ -364,15 +363,15 @@ export const TournamentList = () => {
     showByStatus,
   ]);
 
-  // SET START DATE AND END DATE FOR CREATE TOURNAMENT
+  // SET END DATE FOR CREATE TOURNAMENT
   useEffect(() => {
-    if (formMode === "create" && formData.start_date) {
-      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
-    }
-
     const nextDay = new Date(
       new Date(formData.start_date).getTime() + 1 * 86400000
     );
+
+    if (formMode === "create" && formData.start_date) {
+      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.start_date]);
@@ -411,11 +410,9 @@ export const TournamentList = () => {
 
       // For end date
       if (isPastEnd) {
-        const newEnd = new Date(originalStart.getTime() + 1 * 86400000); // day after start date
-
         setFormData((prev) => ({
           ...prev,
-          end_date: FormatToISODate(newEnd),
+          end_date: FormatToISODate(new Date(now.getTime() + 2 * 86400000)),
         }));
       } else {
         // Keep original end date (just normalize it)
@@ -426,7 +423,6 @@ export const TournamentList = () => {
       }
     }
   }, [formMode, selectedTournament]);
-
   //#endregion
 
   return (
@@ -660,7 +656,7 @@ export const TournamentList = () => {
                     placeholder="Enter tournament name"
                   />
                   {tournamentManagementErrors.tournament_name && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.tournament_name}
                     </p>
                   )}
@@ -683,7 +679,7 @@ export const TournamentList = () => {
                     }}
                   />
                   {tournamentManagementErrors.start_date && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.start_date}
                     </p>
                   )}
@@ -704,7 +700,7 @@ export const TournamentList = () => {
                     }}
                   />
                   {tournamentManagementErrors.end_date && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.end_date}
                     </p>
                   )}
@@ -727,7 +723,7 @@ export const TournamentList = () => {
                     rows={4}
                   />
                   {tournamentManagementErrors.tournament_context && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.tournament_context}
                     </p>
                   )}
@@ -753,7 +749,7 @@ export const TournamentList = () => {
                     required
                   />
                   {tournamentManagementErrors.team_number && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.team_number}
                     </p>
                   )}
@@ -778,7 +774,7 @@ export const TournamentList = () => {
                     placeholder="Enter tournament name"
                   />
                   {tournamentManagementErrors.tournament_name && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.tournament_name}
                     </p>
                   )}
@@ -801,7 +797,7 @@ export const TournamentList = () => {
                     }}
                   />
                   {tournamentManagementErrors.start_date && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.start_date}
                     </p>
                   )}
@@ -822,7 +818,7 @@ export const TournamentList = () => {
                     }}
                   />
                   {tournamentManagementErrors.end_date && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.end_date}
                     </p>
                   )}
@@ -845,7 +841,7 @@ export const TournamentList = () => {
                     rows={4}
                   />
                   {tournamentManagementErrors.tournament_context && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.tournament_context}
                     </p>
                   )}
@@ -871,7 +867,7 @@ export const TournamentList = () => {
                     required
                   />
                   {tournamentManagementErrors.team_number && (
-                    <p className="mt-1 text-red-500 text-xs">
+                    <p className="text-red-500 text-xs">
                       {tournamentManagementErrors.team_number}
                     </p>
                   )}
@@ -882,7 +878,6 @@ export const TournamentList = () => {
             <DialogFooter>
               <ButtonIcon
                 type="button"
-                variant="outline"
                 onClick={handleCloseTournamentManagementModal}
                 content="Cancel"
               />

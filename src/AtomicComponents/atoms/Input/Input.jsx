@@ -13,7 +13,7 @@ import { format } from "date-fns";
 
 const VALID_AUTOCOMPLETE_VALUES = [
   "on",
-  "off",
+  "on",
   "name",
   "email",
   "username",
@@ -55,14 +55,15 @@ const Input = ({
   disabled = false,
   max,
   step,
+  require,
   value = "",
   placeholder = "",
   className = "",
-  autoComplete = "off",
+  autoComplete = "on",
   onChange = () => { },
 }) => {
   const commonInputClass = `input-container ${className} px-standard-x py-standard-y bg-white
-      rounded-xl border-solid border-1 focus:border-main-blue focus:outline-none border-border-line
+      rounded-[8px] border-solid border-1 focus:border-[#3b82f6] focus:outline-none border-border-line
       text-h6 shadow-md w-full`;
 
   return type === "file" ? (
@@ -72,6 +73,7 @@ const Input = ({
       type="file"
       accept={accept}
       disabled={disabled}
+      required={require}
       placeholder={placeholder}
       value={value}
       className={commonInputClass}
@@ -97,6 +99,7 @@ const Input = ({
           minDate={min ? new Date(min) : undefined}
           maxDate={max ? new Date(max) : undefined}
           format="dd-MM-y HH:mm"
+          required={require}
           disabled={disabled}
           className={`react-datetime-picker w-full ${commonInputClass}`}
           calendarClassName="react-calendar"
@@ -120,6 +123,7 @@ const Input = ({
           minDate={min ? new Date(min) : undefined}
           maxDate={max ? new Date(max) : undefined}
           format="dd-MM-y"
+          required={require}
           disabled={disabled}
           className={`react-date-picker w-full ${commonInputClass}`}
           calendarClassName="react-calendar"
@@ -140,6 +144,7 @@ const Input = ({
       min={min}
       max={max}
       step={step}
+      required={require}
       placeholder={placeholder}
       className={commonInputClass}
       onChange={onChange}
@@ -156,6 +161,7 @@ const Input = ({
       disabled={disabled}
       placeholder={placeholder}
       className={commonInputClass}
+      required={require}
       onChange={onChange}
       autoComplete={
         VALID_AUTOCOMPLETE_VALUES.includes(autoComplete) ? autoComplete : "off"
@@ -173,6 +179,7 @@ Input.propTypes = {
   timeInput: PropTypes.bool,
   placeholder: PropTypes.string,
   className: PropTypes.string,
+  require: PropTypes.bool,
   disabled: PropTypes.bool,
   min: PropTypes.number,
   max: PropTypes.number,
