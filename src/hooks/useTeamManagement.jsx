@@ -46,7 +46,7 @@ export const useTeamManagement = () => {
       // Return the new team ID
       return newTeamId;
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to create team");
+      toast.error(err.response?.data?.error || "Failed to create team");
       console.error(err);
       return null;
     } finally {

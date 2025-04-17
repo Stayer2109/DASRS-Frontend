@@ -11,6 +11,12 @@ import {
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 
 export const PlayerTeams = () => {
   const { teams, isLoading, createTeam } = useTeamManagement();
@@ -54,8 +60,11 @@ export const PlayerTeams = () => {
       <div className="container mx-auto p-4">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">My Teams</h1>
-          <Button onClick={() => setIsModalOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Create Team
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 h-10"
+          >
+            <Plus className="mr-2 h-5 w-5" /> Create Team
           </Button>
         </div>
 
@@ -92,64 +101,76 @@ export const PlayerTeams = () => {
           ))}
         </div>
 
-        {/* Create Team Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg w-96">
-              <h2 className="text-xl font-bold mb-4">Create New Team</h2>
-              <form onSubmit={handleCreateTeam}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Team Name
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border rounded p-2"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Team Tag
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border rounded p-2"
-                      value={formData.tag}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          tag: e.target.value,
-                        }))
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsModalOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit">Create</Button>
-                  </div>
+        {/* Enhanced Modal UI */}
+        <Modal
+          show={isModalOpen}
+          onHide={() => setIsModalOpen(false)}
+          size="sm"
+        >
+          <ModalHeader content="Create New Team" className="border-b pb-4" />
+          <ModalBody className="py-6">
+            <form id="createTeamForm" onSubmit={handleCreateTeam}>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Team Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter team name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                    required
+                  />
                 </div>
-              </form>
-            </div>
-          </div>
-        )}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700">
+                    Team Tag
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter team tag"
+                    value={formData.tag}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        tag: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    A short identifier for your team (e.g., "TSM", "C9")
+                  </p>
+                </div>
+              </div>
+            </form>
+          </ModalBody>
+          <ModalFooter className="border-t py-4 px-4 space-x-3">
+            <Button
+              type="submit"
+              form="createTeamForm"
+              className="px-4 py-2 h-10"
+            >
+              Create Team
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2 h-10"
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     </>
   );
 };
-
-

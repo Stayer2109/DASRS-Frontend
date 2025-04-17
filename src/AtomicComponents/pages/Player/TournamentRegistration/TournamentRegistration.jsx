@@ -7,6 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/AtomicComponents/atoms/shadcn/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/AtomicComponents/atoms/shadcn/dialog";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { toast } from "sonner";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
@@ -17,6 +24,8 @@ export const TournamentRegistration = () => {
   const [tournaments, setTournaments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { auth } = useAuth();
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedTournament, setSelectedTournament] = useState(null);
 
   // Pagination states
   const [pageIndex, setPageIndex] = useState(1);
@@ -51,12 +60,21 @@ export const TournamentRegistration = () => {
     }
   };
 
-  const handleRegisterTeam = async (tournamentId) => {
+  const handleRegisterClick = (tournament) => {
+    setSelectedTournament(tournament);
+    setConfirmDialogOpen(true);
+  };
+
+  const handleRegisterTeam = async () => {
+    if (!selectedTournament) return;
+
     try {
       await apiClient.post(
-        `tournaments/register-team/${tournamentId}/${auth.teamId}`
+        `tournaments/register-team/${selectedTournament.tournament_id}/${auth.teamId}`
       );
       toast.success("Successfully registered for tournament");
+      setConfirmDialogOpen(false);
+      setSelectedTournament(null);
       // Refresh the tournaments list
       fetchActiveTournaments();
     } catch (error) {
@@ -118,7 +136,7 @@ export const TournamentRegistration = () => {
                 </div>
                 <Button
                   className="w-full mt-4"
-                  onClick={() => handleRegisterTeam(tournament.tournament_id)}
+                  onClick={() => handleRegisterClick(tournament)}
                   disabled={
                     (tournament.team_list?.length || 0) >=
                     tournament.team_number
@@ -133,6 +151,33 @@ export const TournamentRegistration = () => {
           </Card>
         ))}
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Tournament Registration</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to register your team for{" "}
+            <span className="font-semibold">
+              {selectedTournament?.tournament_name}
+            </span>
+            ?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleRegisterTeam}>
+              Register
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {tournaments.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
@@ -154,3 +199,4 @@ export const TournamentRegistration = () => {
     </div>
   );
 };
+

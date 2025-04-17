@@ -20,6 +20,7 @@ import { Users } from "lucide-react";
 import { EnvironmentDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/EnvironmentDetails";
 import { MapDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/MapDetails";
 import { ScoreMethodDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/ScoreMethodDetails";
+import { Trophy } from "lucide-react";
 
 export const TeamTournamentRounds = () => {
   const { tournamentId } = useParams();
@@ -182,24 +183,24 @@ export const TeamTournamentRounds = () => {
               </div>
             </CardContent>
 
-            <div className="mt-auto border-t">
-              <CardFooter className="p-4">
+            <div className="mt-auto">
+              <CardFooter className="p-4 flex flex-col gap-2">
                 <Button
-                  variant="outline"
+                  variant="default"
                   className="w-full"
                   onClick={() =>
                     handleViewMatches(round.round_id, round.round_name)
                   }
                 >
+                  <Users className="mr-2 h-4 w-4" />
                   View Matches
                 </Button>
-              </CardFooter>
-              <CardFooter className="p-4 pt-0">
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => handleViewLeaderboard(round.round_id)}
                 >
+                  <Trophy className="mr-2 h-4 w-4" />
                   View Leaderboard
                 </Button>
               </CardFooter>
@@ -228,3 +229,5 @@ export const TeamTournamentRounds = () => {
     </div>
   );
 };
+
+

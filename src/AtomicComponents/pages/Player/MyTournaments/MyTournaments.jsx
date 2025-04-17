@@ -72,7 +72,7 @@ export const MyTournaments = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500  truncate">
                   {tournament.tournament_context}
                 </p>
                 <div className="flex justify-between items-center text-sm">
