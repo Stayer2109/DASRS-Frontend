@@ -47,26 +47,27 @@ function Button({
   toolTipPos = "top",
   ...props
 }) {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : "button";
 
   return (
-    <>
-      <div
-        data-tooltip-id="my-tooltip"
-        data-tooltip-content={tooltipData}
-        data-tooltip-place={toolTipPos}
-        className="inline-block"
-      >
-        <Comp
-          disabled={disabled}
-          className={cn(buttonVariants({ variant, size, className }))}
-          {...props}
-        />
-      </div>
-      <Tooltip id="my-tooltip" style={{ borderRadius: "12px" }} />
-
-    </>
-
+    <div
+      data-tooltip-id={tooltipData ? "my-tooltip" : undefined}
+      data-tooltip-content={tooltipData || undefined}
+      data-tooltip-place={toolTipPos}
+      className={cn(
+        "inline-block",
+        disabled ? "cursor-not-allowed" : "cursor-pointer"
+      )}
+    >
+      <Comp
+        disabled={disabled}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          disabled && "pointer-events-none"
+        )}
+        {...props}
+      />
+    </div>
   );
 }
 
