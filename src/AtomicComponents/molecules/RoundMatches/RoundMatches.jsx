@@ -154,7 +154,7 @@ export const RoundMatches = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex justify-center items-center h-64">
         <LoadingIndicator />
       </div>
     );
@@ -175,7 +175,7 @@ export const RoundMatches = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">
+        <h2 className="font-bold text-2xl">
           {tournament?.tournament_name} -{" "}
           {round?.round_name || `Round ${round?.round_id}`} Matches
         </h2>
@@ -185,22 +185,22 @@ export const RoundMatches = () => {
             onClick={handleBackToRounds}
             className="cursor-pointer"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Rounds
+            <ArrowLeft className="mr-2 w-4 h-4" /> Back to Rounds
           </Button>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+        <div className="bg-red-50 px-4 py-3 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="gap-6 grid md:grid-cols-2">
         {matches.length === 0 ? (
           <Card className="col-span-full">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-              <p className="text-muted-foreground mb-4">
+            <CardContent className="flex flex-col justify-center items-center p-6">
+              <p className="mb-4 text-muted-foreground">
                 No matches found for this round.
               </p>
             </CardContent>
@@ -209,11 +209,11 @@ export const RoundMatches = () => {
           matches.map((match) => (
             <Card
               key={match.match_id}
-              className="hover:shadow-md transition-shadow overflow-hidden"
+              className="hover:shadow-md overflow-hidden transition-shadow"
             >
               <CardHeader className="bg-gray-50 p-4 pb-3 border-b">
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-bold">
+                  <CardTitle className="font-bold text-lg">
                     Match {match.match_name}
                   </CardTitle>
                   <Badge
@@ -226,7 +226,7 @@ export const RoundMatches = () => {
                     {match.status}
                   </Badge>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-gray-500 text-sm">
                   Code: {match.match_code}
                 </div>
               </CardHeader>
@@ -234,42 +234,46 @@ export const RoundMatches = () => {
               <CardContent className="p-4">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    {/* Group teams by team_id to avoid duplicates */}
                     {(() => {
+                      const teamList = Array.isArray(match.teams) ? match.teams : [];
+                      if (teamList.length === 0) {
+                        return (
+                          <div className="text-gray-500 text-sm text-center italic">
+                            No teams available.
+                          </div>
+                        );
+                      }
+
                       const uniqueTeams = Array.from(
-                        new Map(
-                          match.teams.map((team) => [team.team_id, team])
-                        ).values()
+                        new Map(teamList.map((team) => [team.team_id, team])).values()
                       );
 
                       return uniqueTeams.length <= 2 ? (
-                        // If 2 or fewer teams, show the VS layout
-                        <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                        <div className="flex justify-between items-center bg-gray-50 p-2 rounded-md">
                           <div className="font-medium">
                             {uniqueTeams[0]?.team_name || "No Team"}
-                            <span className="text-xs text-gray-500 ml-1">
+                            <span className="ml-1 text-gray-500 text-xs">
                               ({uniqueTeams[0]?.team_tag || "N/A"})
                             </span>
                           </div>
-                          <div className="text-lg font-bold">VS</div>
+                          <div className="font-bold text-lg">VS</div>
                           <div className="font-medium">
                             {uniqueTeams[1]?.team_name || "Team Not Available"}
-                            <span className="text-xs text-gray-500 ml-1">
+                            <span className="ml-1 text-gray-500 text-xs">
                               ({uniqueTeams[1]?.team_tag || "N/A"})
                             </span>
                           </div>
                         </div>
                       ) : (
-                        // If more than 2 teams, show them in a list
                         <div className="space-y-2">
                           {uniqueTeams.map((team, index) => (
                             <div
                               key={team.team_id}
-                              className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
+                              className="flex justify-between items-center bg-gray-50 p-2 rounded-md"
                             >
                               <div className="font-medium">
                                 {team.team_name}
-                                <span className="text-xs text-gray-500 ml-1">
+                                <span className="ml-1 text-gray-500 text-xs">
                                   ({team.team_tag || "N/A"})
                                 </span>
                               </div>
@@ -283,9 +287,9 @@ export const RoundMatches = () => {
                     })()}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="gap-2 grid grid-cols-2 text-sm">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                      <Calendar className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">Start:</span>
                     </div>
                     <span className="text-right">
@@ -293,7 +297,7 @@ export const RoundMatches = () => {
                     </span>
 
                     <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                      <Clock className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">End:</span>
                     </div>
                     <span className="text-right">
@@ -314,9 +318,9 @@ export const RoundMatches = () => {
                             <Collapsible
                               key={`${match.match_id}-${team.team_id}`}
                             >
-                              <CollapsibleTrigger className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-gray-800 p-2">
+                              <CollapsibleTrigger className="flex justify-between items-center p-2 w-full text-gray-600 hover:text-gray-800 text-sm">
                                 <span>{team.team_name} Score Details</span>
-                                <ChevronDown className="h-4 w-4" />
+                                <ChevronDown className="w-4 h-4" />
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 {loadingScores[
@@ -326,15 +330,15 @@ export const RoundMatches = () => {
                                     <LoadingIndicator size="small" />
                                   </div>
                                 ) : scoreDetails[
-                                    `${match.match_id}-${team.team_id}`
-                                  ] ? (
-                                  <div className="p-2 space-y-4">
+                                  `${match.match_id}-${team.team_id}`
+                                ] ? (
+                                  <div className="space-y-4 p-2">
                                     {scoreDetails[
                                       `${match.match_id}-${team.team_id}`
                                     ].map((player) => (
                                       <div
                                         key={player.player_id}
-                                        className="border rounded-lg p-3 bg-gray-50"
+                                        className="bg-gray-50 p-3 border rounded-lg"
                                       >
                                         <div className="flex justify-between items-center mb-2">
                                           <div className="font-medium">
@@ -345,7 +349,7 @@ export const RoundMatches = () => {
                                           </Badge>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                                        <div className="gap-x-4 gap-y-1 grid grid-cols-2 text-sm">
                                           <div className="text-gray-600">
                                             Lap:
                                           </div>
@@ -429,7 +433,7 @@ export const RoundMatches = () => {
                   </div>
 
                   {match.location && (
-                    <div className="text-sm mt-2">
+                    <div className="mt-2 text-sm">
                       <span className="text-muted-foreground">Location: </span>
                       {match.location}
                     </div>
