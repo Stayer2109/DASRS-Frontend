@@ -112,34 +112,12 @@ export const TournamentRounds = () => {
     setRoundManagementErrors(errors);
   };
 
-  // FETCH TOURNAMENT AND ROUNDS
-  const fetchTournamentRounds = async () => {
-    if (!tournamentId) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const [tournamentRes, roundsRes] = await Promise.all([
-        apiClient.get(`tournaments/${tournamentId}`), // Tournament details
-        apiClient.get(`rounds/tournament/${tournamentId}`), // Rounds of a tournament
-      ]);
-
-      setTournament(tournamentRes.data.data);
-      setRounds(roundsRes.data.data || []);
-    } catch (err) {
-      console.error("Error fetching tournament rounds:", err);
-      setError("Failed to load rounds. Please try again.");
-      toast.error("Failed to load rounds");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   // HANDLE ROUND MANAGEMENT FORM SUBMIT
   const handleRoundManagementFormSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("Form Data:", formData);
+    
     // Validate form data
     const normalizedData = NormalizeData({
       ...formData,
@@ -198,6 +176,30 @@ export const TournamentRounds = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // FETCH TOURNAMENT AND ROUNDS
+  const fetchTournamentRounds = async () => {
+    if (!tournamentId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const [tournamentRes, roundsRes] = await Promise.all([
+        apiClient.get(`tournaments/${tournamentId}`), // Tournament details
+        apiClient.get(`rounds/tournament/${tournamentId}`), // Rounds of a tournament
+      ]);
+
+      setTournament(tournamentRes.data.data);
+      setRounds(roundsRes.data.data || []);
+    } catch (err) {
+      console.error("Error fetching tournament rounds:", err);
+      setError("Failed to load rounds. Please try again.");
+      toast.error("Failed to load rounds");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   //#region MODAL CONTROL
   // DATA MANIPULATION FOR ROUND MANAGEMENT MODAL WHEN OPENED
   /**
@@ -221,10 +223,10 @@ export const TournamentRounds = () => {
         FormatDateInput(round?.start_date) || FormatToISODate(new Date().getTime() + 1 * 86400000),
       end_date:
         FormatDateInput(round?.end_date) || "",
-      tournament_id: tournamentId,
+      tournament_id: parseInt(tournamentId, 10),
       environment_id: round?.environment_id || 0,
       match_type_id: round?.match_type_id || 0,
-      resource_id: round?.resource_id || 0,
+      resource_id: round?.map_id || 0,
       lap: round?.lap || 250,
       collision: round?.collision || -50,
       total_race_time: round?.total_race_time || -10,
@@ -384,6 +386,7 @@ export const TournamentRounds = () => {
 
       {/* Round Card Render */}
       <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3">
+        {/* If Rounds Is Empty */}
         {rounds.length === 0 ? (
           <Card className="col-span-full">
             <CardContent className="flex flex-col justify-center items-center p-6">
@@ -405,6 +408,7 @@ export const TournamentRounds = () => {
             </CardContent>
           </Card>
         ) : (
+          /* If Round Is Not Empty */
           rounds.map((round) => (
             <Card
               key={round.round_id}
@@ -413,27 +417,31 @@ export const TournamentRounds = () => {
               <CardHeader className="flex flex-col justify-between bg-gray-50 p-4 pb-3 border-b h-[120px] shrink-0">
                 <div className="flex justify-between items-start w-full">
                   <CardTitle className="group relative font-bold text-lg">
-                    <span className="block max-w-[200px] truncate group-hover:text-clip">
+                    <span className="block truncate group-hover:text-clip">
                       {round.round_name || `Round ${round.round_no}`}
                     </span>
                     <span className="invisible group-hover:visible -top-8 left-0 z-50 absolute bg-black/75 px-2 py-1 rounded text-white text-sm whitespace-nowrap">
                       {round.round_name || `Round ${round.round_no}`}
                     </span>
                   </CardTitle>
-                  {round.is_last && (
+                  {/* {round.is_last && (
                     <Badge className="bg-blue-100 text-blue-800 shrink-0">
                       Final Round
                     </Badge>
-                  )}
+                  )} */}
                 </div>
+
+                {/* Edit Button  - May Change Later */}
                 <Button
                   variant="outline"
                   size="sm"
-                  // onClick={() => handleEditRound(round)}
+                  onClick={() => handleOpenTournamentManagementModal(round)}
                   className="cursor-pointer"
                 >
                   Edit
                 </Button>
+
+                {/* Status and Is Final Round */}
                 <div className="flex space-x-2 mt-auto">
                   <RoundStatusBadge status={round.status} />
                   {round.is_last && (
@@ -443,6 +451,7 @@ export const TournamentRounds = () => {
               </CardHeader>
 
               <CardContent className="p-4 h-[400px] overflow-y-auto">
+                {/* Round Description */}
                 <div className="space-y-3">
                   {round.description && (
                     <p className="text-gray-600 text-sm line-clamp-2">
@@ -450,6 +459,7 @@ export const TournamentRounds = () => {
                     </p>
                   )}
 
+                  {/* Round Dates */}
                   <div className="gap-2 grid grid-cols-2 text-sm">
                     <div className="flex items-center">
                       <Calendar className="mr-2 w-4 h-4 text-gray-500" />
@@ -494,12 +504,17 @@ export const TournamentRounds = () => {
                     <span className="text-right">{round.team_limit}</span>
                   </div>
 
+                  {/* Environment */}
                   <div className="space-y-2 pt-2 border-t">
                     <EnvironmentDetails environmentId={round.environment_id} />
                   </div>
+
+                  {/* Maps */}
                   <div className="space-y-2 pt-2 border-t">
                     <MapDetails resourceId={round.map_id} />
                   </div>
+
+                  {/* Score Method */}
                   <div className="pt-2 border-t">
                     <ScoreMethodDetails
                       scoredMethodId={round.scored_method_id}
@@ -509,6 +524,7 @@ export const TournamentRounds = () => {
               </CardContent>
 
               <div className="mt-auto border-t shrink-0">
+                {/* View Matches */}
                 <CardFooter className="p-4">
                   <Button
                     variant="outline"
@@ -518,6 +534,8 @@ export const TournamentRounds = () => {
                     View Matches
                   </Button>
                 </CardFooter>
+
+                {/* View Leaderboards */}
                 <CardFooter className="p-4 pt-0">
                   <Button
                     variant="outline"
