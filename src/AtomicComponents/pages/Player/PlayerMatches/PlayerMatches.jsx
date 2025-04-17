@@ -165,9 +165,9 @@ const PlayerMatches = () => {
         const response = await apiClient.get(`teams/members/${auth?.teamId}`);
 
         if (response.status === 200) {
-          setTeamMember(response.data);
+          setTeamMember(response.data.data);
           setPlayerOptions(
-            response.data.map((member) => ({
+            response.data.data.map((member) => ({
               value: member.id,
               label: member.full_name,
             }))
@@ -463,21 +463,15 @@ const PlayerMatches = () => {
 
             {/* Select slot */}
             <div className="">
-              <label className="block mb-1">Select empty slot</label>
-              {!selectedMatch?.match_team ||
-              selectedMatch.match_team.filter((m) => !m.player_id).length ===
-                0 ? (
-                <p className="text-md text-red-500">
-                  All slots are already assigned
-                </p>
+              <label className="block mb-1">Select slot</label>
+              {!selectedMatch?.match_team || selectedMatch.match_team.length === 0 ? (
+                <p className="text-md text-red-500">No slots available</p>
               ) : (
                 <Select
-                  options={selectedMatch.match_team
-                    .filter((m) => !m.player_id)
-                    .map((m) => ({
-                      value: m.match_team_id,
-                      label: `Slot ${m.match_team_id}`,
-                    }))}
+                  options={selectedMatch.match_team.map((m, index) => ({
+                    value: m.match_team_id,
+                    label: `Slot ${index + 1}${m.player_id ? ` (Assigned to ${m.player_name || 'Someone'})` : ''}`,
+                  }))}
                   placeHolder="Select slot"
                   onChange={(e) =>
                     setAssignData((prev) => ({
@@ -507,7 +501,11 @@ const PlayerMatches = () => {
             <div className="text-center">
               <Button
                 disabled={!assignData.assignee || !assignData.matchTeamid}
-                content="Assign Player"
+                content={
+                  selectedMatch?.match_team?.find(m => m.match_team_id === assignData.matchTeamid)?.player_id 
+                  ? "Reassign Player" 
+                  : "Assign Player"
+                }
                 type="submit"
               />
             </div>
