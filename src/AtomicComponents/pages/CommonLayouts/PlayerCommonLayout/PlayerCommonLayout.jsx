@@ -14,6 +14,7 @@ import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import useAuth from "@/hooks/useAuth";
+import { Users, ListIcon } from "lucide-react"; // Import ListIcon
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -22,7 +23,7 @@ const PlayerCommonLayout = () => {
 
   const navBarIconColor = "#FAF9F6";
   const iconWidth = 28;
-  //   const subIconWidth = 20;
+  const subIconWidth = 20;
 
   const sidebarData = [
     {
@@ -36,19 +37,39 @@ const PlayerCommonLayout = () => {
       link: "/my-profile",
     },
     {
-      item: "Rounds",
-      icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/rounds",
+      item: "Teams",
+      icon: <Users color={navBarIconColor} width={iconWidth} />,
+      subMenu: [
+        {
+          item: "Team List",
+          icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
+          link: "/teams",
+        },
+        {
+          item: "My Team",
+          icon: <Users color={navBarIconColor} width={subIconWidth} />,
+          link: "/my-team",
+        },
+      ],
     },
-    // ...(auth?.isLeader
-    //   ? [
-    //       {
-    //         item: "Assign Player",
-    //         icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
-    //         link: "/assign-player",
-    //       },
-    //     ]
-    //   : []),
+    {
+      item: "Tournaments",
+      icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
+      subMenu: [
+        {
+          item: "Registration",
+          icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
+          link: "/tournaments/registration",
+          isLeaderOnly: true,
+        },
+        {
+          item: "My Tournaments",
+          icon: <TournamentIcon color={navBarIconColor} width={subIconWidth} />,
+          link: "/tournaments/my-tournaments",
+        },
+      ],
+    },
+    ,
   ];
 
   useEffect(() => {

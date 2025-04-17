@@ -29,6 +29,12 @@ import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerP
 import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
 import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
 import { Settings } from "./AtomicComponents/organisms/Settings/Settings";
+import { PlayerTeams } from "./AtomicComponents/pages/Player/PlayerTeams/PlayerTeams";
+import { TeamDetails } from "./AtomicComponents/pages/Player/TeamDetails/TeamDetails";
+import { MyTeam } from "./AtomicComponents/pages/Player/MyTeam/MyTeam";
+import { TournamentRegistration } from "./AtomicComponents/pages/Player/TournamentRegistration/TournamentRegistration";
+import { MyTournaments } from "./AtomicComponents/pages/Player/MyTournaments/MyTournaments";
+import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTournamentRounds/TeamTournamentRounds";
 import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
 
 const AppRoutes = () => {
@@ -151,6 +157,25 @@ const AppRoutes = () => {
                     auth?.isLeader ? <AssignPlayer /> : <Navigate to="/" />
                   }
                 /> */}
+                <Route path="teams">
+                  <Route index element={<PlayerTeams />} />
+                  <Route path=":teamId" element={<TeamDetails />} />
+                </Route>
+                <Route path="my-team" element={<MyTeam />} />
+                <Route path="tournaments">
+                  <Route 
+                    path="registration" 
+                    element={auth?.isLeader ? <TournamentRegistration /> : <Navigate to="/" />} 
+                  />
+                  <Route 
+                    path="my-tournaments" 
+                    element={<MyTournaments />} 
+                  />
+                  <Route 
+                    path=":tournamentId/rounds" 
+                    element={<TeamTournamentRounds />} 
+                  />
+                </Route>
               </Route>
             </Route>
           </Route>

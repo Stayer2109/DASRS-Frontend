@@ -1,6 +1,6 @@
 import useAuth from "./useAuth";
 import { apiAuth } from "@/config/axios/axios";
-import { decryptToken } from "@/utils/CryptoUtils";
+import { decryptToken, encryptToken } from "@/utils/CryptoUtils";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 
