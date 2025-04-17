@@ -211,15 +211,17 @@ export const TournamentList = () => {
   // CHECK STATUS TO APPLY STYLES CLASS
   const statusClass = (status) => {
     switch (status.toString().toUpperCase()) {
-      case "TERMINATED":
-        return "text-red-500 font-bold";
-
-      case "ACTIVE":
-        return "text-green-500 font-bold";
-
       case "PENDING":
         return "text-yellow-500 font-bold";
 
+      case "ACTIVE":
+        return "text-blue-500 font-bold";
+
+      case "COMPLETED":
+        return "text-green-500 font-bold";
+
+      case "TERMINATED":
+        return "text-red-500 font-bold";
       default:
         return "text-gray-500 font-bold";
     }

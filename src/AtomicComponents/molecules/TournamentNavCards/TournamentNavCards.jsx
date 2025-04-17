@@ -26,45 +26,44 @@ export const TournamentNavCards = ({
     {
       title: "Rounds",
       description: "View all rounds and match schedules",
-      icon: <CalendarIcon className="h-12 w-12 text-primary" />,
+      icon: <CalendarIcon className="w-12 h-12 text-primary" />,
       path: `/tournaments/${tournamentId}/rounds`,
     },
     {
       title: "Teams",
       description: "Manage teams participating in the tournament",
-      icon: <UsersIcon className="h-12 w-12 text-primary" />,
+      icon: <UsersIcon className="w-12 h-12 text-primary" />,
       path: `/tournaments/${tournamentId}/teams`,
     },
   ];
 
   const handleNavigate = (path) => {
-    console.log("Navigating to:", path);
     navigate(path);
     onClose();
   };
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
+      className="z-50 fixed inset-0 flex justify-center items-center bg-black/50"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg p-8 max-w-4xl w-full shadow-xl"
+        className="bg-white shadow-xl p-8 rounded-lg w-full max-w-4xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex flex-wrap items-center justify-between mb-6 gap-5">
-          <h2 className="text-2xl font-bold max-w-full md:max-w-[80%] truncate">
+        <div className="flex flex-wrap justify-between items-center gap-5 mb-6">
+          <h2 className="max-w-full md:max-w-[80%] font-bold text-2xl truncate">
             {tournamentName}
           </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 shrink-0"
           >
-            <XMarkIcon className="h-6 w-6 cursor-pointer" />
+            <XMarkIcon className="w-6 h-6 cursor-pointer" />
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="gap-6 grid md:grid-cols-2">
           {navOptions.map((option, index) => (
             <Card
               key={index}

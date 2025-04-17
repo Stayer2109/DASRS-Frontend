@@ -33,11 +33,12 @@ export const EnvironmentDetails = ({ environmentId }) => {
     if (isOpen && !environment && environmentId) {
       fetchEnvironment();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, environmentId]);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-gray-800">
+      <CollapsibleTrigger className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm">
         <span>Environment Details</span>
         {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </CollapsibleTrigger>
@@ -46,8 +47,8 @@ export const EnvironmentDetails = ({ environmentId }) => {
           <div className="flex justify-center py-2">
             <LoadingIndicator size="small" />
           </div>
-        ) : environment ? (
-          <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-md">
+        ) : environment && environment.status.toString().toLowerCase() !== "inactive" ? (
+          <div className="gap-2 grid grid-cols-2 bg-gray-50 p-3 rounded-md text-sm">
             <div className="text-gray-600">Name:</div>
             <div className="text-right">{environment.environment_name}</div>
             <div className="text-gray-600">Description:</div>
@@ -56,7 +57,7 @@ export const EnvironmentDetails = ({ environmentId }) => {
             <div className="text-right">{environment.status}</div>
           </div>
         ) : (
-          <p className="text-sm text-gray-500 text-center py-2">
+          <p className="py-2 text-gray-500 text-sm text-center">
             No environment details available
           </p>
         )}
