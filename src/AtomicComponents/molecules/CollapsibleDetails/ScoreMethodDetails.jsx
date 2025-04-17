@@ -37,7 +37,7 @@ export const ScoreMethodDetails = ({ scoredMethodId }) => {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-gray-800">
+      <CollapsibleTrigger className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm">
         <span>Score Method Details</span>
         {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </CollapsibleTrigger>
@@ -47,11 +47,11 @@ export const ScoreMethodDetails = ({ scoredMethodId }) => {
             <LoadingIndicator size="small" />
           </div>
         ) : scoreMethod ? (
-          <div className="grid grid-cols-2 gap-2 text-sm bg-gray-50 p-3 rounded-md">
+          <div className="gap-2 grid grid-cols-2 bg-gray-50 p-3 rounded-md text-sm">
             <div className="text-gray-600">Lap Points:</div>
             <div className="text-right">{scoreMethod.lap}</div>
             <div className="text-gray-600">Assist Usage:</div>
-            <div className="text-right">{scoreMethod.assistUsageCount}</div>
+            <div className="text-right">{scoreMethod.assist_usage}</div>
             <div className="text-gray-600">Collision:</div>
             <div className="text-right">{scoreMethod.collision}</div>
             <div className="text-gray-600">Race Time:</div>
@@ -64,7 +64,7 @@ export const ScoreMethodDetails = ({ scoredMethodId }) => {
             <div className="text-right">{scoreMethod.total_distance}</div>
           </div>
         ) : (
-          <p className="text-sm text-gray-500 text-center py-2">
+          <p className="py-2 text-gray-500 text-sm text-center">
             No score method details available
           </p>
         )}
