@@ -5,7 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/AtomicComponents/atoms/shadcn/card";
-import { Modal, ModalBody, ModalHeader } from "@/AtomicComponents/organisms/Modal/Modal";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 import { FormatDateInput, FormatToISODate } from "@/utils/DateConvert";
 import { Calendar, Flag, Map, Plus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -33,7 +37,7 @@ import { MapDetails } from "../CollapsibleDetails/MapDetails";
 import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
 import { RoundStatusBadge } from "../RoundCard/RoundCard";
 import Toast from "../Toaster/Toaster";
-import { Button as ButtonIcon } from './../../atoms/Button/Button';
+import { Button as ButtonIcon } from "./../../atoms/Button/Button";
 
 const initialFormData = {
   description: "",
@@ -61,7 +65,7 @@ const initialFormData = {
 const MatchFinishTypeOptions = [
   { value: "LAP", label: "LAP" },
   { value: "TIME", label: "TIME" },
-]
+];
 
 export const TournamentRounds = () => {
   const navigate = useNavigate();
@@ -78,7 +82,8 @@ export const TournamentRounds = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rounds, setRounds] = useState([]);
   const [tournament, setTournament] = useState(null);
-  const [roundsManagementModalShow, setRoundManagementModalShow] = useState(false);
+  const [roundsManagementModalShow, setRoundManagementModalShow] =
+    useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [isLastRoundWarning, setIsLastRoundWarning] = useState("");
   const [formMode, setFormMode] = useState("create"); // 'create' or 'edit'
@@ -101,9 +106,9 @@ export const TournamentRounds = () => {
   // CHECK IF ROUND IS LATEST
   const isLatestRound = (roundId) => {
     if (!rounds || rounds.length === 0) return false;
-    const latestRound = rounds.reduce((prev, curr) => (
+    const latestRound = rounds.reduce((prev, curr) =>
       new Date(curr.end_date) > new Date(prev.end_date) ? curr : prev
-    ));
+    );
     return latestRound.round_id === roundId;
   };
 
@@ -143,10 +148,7 @@ export const TournamentRounds = () => {
 
       const apiCall =
         formMode === "edit"
-          ? apiClient.put(
-            `/rounds`,
-            normalizedData
-          )
+          ? apiClient.put(`/rounds`, normalizedData)
           : apiClient.post("/rounds", normalizedData);
 
       const response = await apiCall;
@@ -178,8 +180,7 @@ export const TournamentRounds = () => {
       setIsSubmitting(false);
       setIsLoading(false);
     }
-
-  }
+  };
 
   // HANDLE SELECT CHANGE
   const onResourceSelectChange = (name, value) => {
@@ -202,13 +203,16 @@ export const TournamentRounds = () => {
       setTournament(tournamentRes.data.data);
       setRounds(roundsRes.data.data || []);
     } catch (err) {
-      console.error("Error fetching tournament rounds:", err);
       setError("Failed to load rounds. Please try again.");
-      toast.error("Failed to load rounds");
+      Toast({
+        title: "Error",
+        type: "error",
+        message: err.response?.data?.message || "Error processing request.",
+      });
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   //#region MODAL CONTROL
   // DATA MANIPULATION FOR ROUND MANAGEMENT MODAL WHEN OPENED
@@ -233,9 +237,9 @@ export const TournamentRounds = () => {
         team_limit: round?.team_limit || 0,
         is_last: round?.is_last || false,
         start_date:
-          FormatDateInput(round?.start_date) || FormatToISODate(new Date().getTime() + 1 * 86400000),
-        end_date:
-          FormatDateInput(round?.end_date) || "",
+          FormatDateInput(round?.start_date) ||
+          FormatToISODate(new Date().getTime() + 1 * 86400000),
+        end_date: FormatDateInput(round?.end_date) || "",
         environment_id: round?.environment_id || 0,
         match_type_id: round?.match_type_id || 0,
         resource_id: round?.map_id || 0,
@@ -258,10 +262,8 @@ export const TournamentRounds = () => {
         finish_type: MatchFinishTypeOptions[0].value,
         team_limit: 2,
         is_last: false,
-        start_date:
-          FormatToISODate(new Date(tournament?.start_date)),
-        end_date:
-          FormatToISODate(new Date(tournament?.start_date)),
+        start_date: FormatToISODate(new Date(tournament?.start_date)),
+        end_date: FormatToISODate(new Date(tournament?.start_date)),
         tournament_id: tournamentId,
         environment_id: 0,
         match_type_id: 0,
@@ -277,7 +279,6 @@ export const TournamentRounds = () => {
     }
 
     console.log(FormatToISODate(new Date(tournament?.end_date)));
-
   };
 
   const handleCloseRoundManagementModal = () => {
@@ -395,8 +396,7 @@ export const TournamentRounds = () => {
 
   // SET START DATE IF END DATE IS LESS THEN START DATE
   useEffect(() => {
-    if (
-      formMode === "create" && formData.end_date) {
+    if (formMode === "create" && formData.end_date) {
       const start = new Date(formData.start_date);
       const end = new Date(formData.end_date);
 
@@ -407,13 +407,18 @@ export const TournamentRounds = () => {
         }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.end_date])
+  }, [formData.end_date]);
 
   // SHOW WARNING IF END DATE OF ROUND EQUALS TO TOURNAMENT END DATE
   useEffect(() => {
     // Check if end date is equal to tournament end date then set warning message
-    if (FormatDateInput(formData.end_date) === FormatDateInput(new Date(tournament?.end_date))) {
-      setIsLastRoundWarning("This round will be set to final round due to end date equals to tournament's end date.");
+    if (
+      FormatDateInput(formData.end_date) ===
+      FormatDateInput(new Date(tournament?.end_date))
+    ) {
+      setIsLastRoundWarning(
+        "This round will be set to final round due to end date equals to tournament's end date."
+      );
     } else {
       setIsLastRoundWarning("");
     }
@@ -426,7 +431,9 @@ export const TournamentRounds = () => {
     if (formMode === "create") {
       setFormData((prev) => ({
         ...prev,
-        is_last: FormatDateInput(formData.end_date) === FormatDateInput(new Date(tournament?.end_date)),
+        is_last:
+          FormatDateInput(formData.end_date) ===
+          FormatDateInput(new Date(tournament?.end_date)),
         team_limit: 0,
       }));
     }
@@ -481,8 +488,9 @@ export const TournamentRounds = () => {
           <Card className="col-span-full">
             <CardContent className="flex flex-col justify-center items-center p-6">
               <p
-                className={`text-muted-foreground ${auth?.role === "ORGANIZER" ? "mb-4" : ""
-                  }`}
+                className={`text-muted-foreground ${
+                  auth?.role === "ORGANIZER" ? "mb-4" : ""
+                }`}
               >
                 No rounds found for this tournament.
               </p>
@@ -661,21 +669,26 @@ export const TournamentRounds = () => {
       </div>
 
       {/* Round Management Modal */}
-      <Modal size="md"
+      <Modal
+        size="md"
         onHide={handleCloseRoundManagementModal}
-        show={roundsManagementModalShow}>
-        <ModalHeader content={formMode === "create" ? "Create Round" : "Edit Round"} />
+        show={roundsManagementModalShow}
+      >
+        <ModalHeader
+          content={formMode === "create" ? "Create Round" : "Edit Round"}
+        />
         <ModalBody>
-          <form onSubmit={handleRoundManagementFormSubmit} className="flex flex-col h-full">
+          <form
+            onSubmit={handleRoundManagementFormSubmit}
+            className="flex flex-col h-full"
+          >
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
               {/* Warning Message About Fianl Rounds */}
-              {
-                (isLastRoundWarning && !selectedRound?.is_last) && (
-                  <div className="bg-yellow-50 mb-4 p-4 border-yellow-400 border-l-4 rounded-md text-yellow-700">
-                    <p className="text-md">{isLastRoundWarning}</p>
-                  </div>
-                )
-              }
+              {isLastRoundWarning && !selectedRound?.is_last && (
+                <div className="bg-yellow-50 mb-4 p-4 border-yellow-400 border-l-4 rounded-md text-yellow-700">
+                  <p className="text-md">{isLastRoundWarning}</p>
+                </div>
+              )}
               <div className="gap-4 grid grid-cols-2 px-1">
                 {/* Round Name */}
                 <div className="space-y-2">
@@ -686,24 +699,27 @@ export const TournamentRounds = () => {
                     placeholder="Enter round name"
                     value={formData?.round_name || ""}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, round_name: e.target.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        round_name: e.target.value,
+                      }));
                     }}
                     required
                   />
-                  {
-                    roundManagementErrors?.round_name && (
-                      <p className="text-red-500 text-xs">
-                        {roundManagementErrors.round_name}
-                      </p>
-                    )
-                  }
+                  {roundManagementErrors?.round_name && (
+                    <p className="text-red-500 text-xs">
+                      {roundManagementErrors.round_name}
+                    </p>
+                  )}
                 </div>
 
                 {/* Qualification Spot */}
                 <div
                   className="space-y-2"
                   data-tooltip-id="qualification-spot-tooltip"
-                  data-tooltip-content={"Cannot edit qualification spots of final round"}
+                  data-tooltip-content={
+                    "Cannot edit qualification spots of final round"
+                  }
                   data-tooltip-place="bottom"
                 >
                   <Label htmlFor="team_limit">Qualification Spots</Label>
@@ -716,7 +732,10 @@ export const TournamentRounds = () => {
                     min={0}
                     max={50}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, team_limit: e.target.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        team_limit: e.target.value,
+                      }));
                     }}
                     required
                   />
@@ -735,7 +754,11 @@ export const TournamentRounds = () => {
                       type="date"
                       placeholder="Choose start date"
                       value={FormatDateInput(formData.start_date) || ""}
-                      min={formMode === "create" ? FormatDateInput(new Date(tournament?.start_date)) : FormatDateInput(new Date())}
+                      min={
+                        formMode === "create"
+                          ? FormatDateInput(new Date(tournament?.start_date))
+                          : FormatDateInput(new Date())
+                      }
                       max={FormatDateInput(new Date(tournament?.end_date))}
                       onChange={(e) => {
                         setFormData({
@@ -759,7 +782,11 @@ export const TournamentRounds = () => {
                     <Input
                       type="date"
                       value={FormatDateInput(formData.end_date) || ""}
-                      min={formMode === "create" ? FormatDateInput(new Date(tournament?.start_date)) : FormatDateInput(new Date())}
+                      min={
+                        formMode === "create"
+                          ? FormatDateInput(new Date(tournament?.start_date))
+                          : FormatDateInput(new Date())
+                      }
                       max={FormatDateInput(new Date(tournament?.end_date))}
                       placeholder="Choose end date"
                       onChange={(e) => {
@@ -769,13 +796,11 @@ export const TournamentRounds = () => {
                         });
                       }}
                     />
-                    {
-                      roundManagementErrors?.end_date && (
-                        <p className="text-red-500 text-xs">
-                          {roundManagementErrors.end_date}
-                        </p>
-                      )
-                    }
+                    {roundManagementErrors?.end_date && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.end_date}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -787,70 +812,71 @@ export const TournamentRounds = () => {
                     placeHolder={"Select Finish Type"}
                     value={formData?.finish_type}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, finish_type: e.target.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        finish_type: e.target.value,
+                      }));
                     }}
                   />
-                  {
-                    roundManagementErrors?.finish_type && (
-                      <p className="text-red-500 text-xs">
-                        {roundManagementErrors.finish_type}
-                      </p>
-                    )
-                  }
+                  {roundManagementErrors?.finish_type && (
+                    <p className="text-red-500 text-xs">
+                      {roundManagementErrors.finish_type}
+                    </p>
+                  )}
                 </div>
 
                 {/* If Match Type Is Lap */}
-                {
-                  formData?.finish_type === "TIME" ? (
-                    // Round Duration
-                    <div className="space-y-2">
-                      <Label htmlFor="team_limit">Round Duration (seconds)</Label>
-                      <Input
-                        id="team_limit"
-                        name="team_limit"
-                        type="number"
-                        value={formData?.round_duration || 0}
-                        min={0}
-                        max={300}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, round_duration: e.target.value }));
-                        }}
-                        required
-                      />
-                      {
-                        roundManagementErrors?.round_duration && (
-                          <p className="text-red-500 text-xs">
-                            {roundManagementErrors.round_duration}
-                          </p>
-                        )
-                      }
-                    </div>
-                  ) : (
-                    // Lap number
-                    <div className="space-y-2">
-                      <Label htmlFor="team_limit">Number of Laps</Label>
-                      <Input
-                        id="team_limit"
-                        name="team_limit"
-                        type="number"
-                        value={formData?.lap_number || 0}
-                        min={1}
-                        max={3}
-                        onChange={(e) => {
-                          setFormData((prev) => ({ ...prev, lap_number: e.target.value }));
-                        }}
-                        required
-                      />
-                      {
-                        roundManagementErrors?.lap_number && (
-                          <p className="text-red-500 text-xs">
-                            {roundManagementErrors.lap_number}
-                          </p>
-                        )
-                      }
-                    </div>
-                  )
-                }
+                {formData?.finish_type === "TIME" ? (
+                  // Round Duration
+                  <div className="space-y-2">
+                    <Label htmlFor="team_limit">Round Duration (seconds)</Label>
+                    <Input
+                      id="team_limit"
+                      name="team_limit"
+                      type="number"
+                      value={formData?.round_duration || 0}
+                      min={0}
+                      max={300}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          round_duration: e.target.value,
+                        }));
+                      }}
+                      required
+                    />
+                    {roundManagementErrors?.round_duration && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.round_duration}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  // Lap number
+                  <div className="space-y-2">
+                    <Label htmlFor="team_limit">Number of Laps</Label>
+                    <Input
+                      id="team_limit"
+                      name="team_limit"
+                      type="number"
+                      value={formData?.lap_number || 0}
+                      min={1}
+                      max={3}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          lap_number: e.target.value,
+                        }));
+                      }}
+                      required
+                    />
+                    {roundManagementErrors?.lap_number && (
+                      <p className="text-red-500 text-xs">
+                        {roundManagementErrors.lap_number}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* ------------------- Score Method Section ------------------- */}
                 <div className="col-span-2">
@@ -870,7 +896,10 @@ export const TournamentRounds = () => {
                           max={1000}
                           value={formData?.lap}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, lap: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              lap: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -878,7 +907,9 @@ export const TournamentRounds = () => {
 
                       {/* Average Speed Points */}
                       <div className="space-y-2">
-                        <Label htmlFor="average_speed">Average Speed Points</Label>
+                        <Label htmlFor="average_speed">
+                          Average Speed Points
+                        </Label>
                         <Input
                           id="average_speed"
                           name="average_speed"
@@ -887,7 +918,10 @@ export const TournamentRounds = () => {
                           max={1000}
                           value={formData?.average_speed}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, average_speed: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              average_speed: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -904,7 +938,10 @@ export const TournamentRounds = () => {
                           max={1000}
                           value={formData?.total_distance}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, total_distance: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              total_distance: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -914,11 +951,15 @@ export const TournamentRounds = () => {
 
                   {/* Penalty Point Container */}
                   <div className="mb-5 bonus-pointer-container">
-                    <h4 className="mb-2 font-semibold text-md">Penalty Points</h4>
+                    <h4 className="mb-2 font-semibold text-md">
+                      Penalty Points
+                    </h4>
                     <div className="gap-4 grid grid-cols-2 px-1">
                       {/* Assist Usage Points */}
                       <div className="space-y-2">
-                        <Label htmlFor="assistUsageCount">Assist Usage Points</Label>
+                        <Label htmlFor="assistUsageCount">
+                          Assist Usage Points
+                        </Label>
                         <Input
                           id="assistUsageCount"
                           name="assistUsageCount"
@@ -927,7 +968,10 @@ export const TournamentRounds = () => {
                           max={0}
                           value={formData?.assist_usage}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, assist_usage: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              assist_usage: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -944,7 +988,10 @@ export const TournamentRounds = () => {
                           max={0}
                           value={formData?.collision}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, collision: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              collision: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -952,7 +999,9 @@ export const TournamentRounds = () => {
 
                       {/* Race Time Points */}
                       <div className="space-y-2">
-                        <Label htmlFor="total_race_time">Race Time Points</Label>
+                        <Label htmlFor="total_race_time">
+                          Race Time Points
+                        </Label>
                         <Input
                           id="total_race_time"
                           name="total_race_time"
@@ -961,7 +1010,10 @@ export const TournamentRounds = () => {
                           max={0}
                           value={formData?.total_race_time}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, total_race_time: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              total_race_time: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -978,7 +1030,10 @@ export const TournamentRounds = () => {
                           max={0}
                           value={formData?.off_track}
                           onChange={(e) => {
-                            setFormData((prev) => ({ ...prev, off_track: e.target.value }));
+                            setFormData((prev) => ({
+                              ...prev,
+                              off_track: e.target.value,
+                            }));
                           }}
                           required
                         />
@@ -990,26 +1045,30 @@ export const TournamentRounds = () => {
                 {/* Maps */}
                 <div className="space-y-4 col-span-2">
                   <Label>Resource</Label>
-                  {
-                    roundManagementErrors?.resource_id && (
-                      <p className="text-red-500 text-xs">
-                        {roundManagementErrors.resource_id}
-                      </p>
-                    )
-                  }
+                  {roundManagementErrors?.resource_id && (
+                    <p className="text-red-500 text-xs">
+                      {roundManagementErrors.resource_id}
+                    </p>
+                  )}
                   <div className="gap-4 grid grid-cols-3">
                     {resources?.map((resource) => (
                       <div
                         key={resource.resource_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.resource_id === resource.resource_id
-                          ? "border-primary bg-primary/10"
-                          : "hover:border-primary/50"
-                          }`}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.resource_id === resource.resource_id
+                            ? "border-primary bg-primary/10"
+                            : "hover:border-primary/50"
+                        }`}
                         onClick={() =>
-                          onResourceSelectChange("resource_id", resource.resource_id)
+                          onResourceSelectChange(
+                            "resource_id",
+                            resource.resource_id
+                          )
                         }
                       >
-                        <h4 className="font-medium">{resource.resource_name}</h4>
+                        <h4 className="font-medium">
+                          {resource.resource_name}
+                        </h4>
                         <p className="text-muted-foreground text-sm">
                           {resource.resource_type}
                         </p>
@@ -1021,66 +1080,76 @@ export const TournamentRounds = () => {
                 {/* Environments */}
                 <div className="space-y-4 col-span-2">
                   <Label>Environment</Label>
-                  {
-                    roundManagementErrors?.environment_id && (
-                      <p className="text-red-500 text-xs">
-                        {roundManagementErrors.environment_id}
-                      </p>
-                    )
-                  }
+                  {roundManagementErrors?.environment_id && (
+                    <p className="text-red-500 text-xs">
+                      {roundManagementErrors.environment_id}
+                    </p>
+                  )}
                   <div className="gap-4 grid grid-cols-3">
-                    {environments?.map((env) => (
-                      env.status.toString().toLowerCase() !== "inactive" && (
-                        <div
-                          key={env.environment_id}
-                          className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.environment_id === env.environment_id
-                            ? "border-primary bg-primary/10"
-                            : "hover:border-primary/50"
+                    {environments?.map(
+                      (env) =>
+                        env.status.toString().toLowerCase() !== "inactive" && (
+                          <div
+                            key={env.environment_id}
+                            className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                              formData.environment_id === env.environment_id
+                                ? "border-primary bg-primary/10"
+                                : "hover:border-primary/50"
                             }`}
-                          onClick={() =>
-                            onResourceSelectChange("environment_id", env.environment_id)
-                          }
-                        >
-                          <h4 className="font-medium">{env.environment_name}</h4>
-                        </div>
-                      )
-                    ))}
+                            onClick={() =>
+                              onResourceSelectChange(
+                                "environment_id",
+                                env.environment_id
+                              )
+                            }
+                          >
+                            <h4 className="font-medium">
+                              {env.environment_name}
+                            </h4>
+                          </div>
+                        )
+                    )}
                   </div>
                 </div>
 
                 {/* Match Types */}
                 <div className="space-y-4 col-span-2">
                   <Label>Match Type</Label>
-                  {
-                    roundManagementErrors?.match_type_id && (
-                      <p className="text-red-500 text-xs">
-                        {roundManagementErrors.match_type_id}
-                      </p>
-                    )
-                  }
+                  {roundManagementErrors?.match_type_id && (
+                    <p className="text-red-500 text-xs">
+                      {roundManagementErrors.match_type_id}
+                    </p>
+                  )}
                   <div className="gap-4 grid grid-cols-3">
-                    {matchTypes?.map((type) => (
-                      type.status.toString().toLowerCase() !== "inactive" && (
-                        <div
-                          key={type.match_type_id}
-                          className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.match_type_id === type.match_type_id
-                            ? "border-primary bg-primary/10"
-                            : "hover:border-primary/50"
+                    {matchTypes?.map(
+                      (type) =>
+                        type.status.toString().toLowerCase() !== "inactive" && (
+                          <div
+                            key={type.match_type_id}
+                            className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                              formData.match_type_id === type.match_type_id
+                                ? "border-primary bg-primary/10"
+                                : "hover:border-primary/50"
                             }`}
-                          onClick={() =>
-                            onResourceSelectChange("match_type_id", type.match_type_id)
-                          }
-                        >
-                          <h4 className="font-medium">{type.match_type_name}</h4>
-                          <p className="text-muted-foreground text-sm">
-                            Duration: {type.match_duration}
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            Type: {type.finish_type}
-                          </p>
-                        </div>
-                      )
-                    ))}
+                            onClick={() =>
+                              onResourceSelectChange(
+                                "match_type_id",
+                                type.match_type_id
+                              )
+                            }
+                          >
+                            <h4 className="font-medium">
+                              {type.match_type_name}
+                            </h4>
+                            <p className="text-muted-foreground text-sm">
+                              Duration: {type.match_duration}
+                            </p>
+                            <p className="text-muted-foreground text-sm">
+                              Type: {type.finish_type}
+                            </p>
+                          </div>
+                        )
+                    )}
                   </div>
                 </div>
 
@@ -1093,16 +1162,17 @@ export const TournamentRounds = () => {
                     placeholder="Enter round description"
                     value={formData?.description}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, description: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                   />
-                  {
-                    roundManagementErrors?.description && (
-                      <p className="text-red-500 text-xs">
-                        {roundManagementErrors.description}
-                      </p>
-                    )
-                  }
+                  {roundManagementErrors?.description && (
+                    <p className="text-red-500 text-xs">
+                      {roundManagementErrors.description}
+                    </p>
+                  )}
                 </div>
 
                 {/* Is Fianl Round */}
@@ -1115,7 +1185,9 @@ export const TournamentRounds = () => {
                         ...prev,
                         is_last: checked,
                         team_limit: checked ? 0 : prev.team_limit,
-                        end_date: checked ? FormatDateInput(new Date(tournament?.end_date)) : prev.end_date,
+                        end_date: checked
+                          ? FormatDateInput(new Date(tournament?.end_date))
+                          : prev.end_date,
                       }))
                     }
                   />
@@ -1146,19 +1218,20 @@ export const TournamentRounds = () => {
                   ) : (
                     "Save Changes"
                   )
-                } />
+                }
+              />
             </div>
           </form>
         </ModalBody>
 
         {/* Tooltip */}
-        {
-          formData?.is_last && (
-            <Tooltip id="qualification-spot-tooltip" style={{ borderRadius: "12px" }} />
-          )
-        }
+        {formData?.is_last && (
+          <Tooltip
+            id="qualification-spot-tooltip"
+            style={{ borderRadius: "12px" }}
+          />
+        )}
       </Modal>
-
     </div>
   );
 };
