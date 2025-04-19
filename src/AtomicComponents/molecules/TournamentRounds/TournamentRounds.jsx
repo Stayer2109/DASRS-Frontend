@@ -1,4 +1,3 @@
-import { Calendar, Flag, Map, Plus, Users } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -6,34 +5,35 @@ import {
   CardHeader,
   CardTitle,
 } from "@/AtomicComponents/atoms/shadcn/card";
-import { FormatDateInput, FormatToISODate } from "@/utils/DateConvert";
 import { Modal, ModalBody, ModalHeader } from "@/AtomicComponents/organisms/Modal/Modal";
+import { FormatDateInput, FormatToISODate } from "@/utils/DateConvert";
+import { Calendar, Flag, Map, Plus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
+import Input from "@/AtomicComponents/atoms/Input/Input";
+import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
+import Select from "@/AtomicComponents/atoms/Select/Select";
+import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Checkbox } from "@/AtomicComponents/atoms/shadcn/checkbox";
-import { EnvironmentDetails } from "../CollapsibleDetails/EnvironmentDetails";
-import Input from "@/AtomicComponents/atoms/Input/Input";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { MapDetails } from "../CollapsibleDetails/MapDetails";
-import { RoundStatusBadge } from "../RoundCard/RoundCard";
-import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
-import Select from "@/AtomicComponents/atoms/Select/Select";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { apiClient } from "@/config/axios/axios";
-import { formatDateString } from "@/utils/dateUtils";
-import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
-import { Button as ButtonIcon } from './../../atoms/Button/Button';
+import { formatDateString } from "@/utils/dateUtils";
 import { NormalizeData } from "@/utils/InputProces";
-import Toast from "../Toaster/Toaster";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
 import { RoundManagementValidation } from "@/utils/Validation";
 import { Tooltip } from "react-tooltip";
+import { toast } from "sonner";
+import { EnvironmentDetails } from "../CollapsibleDetails/EnvironmentDetails";
+import { MapDetails } from "../CollapsibleDetails/MapDetails";
+import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
+import { RoundStatusBadge } from "../RoundCard/RoundCard";
+import Toast from "../Toaster/Toaster";
+import { Button as ButtonIcon } from './../../atoms/Button/Button';
 
 const initialFormData = {
   description: "",
@@ -98,6 +98,7 @@ export const TournamentRounds = () => {
     navigate("/tournaments", { replace: true });
   };
 
+  // CHECK IF ROUND IS LATEST
   const isLatestRound = (roundId) => {
     if (!rounds || rounds.length === 0) return false;
     const latestRound = rounds.reduce((prev, curr) => (
