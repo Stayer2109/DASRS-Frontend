@@ -168,9 +168,9 @@ export const TournamentList = () => {
       const apiCall =
         formMode === "edit"
           ? apiClient.put(
-            `/tournaments/${selectedTournament.tournament_id}`,
-            normalizedData
-          )
+              `/tournaments/${selectedTournament.tournament_id}`,
+              normalizedData
+            )
           : apiClient.post("/tournaments", normalizedData);
 
       const response = await apiCall;
@@ -331,15 +331,31 @@ export const TournamentList = () => {
     setSelectedTournament(tournament);
     setFormMode(tournament ? "edit" : "create");
 
-    setFormData({
-      tournament_name: tournament?.tournament_name || "",
-      start_date:
-        FormatDateInput(tournament?.start_date) || FormatToISODate(new Date().getTime() + 1 * 86400000),
-      end_date:
-        FormatDateInput(tournament?.end_date) || "",
-      tournament_context: tournament?.tournament_context || "",
-      team_number: tournament?.team_number || 2,
-    });
+    // If tournament is not null - edit mode
+    if (tournament) {
+      setFormData({
+        tournament_name: tournament?.tournament_name || "",
+        start_date:
+          FormatDateInput(tournament?.start_date) ||
+          FormatToISODate(new Date().getTime() + 1 * 86400000),
+        end_date: FormatDateInput(tournament?.end_date) || "",
+        tournament_context: tournament?.tournament_context || "",
+        team_number: tournament?.team_number || 2,
+      });
+    } else {
+      // If tournament is null - create mode
+      setFormData({
+        tournament_name: tournament?.tournament_name || "",
+        start_date:
+          FormatDateInput(tournament?.start_date) ||
+          FormatToISODate(new Date().getTime() + 1 * 86400000),
+        end_date:
+          FormatDateInput(tournament?.end_date) ||
+          FormatToISODate(new Date().getTime() + 2 * 86400000),
+        tournament_context: tournament?.tournament_context || "",
+        team_number: tournament?.team_number || 2,
+      });
+    }
   };
 
   const handleCloseTournamentManagementModal = () => {
@@ -365,66 +381,50 @@ export const TournamentList = () => {
     showByStatus,
   ]);
 
-  // SET END DATE FOR CREATE TOURNAMENT
-  useEffect(() => {
-    const nextDay = new Date(
-      new Date(formData.start_date).getTime() + 1 * 86400000
-    );
-
-    if (formMode === "create" && formData.start_date) {
-      setFormData((prev) => ({ ...prev, end_date: FormatToISODate(nextDay) }));
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.start_date]);
-
-  // SET START DATE AND END DATE FOR EDIT TOURNAMENT`
+  // SET START DATE AND END DATE VALUE FOR EDIT TOURNAMENT
   useEffect(() => {
     if (
       formMode === "edit" &&
       selectedTournament?.start_date &&
       selectedTournament?.end_date
     ) {
-      // Get current date, start date and end date of selected tournament
       const now = new Date();
       const originalStart = new Date(selectedTournament.start_date);
       const originalEnd = new Date(selectedTournament.end_date);
 
-      // Check if both dates are before now
       const isPastStart = originalStart <= now;
       const isPastEnd = originalEnd <= now;
 
-      // For start date
-      if (isPastStart) {
-        const newStart = new Date(now.getTime() + 1 * 86400000); // tomorrow
-
-        setFormData((prev) => ({
-          ...prev,
-          start_date: FormatToISODate(newStart),
-        }));
-      } else {
-        // Keep original dates (just normalize them)
-        setFormData((prev) => ({
-          ...prev,
-          start_date: FormatToISODate(selectedTournament.start_date),
-        }));
-      }
-
-      // For end date
-      if (isPastEnd) {
-        setFormData((prev) => ({
-          ...prev,
-          end_date: FormatToISODate(new Date(now.getTime() + 2 * 86400000)),
-        }));
-      } else {
-        // Keep original end date (just normalize it)
-        setFormData((prev) => ({
-          ...prev,
-          end_date: FormatToISODate(selectedTournament.end_date),
-        }));
-      }
+      setFormData((prev) => ({
+        ...prev,
+        start_date: FormatToISODate(
+          isPastStart ? new Date(now.getTime() + 1 * 86400000) : originalStart
+        ),
+        end_date: FormatToISODate(
+          isPastEnd ? new Date(now.getTime() + 2 * 86400000) : originalEnd
+        ),
+      }));
     }
   }, [formMode, selectedTournament]);
+
+  // Watch changes to start_date and end_date
+  useEffect(() => {
+    const start = new Date(formData.start_date);
+    const end = new Date(formData.end_date);
+
+    if (start >= end) {
+      setFormData((prev) => ({
+        ...prev,
+        end_date: FormatToISODate(new Date(start.getTime() + 1 * 86400000)),
+      }));
+    } else if (end <= start) {
+      setFormData((prev) => ({
+        ...prev,
+        start_date: FormatToISODate(new Date(end.getTime() - 1 * 86400000)),
+      }));
+    }
+  }, [formData.start_date, formData.end_date]);
+
   //#endregion
 
   return (
@@ -485,7 +485,7 @@ export const TournamentList = () => {
             {tournamentList.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1}
                   className="text-h2 text-red-600 text-center"
                 >
                   No tournaments found.
@@ -494,10 +494,12 @@ export const TournamentList = () => {
             ) : (
               /* Or Else */
               tournamentList.map((row, idx) => (
-                <TableRow key={idx}
+                <TableRow
+                  key={idx}
                   pageIndex={pageIndex}
                   pageSize={pageSize}
-                  index={idx}>
+                  index={idx}
+                >
                   {columns.map((col) => {
                     // Render TOURNAMENT NAME column
                     if (col.key === "tournament_name") {
@@ -552,7 +554,11 @@ export const TournamentList = () => {
                           <TableCell className="text-center">
                             <DasrsTournamentActions
                               status={row.status}
-                              preventEdit={row.is_started || row.status.toString().toLowerCase() === "terminated"}
+                              preventEdit={
+                                row.is_started ||
+                                row.status.toString().toLowerCase() ===
+                                  "terminated"
+                              }
                               onEdit={() =>
                                 handleOpenTournamentManagementModal(row)
                               }
@@ -639,244 +645,126 @@ export const TournamentList = () => {
             onSubmit={handleSubmitTournamentManagement}
             className="space-y-4 pt-4"
           >
-            {/* When Form Is Edit Mode */}
-            {formMode === "edit" ? (
-              <>
-                {/* Tournament Name */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="tournament_name">Tournament Name</Label>
-                  <Input
-                    id="tournament_name"
-                    name="tournament_name"
-                    value={formData?.tournament_name || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        tournament_name: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter tournament name"
-                  />
-                  {tournamentManagementErrors.tournament_name && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.tournament_name}
-                    </p>
-                  )}
-                </div>
+            <>
+              {/* Tournament Name */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="tournament_name">Tournament Name</Label>
+                <Input
+                  id="tournament_name"
+                  name="tournament_name"
+                  value={formData?.tournament_name || ""}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      tournament_name: e.target.value,
+                    });
+                  }}
+                  placeholder="Enter tournament name"
+                />
+                {tournamentManagementErrors.tournament_name && (
+                  <p className="text-red-500 text-xs">
+                    {tournamentManagementErrors.tournament_name}
+                  </p>
+                )}
+              </div>
 
-                {/* Start Date */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="start_date">Start Date</Label>
-                  <Input
-                    type="date"
-                    id="start_date"
-                    name="start_date"
-                    value={FormatDateInput(formData.start_date) || ""}
-                    min={FormatDateInput(new Date(Date.now() + 86400000))} // start date will be the day after
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        start_date: e.target.value,
-                      });
-                    }}
-                  />
-                  {tournamentManagementErrors.start_date && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.start_date}
-                    </p>
-                  )}
-                </div>
+              {/* Start Date */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="start_date">Start Date</Label>
+                <Input
+                  type="date"
+                  id="start_date"
+                  name="start_date"
+                  value={FormatDateInput(formData.start_date) || ""}
+                  // Created or edited tournament must start at least 1 day from now
+                  min={FormatDateInput(new Date().getTime() + 1 * 86400000)}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      start_date: e.target.value,
+                    });
+                  }}
+                />
+                {tournamentManagementErrors.start_date && (
+                  <p className="text-red-500 text-xs">
+                    {tournamentManagementErrors.start_date}
+                  </p>
+                )}
+              </div>
 
-                {/* End Date */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="end_date">End Date</Label>
-                  <Input
-                    type="date"
-                    value={FormatDateInput(formData.end_date) || ""}
-                    min={FormatDateInput(new Date(new Date(formData.start_date).getTime()))}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        end_date: e.target.value,
-                      });
-                    }}
-                  />
-                  {tournamentManagementErrors.end_date && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.end_date}
-                    </p>
+              {/* End Date */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="end_date">End Date</Label>
+                <Input
+                  type="date"
+                  value={FormatDateInput(formData.end_date) || ""}
+                  // Created or edited tournament must end at least 1 day after start date
+                  min={FormatDateInput(
+                    new Date(formData.start_date).getTime() + 1 * 86400000
                   )}
-                </div>
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      end_date: e.target.value,
+                    });
+                  }}
+                />
+                {tournamentManagementErrors.end_date && (
+                  <p className="text-red-500 text-xs">
+                    {tournamentManagementErrors.end_date}
+                  </p>
+                )}
+              </div>
 
-                {/* Tournament Content */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="tournament_context">Tournament Context</Label>
-                  <Textarea
-                    id="tournament_context"
-                    name="tournament_context"
-                    value={formData.tournament_context || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        tournament_context: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter tournament context"
-                    rows={4}
-                  />
-                  {tournamentManagementErrors.tournament_context && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.tournament_context}
-                    </p>
-                  )}
-                </div>
+              {/* Tournament Content */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="tournament_context">Tournament Context</Label>
+                <Textarea
+                  id="tournament_context"
+                  name="tournament_context"
+                  value={formData.tournament_context || ""}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      tournament_context: e.target.value,
+                    });
+                  }}
+                  placeholder="Enter tournament context"
+                  rows={4}
+                />
+                {tournamentManagementErrors.tournament_context && (
+                  <p className="text-red-500 text-xs">
+                    {tournamentManagementErrors.tournament_context}
+                  </p>
+                )}
+              </div>
 
-                {/* Team numbers */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="team_number">Number of Teams</Label>
-                  <Input
-                    type="number"
-                    id="team_number"
-                    name="team_number"
-                    min="2"
-                    max="20"
-                    step="1"
-                    value={formData.team_number || 2}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        team_number: parseInt(e.target.value),
-                      });
-                    }}
-                    required
-                  />
-                  {tournamentManagementErrors.team_number && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.team_number}
-                    </p>
-                  )}
-                </div>
-              </>
-            ) : (
-              // When Form Is Create Mode
-              <>
-                {/* Tournament Name */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="tournament_name">Tournament Name</Label>
-                  <Input
-                    id="tournament_name"
-                    name="tournament_name"
-                    value={formData?.tournament_name || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        tournament_name: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter tournament name"
-                  />
-                  {tournamentManagementErrors.tournament_name && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.tournament_name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Start Date */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="start_date">Start Date</Label>
-                  <Input
-                    type="date"
-                    id="start_date"
-                    name="start_date"
-                    value={FormatDateInput(formData.start_date) || ""}
-                    min={FormatDateInput(new Date(Date.now() + 86400000))}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        start_date: e.target.value,
-                      });
-                    }}
-                  />
-                  {tournamentManagementErrors.start_date && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.start_date}
-                    </p>
-                  )}
-                </div>
-
-                {/* End Date */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="end_date">End Date</Label>
-                  <Input
-                    type="date"
-                    value={FormatDateInput(formData.end_date) || ""}
-                    min={FormatDateInput(new Date(formData.start_date).getTime() + 1 * 86400000)}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        end_date: e.target.value,
-                      });
-                    }}
-                  />
-                  {tournamentManagementErrors.end_date && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.end_date}
-                    </p>
-                  )}
-                </div>
-
-                {/* Tournament Content */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="tournament_context">Tournament Context</Label>
-                  <Textarea
-                    id="tournament_context"
-                    name="tournament_context"
-                    value={formData.tournament_context || ""}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        tournament_context: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter tournament context"
-                    rows={4}
-                  />
-                  {tournamentManagementErrors.tournament_context && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.tournament_context}
-                    </p>
-                  )}
-                </div>
-
-                {/* Team numbers */}
-                <div className="gap-2 grid w-full">
-                  <Label htmlFor="team_number">Number of Teams</Label>
-                  <Input
-                    type="number"
-                    id="team_number"
-                    name="team_number"
-                    min="2"
-                    max="20"
-                    step="1"
-                    value={formData.team_number || 2}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        team_number: parseInt(e.target.value),
-                      });
-                    }}
-                    required
-                  />
-                  {tournamentManagementErrors.team_number && (
-                    <p className="text-red-500 text-xs">
-                      {tournamentManagementErrors.team_number}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
-
+              {/* Team numbers */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="team_number">Number of Teams</Label>
+                <Input
+                  type="number"
+                  id="team_number"
+                  name="team_number"
+                  min="2"
+                  max="20"
+                  step="1"
+                  value={formData.team_number || 2}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      team_number: parseInt(e.target.value),
+                    });
+                  }}
+                  required
+                />
+                {tournamentManagementErrors.team_number && (
+                  <p className="text-red-500 text-xs">
+                    {tournamentManagementErrors.team_number}
+                  </p>
+                )}
+              </div>
+            </>
             <DialogFooter>
               <ButtonIcon
                 type="button"

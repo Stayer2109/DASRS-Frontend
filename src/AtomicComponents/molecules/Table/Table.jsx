@@ -25,15 +25,16 @@ export const TableHeader = ({ columns, sortBy, sortDirection, onSort }) => (
             ? "▲"
             : "▼"
           : col.sortable
-            ? "⇅"
-            : "";
+          ? "⇅"
+          : "";
 
         return (
           <th
             key={col.key}
             onClick={() => col.sortable && onSort?.(col.key)}
-            className={`px-6 py-3 border-b border-gray-300 text-center font-semibold select-none whitespace-nowrap transition-colors duration-150 ${col.sortable ? "cursor-pointer hover:text-blue-600" : ""
-              } ${isSorted ? "text-blue-600" : ""}`}
+            className={`px-6 py-3 border-b border-gray-300 text-center font-semibold select-none whitespace-nowrap transition-colors duration-150 ${
+              col.sortable ? "cursor-pointer hover:text-blue-600" : ""
+            } ${isSorted ? "text-blue-600" : ""}`}
           >
             <div className="flex justify-center items-center gap-1">
               <span>{col.label}</span>
@@ -59,9 +60,11 @@ export const TableRow = ({ children, index, pageIndex = 1, pageSize = 10 }) => {
   return (
     <tr className="hover:bg-gray-100">
       {/* Display row number as the first column */}
-      <td className="px-4 py-4 border-gray-200 border-b font-semibold text-center">
-        #{rowIndex}
-      </td>
+      {rowIndex > 0 ? (
+        <td className="px-4 py-4 border-gray-200 border-b font-semibold text-center">
+          #{rowIndex}
+        </td>
+      ) : null}
       {children}
     </tr>
   );
@@ -70,7 +73,7 @@ export const TableRow = ({ children, index, pageIndex = 1, pageSize = 10 }) => {
 export const TableCell = ({
   children,
   className = "",
-  onClick = () => { },
+  onClick = () => {},
   colSpan,
 }) => (
   <td
