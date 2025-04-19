@@ -287,6 +287,12 @@ export const TournamentList = () => {
         setTotalPages(data.total_pages || 1);
       }
     } catch (error) {
+      Toast({
+        title: "Error",
+        type: "error",
+        message:
+          error.response?.data?.message || "Failed to fetch tournament list.",
+      });
       console.error("Error fetching tournament list:", error);
     } finally {
       setIsLoading(false);
