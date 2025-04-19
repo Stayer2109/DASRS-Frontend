@@ -10,7 +10,11 @@ import {
   ModalBody,
   ModalHeader,
 } from "@/AtomicComponents/organisms/Modal/Modal";
-import { FormatDateInput, FormatToISODate } from "@/utils/DateConvert";
+import {
+  ConvertDate,
+  FormatDateInput,
+  FormatToISODate,
+} from "@/utils/DateConvert";
 import { Calendar, Flag, Map, Plus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -79,11 +83,13 @@ export const TournamentRounds = () => {
   const [_isLoadingResources, setIsLoadingResources] = useState(true);
   const [selectedRound, setSelectedRound] = useState(null);
   const [roundManagementErrors, setRoundManagementErrors] = useState({});
+  const [roundExtendedEndDate, setRoundExtendedEndDate] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rounds, setRounds] = useState([]);
   const [tournament, setTournament] = useState(null);
   const [roundsManagementModalShow, setRoundManagementModalShow] =
     useState(false);
+  const [extendedRoundModalShow, setExtendedRoundModalShow] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [isLastRoundWarning, setIsLastRoundWarning] = useState("");
   const [formMode, setFormMode] = useState("create"); // 'create' or 'edit'
@@ -111,6 +117,9 @@ export const TournamentRounds = () => {
     );
     return latestRound.round_id === roundId;
   };
+
+  // CHECK IF TOURNAMENT HAS FINAL ROUND
+  const hasFinalRound = rounds.some((round) => round.is_last);
 
   // HANDLE VIEW MATCHES OF ROUND
   const handleViewMatches = (roundId) => {
@@ -182,6 +191,46 @@ export const TournamentRounds = () => {
     }
   };
 
+  // HANDLE EXTEND ROUND FORM SUBMIT
+  const handleExtendedRoundFormSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setIsLoading(true);
+      setIsSubmitting(true);
+
+      const response = await apiClient.put(
+        `/rounds/extend/${selectedRound.round_id}`,
+        {},
+        {
+          params: {
+            endDate: FormatToISODate(roundExtendedEndDate),
+          },
+        }
+      );
+
+      if (response.data.http_status === 200) {
+        Toast({
+          title: "Success",
+          message: response.data.message,
+          type: "success",
+        });
+        fetchTournamentRounds();
+        handleCloseExtendedRoundEndDateModal();
+      }
+    } catch (error) {
+      Toast({
+        title: "Error",
+        type: "error",
+        message: error.response?.data?.message || "Error processing request.",
+      });
+    } finally {
+      setIsSubmitting(false);
+      setIsLoading(false);
+      setRoundExtendedEndDate(null); // Reset the extended end date
+    }
+  };
+
   // HANDLE SELECT CHANGE
   const onResourceSelectChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -203,15 +252,33 @@ export const TournamentRounds = () => {
       setTournament(tournamentRes.data.data);
       setRounds(roundsRes.data.data || []);
     } catch (err) {
-      setError("Failed to load rounds. Please try again.");
-      Toast({
-        title: "Error",
-        type: "error",
-        message: err.response?.data?.message || "Error processing request.",
-      });
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        setError("Failed to load rounds. Please try again.");
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const calculateMinStartDate = () => {
+    const today = new Date();
+    const tournamentStart = new Date(tournament?.start_date);
+
+    const minStart = tournamentStart > today ? tournamentStart : today;
+
+    return FormatToISODate(minStart);
   };
 
   //#region MODAL CONTROL
@@ -262,8 +329,8 @@ export const TournamentRounds = () => {
         finish_type: MatchFinishTypeOptions[0].value,
         team_limit: 2,
         is_last: false,
-        start_date: FormatToISODate(new Date(tournament?.start_date)),
-        end_date: FormatToISODate(new Date(tournament?.start_date)),
+        start_date: calculateMinStartDate(),
+        end_date: calculateMinStartDate(),
         tournament_id: tournamentId,
         environment_id: 0,
         match_type_id: 0,
@@ -277,8 +344,6 @@ export const TournamentRounds = () => {
         total_distance: 100,
       });
     }
-
-    console.log(FormatToISODate(new Date(tournament?.end_date)));
   };
 
   const handleCloseRoundManagementModal = () => {
@@ -286,6 +351,25 @@ export const TournamentRounds = () => {
     setSelectedRound(null);
     setFormData(initialFormData);
     setFormMode("create");
+  };
+
+  // EXTENDED ROUND MODAL
+  const handleOpenExtendedRoundEndDateModal = (round = null) => {
+    setExtendedRoundModalShow(true);
+    setSelectedRound(round);
+
+    if (round) {
+      setRoundExtendedEndDate(
+        FormatDateInput(
+          new Date(new Date(round?.end_date).getTime() + 86400000)
+        )
+      );
+    }
+  };
+
+  const handleCloseExtendedRoundEndDateModal = () => {
+    setExtendedRoundModalShow(false);
+    setSelectedRound(null);
   };
   //#endregion
 
@@ -428,7 +512,11 @@ export const TournamentRounds = () => {
 
   // CHECK IF END DATE EQUALS TO TOURNAMENT END DATE THEN SET LAST ROUND TRUE
   useEffect(() => {
-    if (formMode === "create") {
+    if (
+      formMode === "create" &&
+      FormatToISODate(formData.end_date) ===
+        FormatToISODate(tournament?.end_date)
+    ) {
       setFormData((prev) => ({
         ...prev,
         is_last:
@@ -439,6 +527,21 @@ export const TournamentRounds = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.end_date]);
+
+  // CHANGE END DATE TO THE DAY BEFORE THE TOURNAMENT END DATE
+  useEffect(() => {
+    if (!formData?.is_last) {
+      setFormData((prev) => ({
+        ...prev,
+        end_date: FormatToISODate(
+          new Date(new Date(tournament?.end_date).getTime() - 86400000)
+        ),
+        team_limit: 2,
+      }));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData?.is_last]);
   //#endregion
 
   // RENDER SPINNER IF LOADING
@@ -466,6 +569,9 @@ export const TournamentRounds = () => {
           {auth?.role === "ORGANIZER" && (
             <Button
               className="cursor-pointer"
+              disabled={hasFinalRound}
+              toolTipPos="bottom"
+              tooltipData="Cannot create new round after final round."
               onClick={() => handleOpenTournamentManagementModal(null)}
             >
               <Plus className="mr-2 w-4 h-4" /> Create Round
@@ -524,37 +630,49 @@ export const TournamentRounds = () => {
                   </CardTitle>
                 </div>
 
-                {/* Edit Button */}
-                {round.status.toString().toLowerCase() === "completed" ? (
+                <div className="flex items-center space-x-2">
+                  {/* Edit Button */}
+                  {round.status.toString().toLowerCase() === "completed" ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      tooltipData="Cannot edit completed round."
+                      disabled
+                      className="w-full cursor-not-allowed"
+                    >
+                      Edit
+                    </Button>
+                  ) : !isLatestRound(round.round_id) ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      tooltipData="Only the latest round can be edited."
+                      disabled
+                      className="w-full cursor-not-allowed"
+                    >
+                      Edit
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenTournamentManagementModal(round)}
+                      className="cursor-pointer"
+                    >
+                      Edit
+                    </Button>
+                  )}
+
+                  {/* Extend Round Button */}
                   <Button
                     variant="outline"
                     size="sm"
-                    tooltipData="Cannot edit completed round."
-                    disabled
-                    className="w-full cursor-not-allowed"
-                  >
-                    Edit
-                  </Button>
-                ) : !isLatestRound(round.round_id) ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    tooltipData="Only the latest round can be edited."
-                    disabled
-                    className="w-full cursor-not-allowed"
-                  >
-                    Edit
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenTournamentManagementModal(round)}
+                    onClick={() => handleOpenExtendedRoundEndDateModal(round)}
                     className="cursor-pointer"
                   >
-                    Edit
+                    Extend
                   </Button>
-                )}
+                </div>
 
                 {/* Status and Is Final Round */}
                 <div className="flex space-x-2 mt-auto">
@@ -683,7 +801,7 @@ export const TournamentRounds = () => {
             className="flex flex-col h-full"
           >
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
-              {/* Warning Message About Fianl Rounds */}
+              {/* Warning Message About Final Rounds */}
               {isLastRoundWarning && !selectedRound?.is_last && (
                 <div className="bg-yellow-50 mb-4 p-4 border-yellow-400 border-l-4 rounded-md text-yellow-700">
                   <p className="text-md">{isLastRoundWarning}</p>
@@ -756,7 +874,7 @@ export const TournamentRounds = () => {
                       value={FormatDateInput(formData.start_date) || ""}
                       min={
                         formMode === "create"
-                          ? FormatDateInput(new Date(tournament?.start_date))
+                          ? calculateMinStartDate()
                           : FormatDateInput(new Date())
                       }
                       max={FormatDateInput(new Date(tournament?.end_date))}
@@ -784,7 +902,7 @@ export const TournamentRounds = () => {
                       value={FormatDateInput(formData.end_date) || ""}
                       min={
                         formMode === "create"
-                          ? FormatDateInput(new Date(tournament?.start_date))
+                          ? FormatToISODate(formData.start_date)
                           : FormatDateInput(new Date())
                       }
                       max={FormatDateInput(new Date(tournament?.end_date))}
@@ -1175,7 +1293,7 @@ export const TournamentRounds = () => {
                   )}
                 </div>
 
-                {/* Is Fianl Round */}
+                {/* Is Final Round */}
                 <div className="flex items-center space-x-2 col-span-2">
                   <Checkbox
                     id="is_last"
@@ -1231,6 +1349,86 @@ export const TournamentRounds = () => {
             style={{ borderRadius: "12px" }}
           />
         )}
+      </Modal>
+
+      {/* Extend Round Modal */}
+      <Modal
+        size="md"
+        onHide={handleCloseExtendedRoundEndDateModal}
+        show={extendedRoundModalShow}
+      >
+        <ModalHeader content="Extend Round" />
+        <ModalBody>
+          <form
+            onSubmit={handleExtendedRoundFormSubmit}
+            className="space-y-4 pt-4"
+          >
+            <>
+              {/* Tournament Name */}
+              <h1 className="mb-5 text-3xl">{selectedRound?.round_name}</h1>
+
+              <div>
+                <p className="text-yellow-600 text-sm">
+                  Tournament occuring day will be from{" "}
+                  <strong>
+                    {selectedRound?.start_date} -{" "}
+                    {ConvertDate(roundExtendedEndDate)}
+                  </strong>
+                </p>
+              </div>
+
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="end_date">Old End Date</Label>
+                <Input
+                  type="date"
+                  disabled
+                  value={FormatDateInput(selectedRound?.end_date) || ""}
+                />
+              </div>
+
+              {/* Extended End Date */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="end_date">New End Date</Label>
+                <Input
+                  type="date"
+                  value={FormatDateInput(roundExtendedEndDate) || ""}
+                  min={FormatDateInput(
+                    new Date(
+                      new Date(selectedRound?.end_date).getTime() + 86400000
+                    )
+                  )}
+                  max={FormatDateInput(new Date(tournament?.end_date))}
+                  onChange={(e) => {
+                    setRoundExtendedEndDate(e.target.value);
+                  }}
+                />
+              </div>
+            </>
+
+            {/* Form Footer */}
+            <div className="flex justify-end gap-4 mt-6 pt-4 border-t">
+              <ButtonIcon
+                type="button"
+                onClick={handleCloseExtendedRoundEndDateModal}
+                content="Cancel"
+              />
+              <ButtonIcon
+                type="submit"
+                bgColor="#FFF"
+                disabled={isSubmitting}
+                content={
+                  isSubmitting ? (
+                    <>
+                      <LoadingIndicator size="small" className="mr-2" />
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )
+                }
+              />
+            </div>
+          </form>
+        </ModalBody>
       </Modal>
     </div>
   );
