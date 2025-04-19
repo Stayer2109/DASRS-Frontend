@@ -9,9 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "@/AtomicComponents/atoms/shadcn/dropdown-menu";
 import PropTypes from "prop-types";
+import { CalendarIcon } from "lucide-react";
 
 export const DasrsTournamentActions = ({
   onEdit,
+  onExtend,
   status,
   preventEdit,
   onClick,
@@ -23,7 +25,9 @@ export const DasrsTournamentActions = ({
           variant="ghost"
           size="sm"
           toolTipPos="top"
-          tooltipData={`${preventEdit ? "The tournament has started or been terminated." : ""}`}
+          tooltipData={`${
+            preventEdit ? "The tournament has started or been terminated." : ""
+          }`}
           disabled={preventEdit}
           className="hover:bg-white-hover p-0 w-8 h-8 cursor-pointer"
         >
@@ -40,6 +44,11 @@ export const DasrsTournamentActions = ({
         <DropdownMenuItem onClick={() => onEdit()} className="cursor-pointer">
           <PencilIcon className="mr-2 w-4 h-4" />
           Edit Tournament
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={() => onExtend()} className="cursor-pointer">
+          <CalendarIcon className="mr-2 w-4 h-4" />
+          Extend Tournament
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

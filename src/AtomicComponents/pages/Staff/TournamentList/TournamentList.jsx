@@ -86,6 +86,8 @@ export const TournamentList = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [tournamentExtendedEndDate, setTournamentExtendedEndDate] =
+    useState(null);
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [sortByKey, setSortByKey] = useState("tournament_id");
   const [sortDirection, setSortDirection] = useState("ASC");
@@ -104,6 +106,10 @@ export const TournamentList = () => {
   const [confirmModalShow, setConfirmModalShow] = useState(false);
   const [tournamentManagementModalShow, setTournamentManagementModalShow] =
     useState(false);
+  const [
+    tournamentExtendedEndDateModalShow,
+    setTournamentExtendedEndDateModalShow,
+  ] = useState(false);
   const [tournamentManagementErrors, setTournamentManagementErrors] = useState(
     {}
   );
@@ -140,6 +146,11 @@ export const TournamentList = () => {
     setSortByKey(columnKey);
     setSortDirection(newDirection);
     setPageIndex(1);
+  };
+
+  // Close navigation cards
+  const handleCloseNavCards = () => {
+    setTournamentForView(null);
   };
 
   // HANDLE TOURNAMENT MANAGEMENT DATA VALIDATION
@@ -203,11 +214,6 @@ export const TournamentList = () => {
     }
   };
 
-  // Close navigation cards
-  const handleCloseNavCards = () => {
-    setTournamentForView(null);
-  };
-
   // CHECK STATUS TO APPLY STYLES CLASS
   const statusClass = (status) => {
     switch (status.toString().toUpperCase()) {
@@ -260,6 +266,46 @@ export const TournamentList = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // HANDLE CONFIRM EXTEND TOURNAMENT DATE
+  const handleConfirmExtendTournamentDate = async (e) => {
+    e.preventDefault();
+
+    try {
+      setIsLoading(true);
+      setIsSubmitting(true);
+
+      const response = await apiClient.put(
+        `/tournaments/extend/${selectedTournament.tournament_id}`,
+        {},
+        {
+          params: {
+            newEndDate: FormatToISODate(tournamentExtendedEndDate),
+          },
+        }
+      );
+
+      if (response.data.http_status === 200) {
+        Toast({
+          title: "Success",
+          message: response.data.message,
+          type: "success",
+        });
+        fetchTournamentList();
+        handleCloseTournamentExtendedEndDateModal();
+      }
+    } catch (error) {
+      Toast({
+        title: "Error",
+        type: "error",
+        message: error.response?.data?.message || "Error processing request.",
+      });
+    } finally {
+      setIsSubmitting(false);
+      setIsLoading(false);
+      setTournamentExtendedEndDate(null); // Reset the extended end date
     }
   };
 
@@ -319,12 +365,31 @@ export const TournamentList = () => {
   //#endregion
 
   //#region MODAL CONTROL
+  // CONFIRM MODAL
   const handleOpenConfirmModal = () => {
     setConfirmModalShow(true);
   };
 
   const handleCloseConfirmModal = () => {
     setConfirmModalShow(false);
+  };
+
+  // TOURNAMENT EXTENDED END DATE MODAL
+  const handleOpenTournamentExtendedEndDateModal = (tournament = null) => {
+    setTournamentExtendedEndDateModalShow(true);
+    setSelectedTournament(tournament);
+
+    if (tournament) {
+      setTournamentExtendedEndDate(
+        FormatDateInput(new Date().getTime() + 86400000) || ""
+      );
+    }
+  };
+
+  const handleCloseTournamentExtendedEndDateModal = () => {
+    setTournamentExtendedEndDateModalShow(false);
+    setTournamentExtendedEndDate(null);
+    setSelectedTournament(null);
   };
 
   // DATA MANIPULATION FOR TOURNAMENT MANAGEMENT MODAL WHEN OPENED
@@ -565,6 +630,9 @@ export const TournamentList = () => {
                                 row.status.toString().toLowerCase() ===
                                   "terminated"
                               }
+                              onExtend={() =>
+                                handleOpenTournamentExtendedEndDateModal(row)
+                              }
                               onEdit={() =>
                                 handleOpenTournamentManagementModal(row)
                               }
@@ -796,6 +864,88 @@ export const TournamentList = () => {
                 }
               />
             </DialogFooter>
+          </form>
+        </ModalBody>
+      </Modal>
+
+      {/* Tournament Exteded End Date Modal */}
+      <Modal
+        size="xl"
+        onHide={handleCloseTournamentExtendedEndDateModal}
+        show={tournamentExtendedEndDateModalShow}
+      >
+        <ModalHeader content="Extend Tournament" />
+
+        <ModalBody>
+          <form
+            onSubmit={handleConfirmExtendTournamentDate}
+            className="space-y-4 pt-4"
+          >
+            <>
+              {/* Tournament Name */}
+              <h1 className="mb-5 text-3xl">
+                {selectedTournament?.tournament_name}
+              </h1>
+
+              <div>
+                <p className="text-yellow-600 text-sm">
+                  Tournament occuring day will be from{" "}
+                  <strong>
+                    {selectedTournament?.start_date} -{" "}
+                    {ConvertDate(tournamentExtendedEndDate)}
+                  </strong>
+                </p>
+              </div>
+
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="end_date">Old End Date</Label>
+                <Input
+                  type="date"
+                  disabled
+                  value={FormatDateInput(selectedTournament?.end_date) || ""}
+                />
+              </div>
+
+              {/* Extended End Date */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="end_date">New End Date</Label>
+                <Input
+                  type="date"
+                  value={FormatDateInput(tournamentExtendedEndDate) || ""}
+                  min={FormatDateInput(
+                    new Date(new Date().getTime() + 1 * 86400000)
+                  )}
+                  onChange={(e) => {
+                    setTournamentExtendedEndDate(e.target.value);
+                  }}
+                />
+              </div>
+            </>
+
+            <div className="flex justify-end gap-4 mt-6 pt-4 border-t">
+              <DialogFooter>
+                <ButtonIcon
+                  type="button"
+                  onClick={handleCloseTournamentExtendedEndDateModal}
+                  content="Cancel"
+                />
+                <ButtonIcon
+                  type="submit"
+                  disabled={isSubmitting}
+                  bgColor="#FFF"
+                  className="w-46"
+                  content={
+                    isSubmitting ? (
+                      <>
+                        <LoadingIndicator size="small" className="mr-2" />
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )
+                  }
+                />
+              </DialogFooter>
+            </div>
           </form>
         </ModalBody>
       </Modal>
