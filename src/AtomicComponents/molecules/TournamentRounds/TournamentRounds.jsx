@@ -15,7 +15,8 @@ import {
   FormatDateInput,
   FormatToISODate,
 } from "@/utils/DateConvert";
-import { Calendar, Flag, Map, Plus, Users } from "lucide-react";
+import { Calendar, Flag, Plus, Users } from "lucide-react";
+import { Map as MapIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -42,6 +43,12 @@ import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
 import { RoundStatusBadge } from "../RoundCard/RoundCard";
 import Toast from "../Toaster/Toaster";
 import { Button as ButtonIcon } from "./../../atoms/Button/Button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/AtomicComponents/atoms/shadcn/collapsible";
+import { ParticipatingTeams } from "../CollapsibleDetails/ParticipatingTeams";
 
 const initialFormData = {
   description: "",
@@ -272,6 +279,7 @@ export const TournamentRounds = () => {
     }
   };
 
+  // CALCULATE MIN START DATE FOR ROUND CREATION
   const calculateMinStartDate = () => {
     const today = new Date();
     const tournamentStart = new Date(tournament?.start_date);
@@ -684,8 +692,8 @@ export const TournamentRounds = () => {
               </CardHeader>
 
               <CardContent className="p-4 h-[400px] overflow-y-auto">
-                {/* Round Description */}
                 <div className="space-y-3">
+                  {/* Round Description */}
                   {round.description && (
                     <p className="text-gray-600 text-sm line-clamp-2">
                       {round.description}
@@ -711,7 +719,7 @@ export const TournamentRounds = () => {
                     </span>
 
                     <div className="flex items-center">
-                      <Map className="mr-2 w-4 h-4 text-gray-500" />
+                      <MapIcon className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">Match Type:</span>
                     </div>
                     <span className="font-medium text-right truncate">
@@ -752,6 +760,11 @@ export const TournamentRounds = () => {
                     <ScoreMethodDetails
                       scoredMethodId={round.scored_method_id}
                     />
+                  </div>
+
+                  {/* Participating Teams */}
+                  <div className="pt-2 border-t">
+                    <ParticipatingTeams matchList={round.match_list} />
                   </div>
                 </div>
               </CardContent>
