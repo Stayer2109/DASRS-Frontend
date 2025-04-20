@@ -19,7 +19,10 @@ import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 
 const StaffCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem("sidebar-opened");
+    return saved === null ? true : saved === "true";
+  });
 
   const navBarIconColor = "#FAF9F6";
   const iconWidth = 28;
@@ -96,10 +99,10 @@ const StaffCommonLayout = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="flex relative h-screen overflow-y-hidden">
+    <div className="relative flex h-screen overflow-y-hidden">
       {isMobile && isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="z-40 fixed inset-0 bg-black/50"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -161,7 +164,7 @@ const DraggableSidebarToggle = ({ onClick }) => {
   };
 
   return (
-    <div ref={wrapperRef} className="fixed inset-0 z-50 pointer-events-none">
+    <div ref={wrapperRef} className="z-50 fixed inset-0 pointer-events-none">
       <motion.div
         ref={iconRef}
         drag
@@ -178,7 +181,7 @@ const DraggableSidebarToggle = ({ onClick }) => {
         onClick={onClick}
         onDragEnd={handleDragEnd}
         animate={controls}
-        className="absolute top-4 left-0 bg-navbar-color p-3 rounded-full shadow-md cursor-pointer touch-none pointer-events-auto"
+        className="top-4 left-0 absolute bg-navbar-color shadow-md p-3 rounded-full touch-none cursor-pointer pointer-events-auto"
         style={{ width: "fit-content" }}
       >
         <SidebarIcon color="white" height={25} width={25} />

@@ -2,6 +2,7 @@ import "./OrganizerCommonLayout.scss";
 
 import {
   AddPlayerIcon,
+  ComplaintIcon,
   HomeIcon,
   LeaderboardIcon,
   ListIcon,
@@ -20,7 +21,10 @@ import { useMediaQuery } from "react-responsive";
 
 const OrganizerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem("sidebar-opened");
+    return saved === null ? true : saved === "true";
+  });
 
   const navBarIconColor = "#FAF9F6";
   const iconWidth = 28;
@@ -60,8 +64,8 @@ const OrganizerCommonLayout = () => {
     },
     {
       item: "Complaints",
-      icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/leaderboard",
+      icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/complaints",
     },
     {
       item: "Settings",
@@ -70,19 +74,18 @@ const OrganizerCommonLayout = () => {
     },
   ];
 
-  useEffect(() => {
-    // Collapse sidebar on mobile only on first load
-    if (isMobile) {
-      setIsSidebarOpen(false);
-    }
-  }, [isMobile]);
+  const handleToggleSidebar = () => {
+    const next = !isSidebarOpen;
+    setIsSidebarOpen(next);
+    localStorage.setItem("sidebar-opened", next.toString());
+  };
 
   useEffect(() => {
-    // Collapse sidebar on mobile only on first load
     if (isMobile) {
       setIsSidebarOpen(false);
     } else {
-      setIsSidebarOpen(true); // <- this line ensures desktop default is open
+      const saved = localStorage.getItem("sidebar-opened");
+      setIsSidebarOpen(saved === null ? true : saved === "true");
     }
   }, [isMobile]);
 
@@ -119,14 +122,15 @@ const OrganizerCommonLayout = () => {
           data={sidebarData}
           isOpened={isSidebarOpen}
           isMobile={isMobile}
-          onToggle={() => setIsSidebarOpen((prev) => !prev)}
+          onToggle={handleToggleSidebar}
         />
       )}
 
       {/* Main content */}
       <div
-        className={`flex-1 transition-all duration-300 p-10 max-h-screen flex flex-col overflow-auto ${isMobile ? "z-0" : "z-[50]"
-          } p-10`}
+        className={`flex-1 transition-all duration-300 p-10 max-h-screen flex flex-col overflow-auto ${
+          isMobile ? "z-0" : "z-[50]"
+        } p-10`}
       >
         <Outlet />
       </div>

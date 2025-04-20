@@ -81,7 +81,7 @@ export const TableCell = ({
     onClick={onClick}
     colSpan={colSpan}
   >
-    {children}
+    {children ? children : "-"}
   </td>
 );
 

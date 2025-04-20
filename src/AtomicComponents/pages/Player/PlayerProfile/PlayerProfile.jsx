@@ -150,15 +150,15 @@ const PlayerProfile = () => {
 
       <div className="flex justify-center items-center min-h-[80vh]">
         {player ? (
-          <Card className="w-full max-w-md p-6 rounded-xl shadow-md bg-white">
+          <Card className="bg-white shadow-md p-6 rounded-xl w-full max-w-md">
             <CardHeader className="flex flex-col items-center gap-4 pb-2">
-              <Avatar className="w-24 h-24 ring-2 ring-blue-500 mb-2">
+              <Avatar className="mb-2 ring-2 ring-blue-500 w-24 h-24">
                 <AvatarImage src={player.avatar || ""} />
-                <AvatarFallback className="text-4xl bg-gray-200 text-gray-600">
+                <AvatarFallback className="bg-gray-200 text-gray-600 text-4xl">
                   {player.last_name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <CardTitle className="text-xl font-bold">
+              <CardTitle className="font-bold text-xl">
                 {player.first_name + " " + player.last_name}
               </CardTitle>
               <Badge
@@ -169,8 +169,8 @@ const PlayerProfile = () => {
               </Badge>
             </CardHeader>
 
-            <CardContent className="space-y-2 text-sm text-muted-foreground text-center">
-              <div className="mt-4 space-y-1 text-sm text-center text-muted-foreground">
+            <CardContent className="space-y-2 text-muted-foreground text-sm text-center">
+              <div className="space-y-1 mt-4 text-muted-foreground text-sm text-center">
                 <div>
                   <span className="font-medium text-gray-700">Gender:</span>{" "}
                   {player.gender}
@@ -201,8 +201,8 @@ const PlayerProfile = () => {
 
             <div className="text-center">
               <Button
-                className="mt-6 w-auto !px-6"
-                bgColor="black"
+                className="mt-6 !px-6 w-auto"
+                bgColor="#000"
                 content="Update Profile"
                 onClick={updateProfileModalShow}
               />
@@ -222,12 +222,12 @@ const PlayerProfile = () => {
               onSubmit={handleUpdateProfileDataSubmit}
               className="space-y-6"
             >
-              <div className="grid grid-cols-1 gap-5">
+              <div className="gap-5 grid grid-cols-1">
                 {/* Address */}
                 <div className="flex flex-col">
                   <label
                     htmlFor="address"
-                    className="text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 font-medium text-gray-700 text-sm"
                   >
                     Address
                   </label>
@@ -245,7 +245,7 @@ const PlayerProfile = () => {
                     }
                   />
                   {updateProfileErrors.address && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {updateProfileErrors.address}
                     </p>
                   )}
@@ -255,7 +255,7 @@ const PlayerProfile = () => {
                 <div className="flex flex-col">
                   <label
                     htmlFor="gender"
-                    className="text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 font-medium text-gray-700 text-sm"
                   >
                     Gender
                   </label>
@@ -271,7 +271,7 @@ const PlayerProfile = () => {
                     }
                   />
                   {updateProfileErrors.gender && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {updateProfileErrors.gender}
                     </p>
                   )}
@@ -281,7 +281,7 @@ const PlayerProfile = () => {
                 <div className="flex flex-col">
                   <label
                     htmlFor="dob"
-                    className="text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 font-medium text-gray-700 text-sm"
                   >
                     Date of Birth
                   </label>
@@ -298,7 +298,7 @@ const PlayerProfile = () => {
                     }
                   />
                   {updateProfileErrors.dob && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {updateProfileErrors.dob}
                     </p>
                   )}
@@ -308,7 +308,7 @@ const PlayerProfile = () => {
                 <div className="flex flex-col">
                   <label
                     htmlFor="phone"
-                    className="text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 font-medium text-gray-700 text-sm"
                   >
                     Phone
                   </label>
@@ -325,7 +325,7 @@ const PlayerProfile = () => {
                     }
                   />
                   {updateProfileErrors.phone && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {updateProfileErrors.phone}
                     </p>
                   )}
@@ -335,7 +335,7 @@ const PlayerProfile = () => {
                 <div className="flex flex-col">
                   <label
                     htmlFor="first_name"
-                    className="text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 font-medium text-gray-700 text-sm"
                   >
                     First Name
                   </label>
@@ -352,7 +352,7 @@ const PlayerProfile = () => {
                     }
                   />
                   {updateProfileErrors.first_name && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {updateProfileErrors.first_name}
                     </p>
                   )}
@@ -362,7 +362,7 @@ const PlayerProfile = () => {
                 <div className="flex flex-col">
                   <label
                     htmlFor="last_name"
-                    className="text-sm font-medium text-gray-700 mb-1"
+                    className="mb-1 font-medium text-gray-700 text-sm"
                   >
                     Last Name
                   </label>
@@ -379,7 +379,7 @@ const PlayerProfile = () => {
                     }
                   />
                   {updateProfileErrors.last_name && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p className="mt-1 text-red-500 text-xs">
                       {updateProfileErrors.last_name}
                     </p>
                   )}
@@ -388,12 +388,12 @@ const PlayerProfile = () => {
 
               <div className="text-center">
                 <Button
-                  className="w-full py-2 !px-6 text-white font-semibold"
+                  className="!px-6 py-2 w-full font-semibold text-white"
                   content="Update"
                   onClick={() =>
                     handleUpdateProfileValidation(updateProfileData)
                   }
-                  bgColor="black"
+                  bgColor="#000"
                   type="submit"
                 />
               </div>
