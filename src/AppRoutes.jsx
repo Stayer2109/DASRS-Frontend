@@ -1,7 +1,7 @@
 /** @format */
 
 // import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
@@ -36,6 +36,7 @@ import { TournamentRegistration } from "./AtomicComponents/pages/Player/Tourname
 import { MyTournaments } from "./AtomicComponents/pages/Player/MyTournaments/MyTournaments";
 import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTournamentRounds/TeamTournamentRounds";
 import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
+import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -73,7 +74,7 @@ const AppRoutes = () => {
           </Route>
         );
 
-      case "STAFF":
+        // case "STAFF":
         return (
           <Route element={<PersistLogin />}>
             <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
@@ -131,6 +132,7 @@ const AppRoutes = () => {
                   path="tournaments/:tournamentId/teams"
                   element={<TournamentTeams />}
                 />
+                <Route path="complaints" element={<Complaints />} />
                 <Route path="leaderboard">
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
                 </Route>
@@ -163,17 +165,20 @@ const AppRoutes = () => {
                 </Route>
                 <Route path="my-team" element={<MyTeam />} />
                 <Route path="tournaments">
-                  <Route 
-                    path="registration" 
-                    element={auth?.isLeader ? <TournamentRegistration /> : <Navigate to="/" />} 
+                  <Route
+                    path="registration"
+                    element={
+                      auth?.isLeader ? (
+                        <TournamentRegistration />
+                      ) : (
+                        <Navigate to="/" />
+                      )
+                    }
                   />
-                  <Route 
-                    path="my-tournaments" 
-                    element={<MyTournaments />} 
-                  />
-                  <Route 
-                    path=":tournamentId/rounds" 
-                    element={<TeamTournamentRounds />} 
+                  <Route path="my-tournaments" element={<MyTournaments />} />
+                  <Route
+                    path=":tournamentId/rounds"
+                    element={<TeamTournamentRounds />}
                   />
                 </Route>
               </Route>

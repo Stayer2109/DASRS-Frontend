@@ -97,7 +97,7 @@ export const Button = ({
       >
         {content}
       </button>
-      <Tooltip id="my-tooltip" style={{ borderRadius: "12px" }} />
+      <Tooltip id="my-tooltip" style={{ borderRadius: "8px" }} />
     </>
   );
 };
