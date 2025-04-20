@@ -59,7 +59,7 @@ const OrganizerCommonLayout = () => {
       link: "/tournaments",
     },
     {
-      item: "Leaderboard",
+      item: "Complaints",
       icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
       link: "/leaderboard",
     },
