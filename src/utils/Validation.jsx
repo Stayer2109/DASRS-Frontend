@@ -146,7 +146,8 @@ export const RoundManagementValidation = (data) => {
   }
 
   if (data.total_race_time > 0) {
-    errors.total_race_time = "Total race time penalty points must be less than 0";
+    errors.total_race_time =
+      "Total race time penalty points must be less than 0";
   }
 
   if (data.off_track > 0) {
@@ -162,8 +163,19 @@ export const RoundManagementValidation = (data) => {
   }
 
   if (data.total_distance < 0) {
-    errors.total_distance = "Total distance bonus points must be greater than 0";
+    errors.total_distance =
+      "Total distance bonus points must be greater than 0";
   }
 
   return errors;
-}
+};
+
+export const ComplaintReplyValidation = (data) => {
+  const errors = {};
+
+  if (data.reply.trim() === "") {
+    errors.reply = "Reply is required";
+  }
+
+  return errors;
+};

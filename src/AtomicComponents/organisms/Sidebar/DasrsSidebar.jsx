@@ -49,11 +49,12 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
 
   const handleMenuItemClick = (item) => {
     if (item.onclick) item.onclick();
-    if (selectedItem !== item.item) {
-      setSelectedItem(item.item);
+    if (selectedItem !== item.link) {
+      setSelectedItem(item.link);
     }
+
     if (item.subMenu) {
-      setActiveSubmenu(item.item); // Ensure submenu is always open when clicked
+      setActiveSubmenu(item.item);
     } else {
       setActiveSubmenu(item.item);
     }
@@ -94,6 +95,8 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
         setActiveSubmenu(matchedParent.item);
       }
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]); // Add proper dependency
 
   return (
@@ -112,7 +115,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
       >
         <div className="flex flex-col h-full">
           {/* Headers */}
-          <div className="relative h-17 mb-4">
+          <div className="relative mb-4 h-17">
             {/* Title */}
             <motion.span
               animate={{
@@ -122,7 +125,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
               transition={{ duration: isOpened ? 0.2 : 0.3, ease: "easeOut" }}
               className="origin-left"
             >
-              <h1 className="text-h2 font-bold absolute w-[87%]">
+              <h1 className="absolute w-[87%] font-bold text-h2">
                 <TypingText
                   text={`${TruncateText("Welcome Back", 18)}`}
                   isVisible={isOpened}
@@ -134,7 +137,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
             </motion.span>
 
             {/* SidebarIcon */}
-            <div className="absolute right-0">
+            <div className="right-0 absolute">
               <SidebarIcon
                 onClick={onToggle}
                 color="white"
@@ -146,187 +149,204 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
           </div>
 
           {/* Sidebar items */}
-          <ul className="flex flex-col gap-6 flex-grow overflow-y-auto">
-            {(data || []).map((item) => (
-              <AnimatePresence key={item.item}>
-                <Link to={item.link}>
-                  {/* Main menu */}
-                  <motion.li
-                    key={item.item}
-                    initial={hasMounted ? { opacity: 0, x: 0 } : false}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    onClick={() => handleMenuItemClick(item)}
-                    transition={{ duration: 0.25 }}
-                    className={`relative group leading-normal gap-3 justify-start overflow-hidden cursor-pointer transition-text duration-300 ease-in-out rounded-xl ${
-                      item.item === activeSubmenu ? "" : ""
-                    } ${
-                      isOpened && item.item !== activeSubmenu
-                        ? "hover:text-black"
-                        : ""
-                    }`}
-                  >
-                    <div
-                      className={`relative flex items-center rounded-xl ${
-                        selectedItem === item.link
-                          ? openedItemTextHoverClass
-                          : "px-2 py-2"
-                      } ${
-                        item.item === activeSubmenu
-                          ? openedItemTextHoverClass
-                          : "px-2 py-2"
+          <ul className="flex flex-col flex-grow gap-6 overflow-y-auto">
+            {(data || []).map((item) => {
+              const isSubItemActive = item?.subMenu?.some(
+                (sub) => location.pathname === sub.link
+              );
+              
+              const isParentActive =
+                location.pathname === item.link || isSubItemActive;
+              return (
+                <AnimatePresence key={item.item}>
+                  <Link to={item.link}>
+                    {/* Main menu */}
+                    <motion.li
+                      key={item.item}
+                      initial={hasMounted ? { opacity: 0, x: 0 } : false}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      onClick={() => handleMenuItemClick(item)}
+                      transition={{ duration: 0.25 }}
+                      className={`relative group leading-normal gap-3 justify-start overflow-hidden cursor-pointer transition-text duration-300 ease-in-out rounded-xl ${
+                        item.item === activeSubmenu ? "" : ""
                       } ${
                         isOpened && item.item !== activeSubmenu
-                          ? openedItemHoverClass
-                          : ""
-                      } ${
-                        !isOpened && selectedItem !== item.item
-                          ? collapsedIconHoverClass
+                          ? "hover:text-black"
                           : ""
                       }`}
                     >
-                      {/* Icon */}
-                      <div className="relative -translate-x-[2px] sm:translate-x-0 w-[40px] flex items-center">
-                        {item.item === activeSubmenu ||
-                        item.link === selectedItem
-                          ? React.cloneElement(item.icon, {
-                              className: openedIconSelectedClass,
-                            })
-                          : React.cloneElement(item.icon, {
-                              className: openedIconHoveredClass,
-                            })}
+                      <div
+                        className={`relative flex items-center rounded-xl ${
+                          selectedItem === item.link
+                            ? openedItemTextHoverClass
+                            : "px-2 py-2"
+                        } ${
+                          item.item === activeSubmenu
+                            ? openedItemTextHoverClass
+                            : "px-2 py-2"
+                        } ${
+                          isOpened && item.item !== activeSubmenu
+                            ? openedItemHoverClass
+                            : ""
+                        } ${
+                          !isOpened && !isParentActive
+                            ? collapsedIconHoverClass
+                            : ""
+                        }`}
+                      >
+                        {/* Icon */}
+                        <div className="relative flex items-center w-[40px] -translate-x-[2px] sm:translate-x-0">
+                          {item.item === activeSubmenu ||
+                          item.link === selectedItem
+                            ? React.cloneElement(item.icon, {
+                                className: openedIconSelectedClass,
+                              })
+                            : React.cloneElement(item.icon, {
+                                className: openedIconHoveredClass,
+                              })}
+                        </div>
+
+                        {/* Text */}
+                        <AnimatePresence>
+                          {isOpened && (
+                            <motion.span
+                              key="text"
+                              initial={
+                                !hasMounted
+                                  ? { opacity: 0, maxWidth: 0 }
+                                  : false
+                              }
+                              animate={{ opacity: 1, maxWidth: 200 }}
+                              exit={{ opacity: 0, maxWidth: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                              className="flex justify-between items-center w-full overflow-hidden font-bold text-medium whitespace-nowrap"
+                            >
+                              {item.item}
+                              {item.subMenu && (
+                                <motion.div
+                                  animate={{
+                                    rotate:
+                                      activeSubmenu === item.item ? 90 : 0,
+                                  }}
+                                  transition={{
+                                    duration: 0.15,
+                                    ease: "easeInOut",
+                                  }}
+                                >
+                                  <ChevronRight size={18} />
+                                </motion.div>
+                              )}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
                       </div>
 
-                      {/* Text */}
-                      <AnimatePresence>
-                        {isOpened && (
-                          <motion.span
-                            key="text"
-                            initial={
-                              !hasMounted ? { opacity: 0, maxWidth: 0 } : false
-                            }
-                            animate={{ opacity: 1, maxWidth: 200 }}
-                            exit={{ opacity: 0, maxWidth: 0 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="overflow-hidden whitespace-nowrap font-bold text-medium flex items-center justify-between w-full"
-                          >
-                            {item.item}
-                            {item.subMenu && (
-                              <motion.div
-                                animate={{
-                                  rotate: activeSubmenu === item.item ? 90 : 0,
-                                }}
-                                transition={{
-                                  duration: 0.15,
-                                  ease: "easeInOut",
-                                }}
-                              >
-                                <ChevronRight size={18} />
-                              </motion.div>
-                            )}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                      {/* Submenu */}
+                      <div className="cursor-auto">
+                        <AnimatePresence>
+                          {item.subMenu && activeSubmenu === item.item && (
+                            <motion.ul
+                              initial={
+                                hasMounted
+                                  ? { opacity: 0, height: 0, y: -5 }
+                                  : false
+                              }
+                              animate={{ opacity: 1, height: "auto", y: 0 }}
+                              exit={{ opacity: 0, height: 0, y: -5 }}
+                              transition={{
+                                duration: 0.25,
+                                ease: "easeInOut",
+                              }}
+                              className={`${
+                                isOpened ? "ml-[52px]" : ""
+                              } mt-1 flex flex-col gap-1 text-sm text-gray-300 overflow-hidden`}
+                            >
+                              {item.subMenu?.map((subItem, index) => {
+                                const isSubActive =
+                                  location.pathname === subItem.link;
 
-                    {/* Submenu */}
-                    <div className="cursor-auto">
-                      <AnimatePresence>
-                        {item.subMenu && activeSubmenu === item.item && (
-                          <motion.ul
-                            initial={
-                              hasMounted
-                                ? { opacity: 0, height: 0, y: -5 }
-                                : false
-                            }
-                            animate={{ opacity: 1, height: "auto", y: 0 }}
-                            exit={{ opacity: 0, height: 0, y: -5 }}
-                            transition={{
-                              duration: 0.25,
-                              ease: "easeInOut",
-                            }}
-                            className={`${
-                              isOpened ? "ml-[52px]" : ""
-                            } mt-1 flex flex-col gap-1 text-sm text-gray-300 overflow-hidden`}
-                          >
-                            {item.subMenu?.map((subItem, index) => {
-                              const isSubActive =
-                                location.pathname === subItem.link;
-
-                              return (
-                                <li key={index}>
-                                  {isOpened ? (
-                                    <Link
-                                      to={subItem.link}
-                                      className={`block py-1 px-2 rounded transition-colors duration-200 ${
-                                        isSubActive
-                                          ? "bg-white/20 text-white"
-                                          : "hover:bg-white/10"
-                                      }`}
-                                    >
-                                      <motion.div
-                                        initial={{ opacity: 0, maxWidth: 0 }}
-                                        animate={{
-                                          opacity: isOpened ? 1 : 0,
-                                          maxWidth: isOpened ? "200px" : 0,
-                                        }}
-                                        exit={{ opacity: 0, maxWidth: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="inline-flex items-center w-full"
-                                      >
-                                        <span className="flex items-center">
-                                          {subItem.item}
-                                        </span>
-                                      </motion.div>
-                                    </Link>
-                                  ) : (
-                                    <>
+                                return (
+                                  <li key={index}>
+                                    {isOpened ? (
                                       <Link
                                         to={subItem.link}
                                         className={`block py-1 px-2 rounded transition-colors duration-200 ${
                                           isSubActive
-                                            ? "bg-white/10 text-white"
+                                            ? "bg-white/20 text-white"
                                             : "hover:bg-white/10"
                                         }`}
                                       >
                                         <motion.div
-                                          initial={{
-                                            opacity: 0,
-                                            maxWidth: 0,
-                                            x: 99,
-                                          }}
+                                          initial={{ opacity: 0, maxWidth: 0 }}
                                           animate={{
-                                            opacity: 1,
-                                            maxWidth: "40px",
-                                            x: 0,
+                                            opacity: isOpened ? 1 : 0,
+                                            maxWidth: isOpened ? "200px" : 0,
                                           }}
                                           exit={{ opacity: 0, maxWidth: 0 }}
                                           transition={{ duration: 0.3 }}
-                                          className="cursor-pointer flex justify-center"
+                                          className="inline-flex items-center w-full"
                                         >
-                                          {isSubActive
-                                            ? React.cloneElement(subItem.icon, {
-                                                className: `${closedSubIconSelectedClass}`,
-                                              })
-                                            : React.cloneElement(subItem.icon, {
-                                                className:
-                                                  openedIconHoveredClass,
-                                              })}
+                                          <span className="flex items-center">
+                                            {subItem.item}
+                                          </span>
                                         </motion.div>
                                       </Link>
-                                    </>
-                                  )}
-                                </li>
-                              );
-                            })}
-                          </motion.ul>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  </motion.li>
-                </Link>
-              </AnimatePresence>
-            ))}
+                                    ) : (
+                                      <>
+                                        <Link
+                                          to={subItem.link}
+                                          className={`block py-1 px-2 rounded transition-colors duration-200 ${
+                                            isSubActive
+                                              ? "bg-white/10 text-white"
+                                              : "hover:bg-white/10"
+                                          }`}
+                                        >
+                                          <motion.div
+                                            initial={{
+                                              opacity: 0,
+                                              maxWidth: 0,
+                                              x: 99,
+                                            }}
+                                            animate={{
+                                              opacity: 1,
+                                              maxWidth: "40px",
+                                              x: 0,
+                                            }}
+                                            exit={{ opacity: 0, maxWidth: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="flex justify-center cursor-pointer"
+                                          >
+                                            {isSubActive
+                                              ? React.cloneElement(
+                                                  subItem.icon,
+                                                  {
+                                                    className: `${closedSubIconSelectedClass}`,
+                                                  }
+                                                )
+                                              : React.cloneElement(
+                                                  subItem.icon,
+                                                  {
+                                                    className:
+                                                      openedIconHoveredClass,
+                                                  }
+                                                )}
+                                          </motion.div>
+                                        </Link>
+                                      </>
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </motion.ul>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.li>
+                  </Link>
+                </AnimatePresence>
+              );
+            })}
 
             {/* Fixed Logout Button */}
             <div className="mt-auto pt-4">
@@ -347,7 +367,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                       isOpened ? openedItemHoverClass : ""
                     }`}
                   >
-                    <div className="-translate-x-[2px] sm:translate-x-0 w-[40px] flex items-center">
+                    <div className="flex items-center w-[40px] -translate-x-[2px] sm:translate-x-0">
                       <LogoutIcon
                         className={openedIconHoveredClass}
                         color={navBarIconColor}
@@ -364,7 +384,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                           animate={{ opacity: 1, maxWidth: 200 }}
                           exit={{ opacity: 0, maxWidth: 0 }}
                           transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="overflow-hidden whitespace-nowrap inline-block font-bold text-medium"
+                          className="inline-block overflow-hidden font-bold text-medium whitespace-nowrap"
                         >
                           Logout
                         </motion.span>

@@ -208,26 +208,26 @@ export const RoundMatches = () => {
         ) : (
           matches.map((match) => (
             <Card
-              key={match.match_id}
+              key={match?.match_id}
               className="hover:shadow-md overflow-hidden transition-shadow"
             >
               <CardHeader className="bg-gray-50 p-4 pb-3 border-b">
                 <div className="flex justify-between items-start">
                   <CardTitle className="font-bold text-lg">
-                    Match {match.match_name}
+                    Match {match?.match_name}
                   </CardTitle>
                   <Badge
                     className={
-                      match.status === "FINISHED"
+                      match?.status === "FINISHED"
                         ? "bg-green-100 text-green-800"
                         : "bg-blue-100 text-blue-800"
                     }
                   >
-                    {match.status}
+                    {match?.status}
                   </Badge>
                 </div>
                 <div className="text-gray-500 text-sm">
-                  Code: {match.match_code}
+                  Code: {match?.match_code}
                 </div>
               </CardHeader>
 
@@ -235,7 +235,7 @@ export const RoundMatches = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     {(() => {
-                      const teamList = Array.isArray(match.teams) ? match.teams : [];
+                      const teamList = Array.isArray(match?.teams) ? match?.teams : [];
                       if (teamList.length === 0) {
                         return (
                           <div className="text-gray-500 text-sm text-center italic">
@@ -245,7 +245,7 @@ export const RoundMatches = () => {
                       }
 
                       const uniqueTeams = Array.from(
-                        new Map(teamList.map((team) => [team.team_id, team])).values()
+                        new Map(teamList.map((team) => [team?.team_id, team])).values()
                       );
 
                       return uniqueTeams.length <= 2 ? (
@@ -268,13 +268,13 @@ export const RoundMatches = () => {
                         <div className="space-y-2">
                           {uniqueTeams.map((team, index) => (
                             <div
-                              key={team.team_id}
+                              key={team?.team_id}
                               className="flex justify-between items-center bg-gray-50 p-2 rounded-md"
                             >
                               <div className="font-medium">
-                                {team.team_name}
+                                {team?.team_name}
                                 <span className="ml-1 text-gray-500 text-xs">
-                                  ({team.team_tag || "N/A"})
+                                  ({team?.team_tag || "N/A"})
                                 </span>
                               </div>
                               <Badge variant="outline" className="text-xs">
@@ -310,42 +310,42 @@ export const RoundMatches = () => {
                         {(() => {
                           const uniqueTeams = Array.from(
                             new Map(
-                              match.teams.map((team) => [team.team_id, team])
+                              match?.teams?.map((team) => [team.team_id, team])
                             ).values()
                           );
 
                           return uniqueTeams.map((team) => (
                             <Collapsible
-                              key={`${match.match_id}-${team.team_id}`}
+                              key={`${match?.match_id}-${team?.team_id}`}
                             >
                               <CollapsibleTrigger className="flex justify-between items-center p-2 w-full text-gray-600 hover:text-gray-800 text-sm">
-                                <span>{team.team_name} Score Details</span>
+                                <span>{team?.team_name} Score Details</span>
                                 <ChevronDown className="w-4 h-4" />
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 {loadingScores[
-                                  `${match.match_id}-${team.team_id}`
+                                  `${match?.match_id}-${team?.team_id}`
                                 ] ? (
                                   <div className="flex justify-center py-2">
                                     <LoadingIndicator size="small" />
                                   </div>
                                 ) : scoreDetails[
-                                  `${match.match_id}-${team.team_id}`
+                                  `${match.match_id}-${team?.team_id}`
                                 ] ? (
                                   <div className="space-y-4 p-2">
                                     {scoreDetails[
-                                      `${match.match_id}-${team.team_id}`
+                                      `${match?.match_id}-${team?.team_id}`
                                     ].map((player) => (
                                       <div
-                                        key={player.player_id}
+                                        key={player?.player_id}
                                         className="bg-gray-50 p-3 border rounded-lg"
                                       >
                                         <div className="flex justify-between items-center mb-2">
                                           <div className="font-medium">
-                                            {player.player_name}
+                                            {player?.player_name}
                                           </div>
                                           <Badge variant="secondary">
-                                            Score: {player.team_score}
+                                            Score: {player?.team_score}
                                           </Badge>
                                         </div>
 
@@ -354,56 +354,56 @@ export const RoundMatches = () => {
                                             Lap:
                                           </div>
                                           <div className="text-right">
-                                            {player.lap}
+                                            {player?.lap}
                                           </div>
 
                                           <div className="text-gray-600">
                                             Fastest Lap:
                                           </div>
                                           <div className="text-right">
-                                            {player.fastest_lap_time}s
+                                            {player?.fastest_lap_time}s
                                           </div>
 
                                           <div className="text-gray-600">
                                             Collision:
                                           </div>
                                           <div className="text-right">
-                                            {player.collision}
+                                            {player?.collision}
                                           </div>
 
                                           <div className="text-gray-600">
                                             Off Track:
                                           </div>
                                           <div className="text-right">
-                                            {player.off_track}
+                                            {player?.off_track}
                                           </div>
 
                                           <div className="text-gray-600">
                                             Assist Usage:
                                           </div>
                                           <div className="text-right">
-                                            {player.assist_usage}
+                                            {player?.assist_usage}
                                           </div>
 
                                           <div className="text-gray-600">
                                             Top Speed:
                                           </div>
                                           <div className="text-right">
-                                            {player.top_speed} km/h
+                                            {player?.top_speed} km/h
                                           </div>
 
                                           <div className="text-gray-600">
                                             Avg Speed:
                                           </div>
                                           <div className="text-right">
-                                            {player.average_speed} km/h
+                                            {player?.average_speed} km/h
                                           </div>
 
                                           <div className="text-gray-600">
                                             Distance:
                                           </div>
                                           <div className="text-right">
-                                            {player.total_distance} m
+                                            {player?.total_distance} m
                                           </div>
                                         </div>
                                       </div>
