@@ -7,6 +7,7 @@ export const Button = ({
   className = "",
   content = "Button",
   tooltipData = "",
+  form,
   toolTipPos = "top",
   borderColor = "#000",
   disabled = false,
@@ -84,6 +85,7 @@ export const Button = ({
         className={`${className} px-standard-x py-standard-y rounded-[2px]`}
         onMouseEnter={handleHover}
         onMouseLeave={handleLeave}
+        form={form}
         disabled={disabled}
         type={type}
         onClick={onClick}
@@ -106,6 +108,7 @@ Button.propTypes = {
   className: PropTypes.string,
   content: PropTypes.string,
   onClick: PropTypes.func,
+  form: PropTypes.string,
   borderColor: PropTypes.string,
   disabled: PropTypes.bool,
   tooltipData: PropTypes.string,

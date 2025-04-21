@@ -10,6 +10,7 @@ import {
   SidebarIcon,
   TournamentIcon,
   UserIcon,
+  UserInformationIcon,
 } from "@/assets/icon-svg";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -38,7 +39,7 @@ const OrganizerCommonLayout = () => {
     },
     {
       item: "Profile",
-      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+      icon: <UserInformationIcon color={navBarIconColor} width={iconWidth} />,
       link: "/my-profile",
     },
     {

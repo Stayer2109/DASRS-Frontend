@@ -720,6 +720,44 @@ export const ComplaintIcon = ({
   );
 };
 
+export const UserInformationIcon = ({
+  className,
+  height,
+  width,
+  style,
+  ...props
+}) => {
+  return (
+    <svg
+      width={width || "34px"}
+      height={height || "34px"}
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      stroke="currentColor"
+      strokeWidth="2"
+      style={style}
+      {...props}
+    >
+      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></g>
+      <g id="SVGRepo_iconCarrier">
+        {" "}
+        <path
+          d="M12.01 19V9M12.01 5H12"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        ></path>{" "}
+      </g>
+    </svg>
+  );
+};
+
 //#region ICON FOR TOASTER
 export const SuccessIcon = ({ className, ...props }) => {
   return (

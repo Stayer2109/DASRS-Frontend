@@ -361,7 +361,7 @@ export const TournamentRounds = () => {
         show={roundsManagementModalShow}>
         <ModalHeader content={formMode === "create" ? "Create Round" : "Edit Round"} />
         <ModalBody>
-          <form onSubmit={handleRoundManagementFormSubmit} className="flex flex-col h-full">
+          <form id="roundManagementForm" onSubmit={handleRoundManagementFormSubmit} className="flex flex-col h-full">
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
               <div className="gap-4 grid grid-cols-2 px-1">
                 <div className="space-y-2">

@@ -83,31 +83,31 @@ const ForgetPassword = () => {
   return (
     <>
       {isLoading && <Spinner />}
-      <div className="reset-password-container h-dvh flex justify-center items-center">
+      <div className="flex justify-center items-center h-dvh reset-password-container">
         <form
-          className="bg-[#FAF9F6] w-[95%] sm:w-[40%] max-h-[70%] h-auto rounded-2xl px-standard-x py-standard-y relative overflow-auto"
+          className="relative bg-[#FAF9F6] px-standard-x py-standard-y rounded-2xl w-[95%] sm:w-[40%] h-auto max-h-[70%] overflow-auto"
           onSubmit={handleResetPasswordSubmit}
         >
           <div
-            className="absolute flex items-end justify-center cursor-pointer group translate-y-[20%]"
+            className="group absolute flex justify-center items-end translate-y-[20%] cursor-pointer"
             onClick={() => navigate("/")}
           >
             <HomeIcon className="" />
-            <h5 className="text-h5 group-hover:text-main-blue sm:block hidden">
+            <h5 className="hidden sm:block text-h5 group-hover:text-main-blue">
               Home
             </h5>
           </div>
 
-          <h1 className="text-h1 text-center text-main-blue">Reset Password</h1>
-          <h5 className="text-h5 mt-2 mb-6 text-center">
+          <h1 className="text-h1 text-main-blue text-center">Reset Password</h1>
+          <h5 className="mt-2 mb-6 text-h5 text-center">
             Enter your password below to reset your password
           </h5>
           <div className="bg-[#d9d9d9] h-[1.5px]" />
 
-          <div className="w-[90%] m-auto">
-            <h6 className="text-h6 mt-6 mb-3">New Password</h6>
+          <div className="m-auto w-[90%]">
+            <h6 className="mt-6 mb-3 text-h6">New Password</h6>
             <div className="relative">
-              <div className="absolute top-0 left-0 translate-x-2 translate-y-[6px]">
+              <div className="top-0 left-0 absolute translate-x-2 translate-y-[6px]">
                 <KeyIcon width={25} height={25} />
               </div>
 
@@ -116,11 +116,11 @@ const ForgetPassword = () => {
                 placeholder="Password"
                 type={showPassword ? "text" : "password"}
                 value={newPassword}
-                onChange={(e) => setNewPassword(trimText(e.target.value))}
+                onChange={(e) => setNewPassword(e.target.value)}
               />
 
               <div
-                className="absolute top-0 right-0 -translate-x-2 translate-y-[3px] cursor-pointer active:scale-92 active:translate-y-[4px]"
+                className="top-0 right-0 absolute active:scale-92 -translate-x-2 translate-y-[3px] active:translate-y-[4px] cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -131,7 +131,7 @@ const ForgetPassword = () => {
               </div>
 
               {/* Password Condition Text */}
-              <div className="password-condition-container flex flex-col gap-2 px-1 mt-2">
+              <div className="flex flex-col gap-2 mt-2 px-1 password-condition-container">
                 <ConditionText
                   isValid={passwordValid.minLength}
                   text={`At least ${passwordCriteria.minLength} characters`}
@@ -152,12 +152,12 @@ const ForgetPassword = () => {
             </div>
 
             {/* Buttons */}
-            <div className="buttons-container flex justify-center mt-5">
+            <div className="flex justify-center mt-5 buttons-container">
               <Button
                 type="submit"
                 content="Reset"
                 disabled={!isEnabled}
-                tooltipData="You must follow password criteria."
+                tooltipData={!isEnabled ? "You must follow password criteria." : ""}
               />
             </div>
           </div>
@@ -171,9 +171,8 @@ const ForgetPassword = () => {
 const ConditionText = ({ isValid, text }) => {
   return (
     <div
-      className={`password-condition ${
-        isValid ? "text-green-600" : "text-gray-500"
-      }`}
+      className={`password-condition ${isValid ? "text-green-600" : "text-gray-500"
+        }`}
     >
       {isValid ? (
         <span>
