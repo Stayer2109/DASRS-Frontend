@@ -9,6 +9,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
+import PropTypes from "prop-types";
 
 export const TournamentForm = ({
   formData,
@@ -25,7 +26,7 @@ export const TournamentForm = ({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 pt-4">
-      <div className="grid w-full gap-2">
+      <div className="gap-2 grid w-full">
         <Label htmlFor="tournament_name">Tournament Name</Label>
         <Input
           id="tournament_name"
@@ -36,16 +37,16 @@ export const TournamentForm = ({
           placeholder="Enter tournament name"
         />
       </div>
-      <div className="grid w-full gap-2">
+      <div className="gap-2 grid w-full">
         <Label htmlFor="start_date">Start Date</Label>
         <div className="relative">
           <Button
             type="button"
             variant="outline"
-            className="w-full justify-start text-left font-normal"
+            className="justify-start w-full font-normal text-left"
             onClick={() => setStartDateOpen(!startDateOpen)}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 w-4 h-4" />
             {formData.start_date ? (
               format(new Date(formData.start_date), "PPP")
             ) : (
@@ -53,7 +54,7 @@ export const TournamentForm = ({
             )}
           </Button>
           {startDateOpen && (
-            <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+            <div className="top-full left-0 z-50 absolute bg-white shadow-lg mt-1 p-2 border rounded-md">
               <DayPicker
                 mode="single"
                 selected={
@@ -73,16 +74,16 @@ export const TournamentForm = ({
         </div>
       </div>
 
-      <div className="grid w-full gap-2">
+      <div className="gap-2 grid w-full">
         <Label htmlFor="end_date">End Date</Label>
         <div className="relative">
           <Button
             type="button"
             variant="outline"
-            className="w-full justify-start text-left font-normal"
+            className="justify-start w-full font-normal text-left"
             onClick={() => setEndDateOpen(!endDateOpen)}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 w-4 h-4" />
             {formData.end_date ? (
               format(new Date(formData.end_date), "PPP")
             ) : (
@@ -90,7 +91,7 @@ export const TournamentForm = ({
             )}
           </Button>
           {endDateOpen && (
-            <div className="absolute top-full left-0 z-50 mt-1 bg-white rounded-md shadow-lg border p-2">
+            <div className="top-full left-0 z-50 absolute bg-white shadow-lg mt-1 p-2 border rounded-md">
               <DayPicker
                 mode="single"
                 selected={
@@ -112,7 +113,7 @@ export const TournamentForm = ({
         </div>
       </div>
 
-      <div className="grid w-full gap-2">
+      <div className="gap-2 grid w-full">
         <Label htmlFor="tournament_context">Tournament Context</Label>
         <Textarea
           id="tournament_context"
@@ -124,7 +125,7 @@ export const TournamentForm = ({
         />
       </div>
 
-      <div className="grid w-full gap-2">
+      <div className="gap-2 grid w-full">
         <Label htmlFor="team_number">Number of Teams</Label>
         <Input
           id="team_number"
@@ -157,3 +158,14 @@ export const TournamentForm = ({
     </form>
   );
 };
+
+TournamentForm.propTypes = {
+  formData: PropTypes.object.isRequired,
+  formMode: PropTypes.oneOf(["create", "edit"]).isRequired,
+  isSubmitting: PropTypes.bool.isRequired,
+  onInputChange: PropTypes.func.isRequired,
+  onDateChange: PropTypes.func.isRequired,
+  onNumberChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+}

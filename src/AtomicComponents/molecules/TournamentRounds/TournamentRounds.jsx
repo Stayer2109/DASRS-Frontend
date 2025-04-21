@@ -1,3 +1,4 @@
+import { Calendar, Flag, Plus, Users } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -6,49 +7,43 @@ import {
   CardTitle,
 } from "@/AtomicComponents/atoms/shadcn/card";
 import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@/AtomicComponents/organisms/Modal/Modal";
-import {
   ConvertDate,
   FormatDateInput,
   FormatToISODate,
 } from "@/utils/DateConvert";
-import { Calendar, Flag, Plus, Users } from "lucide-react";
-import { Map as MapIcon } from "lucide-react";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
-import Input from "@/AtomicComponents/atoms/Input/Input";
-import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import Select from "@/AtomicComponents/atoms/Select/Select";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
+import { Button as ButtonIcon } from "./../../atoms/Button/Button";
 import { Checkbox } from "@/AtomicComponents/atoms/shadcn/checkbox";
+import { EnvironmentDetails } from "../CollapsibleDetails/EnvironmentDetails";
+import Input from "@/AtomicComponents/atoms/Input/Input";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import { apiClient } from "@/config/axios/axios";
-import useAuth from "@/hooks/useAuth";
-import { formatDateString } from "@/utils/dateUtils";
+import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
+import { MapDetails } from "../CollapsibleDetails/MapDetails";
+import { Map as MapIcon } from "lucide-react";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
-import { RoundManagementValidation } from "@/utils/Validation";
-import { Tooltip } from "react-tooltip";
-import { toast } from "sonner";
-import { EnvironmentDetails } from "../CollapsibleDetails/EnvironmentDetails";
-import { MapDetails } from "../CollapsibleDetails/MapDetails";
-import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
-import { RoundStatusBadge } from "../RoundCard/RoundCard";
-import Toast from "../Toaster/Toaster";
-import { Button as ButtonIcon } from "./../../atoms/Button/Button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/AtomicComponents/atoms/shadcn/collapsible";
 import { ParticipatingTeams } from "../CollapsibleDetails/ParticipatingTeams";
+import { RoundManagementValidation } from "@/utils/Validation";
+import { RoundStatusBadge } from "../RoundCard/RoundCard";
+import { ScoreMethodDetails } from "../CollapsibleDetails/ScoreMethodDetails";
+import Select from "@/AtomicComponents/atoms/Select/Select";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import Toast from "../Toaster/Toaster";
+import { Tooltip } from "react-tooltip";
+import { apiClient } from "@/config/axios/axios";
+import { formatDateString } from "@/utils/dateUtils";
+import { toast } from "sonner";
+import useAuth from "@/hooks/useAuth";
 
 const initialFormData = {
   description: "",

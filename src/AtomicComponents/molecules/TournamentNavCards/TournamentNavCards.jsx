@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Card,
   CardContent,
@@ -14,6 +13,7 @@ import {
   UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import PropTypes from "prop-types";
 
 export const TournamentNavCards = ({
   tournamentId,
@@ -88,4 +88,10 @@ export const TournamentNavCards = ({
       </div>
     </div>
   );
+};
+
+TournamentNavCards.propTypes = {
+  tournamentId: PropTypes.string.isRequired,
+  tournamentName: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
