@@ -9,6 +9,7 @@ import {
   SidebarIcon,
   TournamentIcon,
   UserIcon,
+  UserInformationIcon,
 } from "@/assets/icon-svg";
 import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
@@ -33,7 +34,7 @@ const PlayerCommonLayout = () => {
     },
     {
       item: "Profile",
-      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+      icon: <UserInformationIcon color={navBarIconColor} width={iconWidth} />,
       link: "/my-profile",
     },
     {
@@ -69,7 +70,6 @@ const PlayerCommonLayout = () => {
         },
       ],
     },
-    ,
   ];
 
   useEffect(() => {
@@ -104,10 +104,10 @@ const PlayerCommonLayout = () => {
   }, [isMobile, isSidebarOpen]);
 
   return (
-    <div className="flex relative h-screen overflow-y-hidden">
+    <div className="relative flex h-screen overflow-y-hidden">
       {isMobile && isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="z-40 fixed inset-0 bg-black/50"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -169,7 +169,7 @@ const DraggableSidebarToggle = ({ onClick }) => {
   };
 
   return (
-    <div ref={wrapperRef} className="fixed inset-0 z-50 pointer-events-none">
+    <div ref={wrapperRef} className="z-50 fixed inset-0 pointer-events-none">
       <motion.div
         ref={iconRef}
         drag
@@ -186,7 +186,7 @@ const DraggableSidebarToggle = ({ onClick }) => {
         onClick={onClick}
         onDragEnd={handleDragEnd}
         animate={controls}
-        className="absolute top-4 left-0 bg-navbar-color p-3 rounded-full shadow-md cursor-pointer touch-none pointer-events-auto"
+        className="top-4 left-0 absolute bg-navbar-color shadow-md p-3 rounded-full touch-none cursor-pointer pointer-events-auto"
         style={{ width: "fit-content" }}
       >
         <SidebarIcon color="white" height={25} width={25} />

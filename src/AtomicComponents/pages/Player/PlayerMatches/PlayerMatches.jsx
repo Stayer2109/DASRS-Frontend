@@ -14,11 +14,6 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { Switch } from "@/AtomicComponents/atoms/shadcn/switch";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@/AtomicComponents/organisms/Modal/Modal";
 // import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
@@ -35,6 +30,7 @@ import {
 import { ChevronDown } from "lucide-react";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Button as ButtonShadcn } from "@/AtomicComponents/atoms/shadcn/button";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
@@ -212,8 +208,8 @@ const PlayerMatches = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       {/* Switch button for different render mode */}
-      <div className="w-full mb-5">
-        <div className="inline-flex items-center gap-4 border border-gray-600 p-4 rounded-md">
+      <div className="mb-5 w-full">
+        <div className="inline-flex items-center gap-4 p-4 border border-gray-600 rounded-md">
           <Switch
             id="assigned-toggle"
             checked={assignedModeToggle}
@@ -221,7 +217,7 @@ const PlayerMatches = () => {
           />
           <Label
             htmlFor="assigned-toggle"
-            className="text-sm text-muted-foreground"
+            className="text-muted-foreground text-sm"
           >
             Assigned Mode
           </Label>
@@ -229,22 +225,22 @@ const PlayerMatches = () => {
       </div>
 
       {/* Match card render */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
+      <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3 mb-4">
         {matchesList.length === 0 ? (
           <Card className="col-span-full">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-              <p className="text-muted-foreground mb-4">No matches found.</p>
+            <CardContent className="flex flex-col justify-center items-center p-6">
+              <p className="mb-4 text-muted-foreground">No matches found.</p>
             </CardContent>
           </Card>
         ) : (
           matchesList.map((match) => (
             <Card
               key={match.match_id}
-              className="hover:shadow-xl transition-shadow overflow-hidden self-start min-h-[300px]"
+              className="self-start hover:shadow-xl min-h-[300px] overflow-hidden transition-shadow"
             >
               <CardHeader className="bg-gray-50 p-4 pb-3 border-b">
                 <div className="flex justify-between items-start gap-3">
-                  <CardTitle className="text-lg font-bold">
+                  <CardTitle className="font-bold text-lg">
                     {match.match_name}
                   </CardTitle>
                   <Badge
@@ -257,16 +253,16 @@ const PlayerMatches = () => {
                     {match.status}
                   </Badge>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-gray-500 text-sm">
                   Code: {match.match_code}
                 </div>
               </CardHeader>
 
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="gap-2 grid grid-cols-2 text-sm">
                     <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                      <Calendar className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">Start:</span>
                     </div>
                     <span className="text-right">
@@ -274,7 +270,7 @@ const PlayerMatches = () => {
                     </span>
 
                     <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                      <Clock className="mr-2 w-4 h-4 text-gray-500" />
                       <span className="text-muted-foreground">End:</span>
                     </div>
                     <span className="text-right">
@@ -284,9 +280,9 @@ const PlayerMatches = () => {
                     {match.status === "FINISHED" && (
                       <div className="col-span-2">
                         <Collapsible>
-                          <CollapsibleTrigger className="flex items-center justify-between w-full text-sm text-gray-600 hover:text-gray-800 p-2">
+                          <CollapsibleTrigger className="flex justify-between items-center p-2 w-full text-gray-600 hover:text-gray-800 text-sm">
                             <span>Score Details</span>
-                            <ChevronDown className="h-4 w-4" />
+                            <ChevronDown className="w-4 h-4" />
                           </CollapsibleTrigger>
                           <CollapsibleContent>
                             {loadingScores[
@@ -298,13 +294,13 @@ const PlayerMatches = () => {
                             ) : scoreDetails[
                                 `${match.match_id}-${match.team_id}`
                               ] ? (
-                              <div className="p-2 space-y-4">
+                              <div className="space-y-4 p-2">
                                 {scoreDetails[
                                   `${match.match_id}-${match.team_id}`
                                 ].map((player) => (
                                   <div
                                     key={player.player_id}
-                                    className="border rounded-lg p-3 bg-gray-50"
+                                    className="bg-gray-50 p-3 border rounded-lg"
                                   >
                                     <div className="flex justify-between items-center mb-2">
                                       <div className="font-medium">
@@ -315,7 +311,7 @@ const PlayerMatches = () => {
                                       </Badge>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                                    <div className="gap-x-4 gap-y-1 grid grid-cols-2 text-sm">
                                       <div className="text-gray-600">Lap:</div>
                                       <div className="text-right">
                                         {player.lap}
@@ -396,7 +392,7 @@ const PlayerMatches = () => {
                   </div>
 
                   {match.location && (
-                    <div className="text-sm mt-2">
+                    <div className="mt-2 text-sm">
                       <span className="text-muted-foreground">Location: </span>
                       {match.location}
                     </div>
@@ -430,18 +426,18 @@ const PlayerMatches = () => {
 
       {/* Assign Modal */}
       <Modal size="md" show={assignModalShow} onHide={handleAssignModalClose}>
-        <ModalHeader content={"Assign Player To A Match"} />
-        <ModalBody className="">
+        <Modal.Header content={"Assign Player To A Match"} />
+        <Modal.Body className="">
           <form
             onSubmit={handleSubmitAssignPlayer}
             className="flex flex-col gap-6"
           >
-            <h2 className="text-h2 font-bold">{selectedMatch?.match_name}</h2>
+            <h2 className="font-bold text-h2">{selectedMatch?.match_name}</h2>
             <h5 className="text-h5 italic">{selectedMatch?.match_code}</h5>
 
             {/* Start Date */}
             <div className="flex gap-2">
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar className="mr-2 w-4 h-4" />
               <span>Start:</span>
               <span>
                 {`${GetDateFromDate(
@@ -452,7 +448,7 @@ const PlayerMatches = () => {
 
             {/* End Date */}
             <div className="flex gap-2">
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar className="mr-2 w-4 h-4" />
               <span>End:</span>
               <span>
                 {`${GetDateFromDate(
@@ -510,7 +506,7 @@ const PlayerMatches = () => {
               />
             </div>
           </form>
-        </ModalBody>
+        </Modal.Body>
       </Modal>
     </>
   );

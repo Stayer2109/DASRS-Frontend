@@ -11,12 +11,7 @@ import {
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@/AtomicComponents/organisms/Modal/Modal";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 
 export const PlayerTeams = () => {
   const { teams, isLoading, createTeam } = useTeamManagement();
@@ -57,22 +52,22 @@ export const PlayerTeams = () => {
     <>
       {isLoading && <Spinner />}
 
-      <div className="container mx-auto p-4">
+      <div className="mx-auto p-4 container">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">My Teams</h1>
+          <h1 className="font-bold text-2xl">My Teams</h1>
           <Button
             onClick={() => setIsModalOpen(true)}
             className="px-4 py-2 h-10"
           >
-            <Plus className="mr-2 h-5 w-5" /> Create Team
+            <Plus className="mr-2 w-5 h-5" /> Create Team
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {teams.map((team) => (
             <Card
               key={team.id}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
+              className="hover:shadow-lg transition-shadow cursor-pointer"
               onClick={() => handleViewTeam(team.id)}
             >
               <CardHeader className="pb-2">
@@ -83,14 +78,14 @@ export const PlayerTeams = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Tag:</span>
-                    <span className="font-medium bg-gray-100 px-2 py-1 rounded text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 text-sm">Tag:</span>
+                    <span className="bg-gray-100 px-2 py-1 rounded font-medium text-sm">
                       {team.tag}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">Members:</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500 text-sm">Members:</span>
                     <span className="font-medium">
                       {team.member_count || 0}/5
                     </span>
@@ -107,17 +102,17 @@ export const PlayerTeams = () => {
           onHide={() => setIsModalOpen(false)}
           size="sm"
         >
-          <ModalHeader content="Create New Team" className="border-b pb-4" />
-          <ModalBody className="py-6">
+          <Modal.Header content="Create New Team" className="pb-4 border-b" />
+          <Modal.Body className="py-6">
             <form id="createTeamForm" onSubmit={handleCreateTeam}>
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">
+                  <label className="font-semibold text-gray-700 text-sm">
                     Team Name
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                     placeholder="Enter team name"
                     value={formData.name}
                     onChange={(e) =>
@@ -130,12 +125,12 @@ export const PlayerTeams = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700">
+                  <label className="font-semibold text-gray-700 text-sm">
                     Team Tag
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="shadow-sm px-3 py-2 border border-gray-300 focus:border-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                     placeholder="Enter team tag"
                     value={formData.tag}
                     onChange={(e) =>
@@ -146,14 +141,14 @@ export const PlayerTeams = () => {
                     }
                     required
                   />
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="mt-1 text-gray-500 text-sm">
                     A short identifier for your team (e.g., "TSM", "C9")
                   </p>
                 </div>
               </div>
             </form>
-          </ModalBody>
-          <ModalFooter className="border-t py-4 px-4 space-x-3">
+          </Modal.Body>
+          <Modal.Footer className="space-x-3 px-4 py-4 border-t">
             <Button
               type="submit"
               form="createTeamForm"
@@ -168,7 +163,7 @@ export const PlayerTeams = () => {
             >
               Cancel
             </Button>
-          </ModalFooter>
+          </Modal.Footer>
         </Modal>
       </div>
     </>

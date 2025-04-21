@@ -7,7 +7,6 @@ import {
 } from "@/assets/icon-svg";
 import { useEffect, useState } from "react";
 import { ForgetPasswordValidation, LoginValidation } from "@/utils/Validation";
-import { Modal, ModalBody, ModalHeader } from "../../../organisms/Modal/Modal";
 import { jwtDecode } from "jwt-decode";
 import Input from "../../../atoms/Input/Input";
 import Footer from "../../../organisms/Footer";
@@ -22,6 +21,7 @@ import Spinner from "../../../atoms/Spinner/Spinner";
 import "./CommonLayout.scss";
 import Toast from "../../../molecules/Toaster/Toaster";
 import { trimText } from "@/utils/InputProces";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 
 const CommonLayout = () => {
   const { setAuth } = useAuth();
@@ -184,31 +184,30 @@ const CommonLayout = () => {
     <>
       {isLoading && <Spinner />}
       <Header />
-      <div className="page-layout-body px-standard-x py-standard-y">
+      <div className="px-standard-x py-standard-y page-layout-body">
         <Outlet />
         <CircularButton
           content="Login"
-          className="fixed bottom-5 right-5"
+          className="right-5 bottom-5 fixed"
           onClick={handleLoginModalShow}
           icon={<LoginIcon />}
         />
 
         {/* LOGIN MODAL */}
         <Modal show={loginModalShow} size="sm" onHide={handleLoginModalHide}>
-          <ModalHeader content={"Login to website"} icon={<CancelIcon />} />
-          <ModalBody>
-            <h1 className="text-mobile-h6 sm:text-h1 text-center italic mb-10">
+          <Modal.Header content={"Login to website"} icon={<CancelIcon />} />
+          <Modal.Body>
+            <h1 className="mb-10 text-mobile-h6 sm:text-h1 text-center italic">
               Get into the <strong>speedy world!</strong>
             </h1>
-            <div className="flex items-center justify-center h-full">
+            <div className="flex justify-center items-center h-full">
               <form className="w-full" onSubmit={handleLoginsSubmit}>
                 <div
-                  className="inf-input-container sm:grid grid-cols-[1fr_3fr] 
-							gap-y-5 items-center sm:mb-5 mb-3"
+                  className="items-center gap-y-5 sm:grid grid-cols-[1fr_3fr] mb-3 sm:mb-5 inf-input-container"
                 >
                   {/* Email */}
                   <label htmlFor="email">Email</label>
-                  <div className="sm:mb-0 mb-3">
+                  <div className="mb-3 sm:mb-0">
                     <Input
                       className={inputCommonClassname}
                       type="email"
@@ -246,7 +245,7 @@ const CommonLayout = () => {
                       value={loginData.password}
                     />
                     <div
-                      className="absolute top-0 right-0 -translate-x-2 translate-y-[5px] cursor-pointer active:scale-92 active:translate-y-[6px]"
+                      className="top-0 right-0 absolute active:scale-92 -translate-x-2 translate-y-[5px] active:translate-y-[6px] cursor-pointer"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -266,8 +265,7 @@ const CommonLayout = () => {
 
                 <div className="forget-pwd-container">
                   <h3
-                    className="text-h5 text-main-blue 
-									cursor-pointer hover:text-main-blue-hover inline-block sm:mb-0 mb-3"
+                    className="inline-block mb-3 sm:mb-0 text-h5 text-main-blue hover:text-main-blue-hover cursor-pointer"
                     onClick={() => {
                       handleForgetPasswordModalShow();
                       handleLoginModalHide();
@@ -286,7 +284,7 @@ const CommonLayout = () => {
                 </div>
               </form>
             </div>
-          </ModalBody>
+          </Modal.Body>
         </Modal>
 
         {/* FORGET PASSWORD MODAL */}
@@ -298,24 +296,24 @@ const CommonLayout = () => {
             handleLoginModalShow();
           }}
         >
-          <ModalHeader content={"Forget password"} icon={<CancelIcon />} />
-          <ModalBody>
-            <div className="modal-desc static">
-              <h1 className="text-mobile-h6 sm:text-h1 text-center mb-10">
+          <Modal.Header content={"Forget password"} icon={<CancelIcon />} />
+          <Modal.Body>
+            <div className="static modal-desc">
+              <h1 className="mb-10 text-mobile-h6 sm:text-h1 text-center">
                 Type your email to get a new password
               </h1>
             </div>
-            <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex flex-col justify-center items-center h-full">
               <form className="w-full" onSubmit={handleForgetPassword}>
                 {
                   // Show success message
                   successMessage && (
-                    <h6 className="text-h6 sm:text-h5 text-center text-green-600 font-bold mb-3">
+                    <h6 className="mb-3 font-bold text-green-600 text-h6 sm:text-h5 text-center">
                       {successMessage}
                     </h6>
                   )
                 }
-                <div className="inf-input-container grid grid-cols-[1fr_3fr] gap-y-5 items-center mb-5">
+                <div className="items-center gap-y-5 grid grid-cols-[1fr_3fr] mb-5 inf-input-container">
                   {/* Email */}
                   <label htmlFor="email">Email</label>
                   <div>
@@ -324,6 +322,7 @@ const CommonLayout = () => {
                       placeholder="Email"
                       autoComplete="email"
                       className={inputCommonClassname}
+                      value={emailForForgetPassword}
                       onChange={(e) =>
                         setEmailForForgetPassword(trimText(e.target.value))
                       }
@@ -348,7 +347,7 @@ const CommonLayout = () => {
                 </div>
               </form>
             </div>
-          </ModalBody>
+          </Modal.Body>
         </Modal>
       </div>
       <Footer />

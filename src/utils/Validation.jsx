@@ -28,7 +28,7 @@ export const ForgetPasswordValidation = (data) => {
   // Set Errors object to empty
   error = "";
 
-  if (data === "") {
+  if (data.trim() === "") {
     error = "Email is required";
   }
 
