@@ -9,7 +9,6 @@ import {
   SidebarIcon,
   TournamentIcon,
   UserIcon,
-  UserInformationIcon,
 } from "@/assets/icon-svg";
 import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
@@ -34,7 +33,7 @@ const PlayerCommonLayout = () => {
     },
     {
       item: "Profile",
-      icon: <UserInformationIcon color={navBarIconColor} width={iconWidth} />,
+      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
       link: "/my-profile",
     },
     {
@@ -70,6 +69,7 @@ const PlayerCommonLayout = () => {
         },
       ],
     },
+    ,
   ];
 
   useEffect(() => {

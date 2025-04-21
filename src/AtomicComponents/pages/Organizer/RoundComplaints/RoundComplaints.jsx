@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/AtomicComponents/atoms/Button/Button";
-import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import ComplaintCard from "@/AtomicComponents/molecules/ComplaintCard/ComplaintCard";
-import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
+import Input from "@/AtomicComponents/atoms/Input/Input";
+import Select from "@/AtomicComponents/atoms/Select/Select";
 import {
   Dialog,
   DialogContent,
@@ -11,14 +9,16 @@ import {
   DialogTitle,
 } from "@/AtomicComponents/atoms/shadcn/dialog";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import Input from "@/AtomicComponents/atoms/Input/Input";
-import { ComplaintReplyValidation } from "@/utils/Validation";
-import { apiClient } from "@/config/axios/axios";
+import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import ComplaintCard from "@/AtomicComponents/molecules/ComplaintCard/ComplaintCard";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
-import Select from "@/AtomicComponents/atoms/Select/Select";
-import { useNavigate } from "react-router-dom";
+import { apiClient } from "@/config/axios/axios";
+import { ComplaintReplyValidation } from "@/utils/Validation";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-// STATUS STYLES
+// STATUS CLASS CSS
 const statusClass = (status) => {
   const base = "font-semibold px-2 py-1 rounded text-sm";
   switch (status?.toUpperCase()) {
@@ -50,12 +50,15 @@ const complaintsStatusMap = {
 
 const isPending = (status) => status?.toString().toUpperCase() === "PENDING";
 
-const Complaints = () => {
+const RoundComplaints = () => {
+  const { roundId } = useParams();
+  const [round, setRound] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showByStatus, setShowByStatus] = useState("all");
+  const [error, setError] = useState(null);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
-  const [showByStatus, setShowByStatus] = useState("all");
   const [confirmModalShow, setConfirmModalShow] = useState(false);
   const [complaintReplyData, setComplaintReplyData] = useState({
     reply: "",
@@ -63,49 +66,23 @@ const Complaints = () => {
   });
   const [complaintErrors, setComplaintErrors] = useState({});
   const [confirmAction, setConfirmAction] = useState(null);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
-  // GET STATUS PARAMS
-  const getStatusParam = () => {
-    return complaintsStatusMap[showByStatus] || null;
-  };
-
-  // 📥 FETCH COMPLAINTS
-  const fetchComplaints = async () => {
-    const statusParam = getStatusParam();
-
+  const fetchData = async () => {
     try {
       setIsLoading(true);
-      const res = await apiClient.get("complaints/all", {
-        params: {
-          status: statusParam,
-          sortBy: "createdDate", // add this
-          sortDirection: "ASC", // and this
-        },
-      });
-
-      if (res.data.http_status === 200) {
-        setComplaints(res.data.data || []);
-      }
+      const [roundRes, complaintsRes] = await Promise.all([
+        apiClient.get(`rounds/${roundId}`),
+        apiClient.get(`complaints/round/${roundId}`),
+      ]);
+      setRound(roundRes.data.data);
+      setComplaints(complaintsRes.data.data);
     } catch (err) {
-      if (err.code === "ECONNABORTED") {
-        Toast({
-          title: "Timeout",
-          type: "error",
-          message:
-            "The server is taking too long to respond. Please try again.",
-        });
-      } else {
-        setError("Failed to load complaints");
-        Toast({
-          title: "Error",
-          type: "error",
-          message:
-            err.response?.data?.message ||
-            "Something went wrong. Please try again.",
-        });
-      }
+      Toast({
+        title: "Error",
+        type: "error",
+        message: err.response?.data?.message || "Failed to load data.",
+      });
+      setError("Failed to load complaints");
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +105,7 @@ const Complaints = () => {
       );
 
       if (res.data.http_status === 200) {
-        fetchComplaints();
+        fetchData();
         Toast({
           title: "Success",
           type: "success",
@@ -147,12 +124,6 @@ const Complaints = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // HANDLE NAVIGATE TO ROUND'S COMPLAINTS
-  const handleViewRoundComplaints = (roundId) => {
-    // Navigate to the round's complaints page
-    navigate(`/complaints/round/${roundId}`);
   };
 
   //#region MODAL CONTROLLERS
@@ -189,97 +160,62 @@ const Complaints = () => {
   };
   //#endregion
 
-  //#region USEFFECTS CONTROLLERS
+  //#region USEEFFECTS
   useEffect(() => {
-    fetchComplaints();
-    return () => {
-      setComplaints([]);
-      setError(null);
-    };
+    if (roundId) fetchData();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showByStatus]);
+  }, [roundId, showByStatus]);
   //#endregion
 
   return (
-    <>
+    <div className="p-4">
       {isLoading && <Spinner />}
 
-      {/* Errors Render */}
+      {/* Display Errors If Any Found */}
       {error && (
         <div className="bg-red-50 px-4 py-3 border border-red-200 rounded-md text-red-700">
           {error}
         </div>
       )}
 
-      {/* If Complaint List Is Empty */}
-      {complaints.length === 0 ? (
-        <div className="flex flex-col justify-center items-center h-screen">
-          <h1 className="font-bold text-gray-700 text-2xl">
-            No Complaints Found
-          </h1>
-          <p className="text-gray-500">There are no complaints to display.</p>
+      <div className="flex flex-col items-center">
+        {" "}
+        <h1 className="mb-6 font-bold text-gray-700 text-2xl text-center">
+          Complaints of - Round: {round?.round_name}
+        </h1>
+        <div className="flex items-center gap-4 mb-4">
+          <Label
+            htmlFor="showByStatus"
+            className="font-semibold text-gray-700 whitespace-nowrap"
+          >
+            Show By Status
+          </Label>
+          <Select
+            options={statusOptions}
+            value={showByStatus}
+            onChange={(e) => {
+              setShowByStatus(e.target.value);
+            }}
+            className="w-full sm:max-w-xs"
+          />
         </div>
+      </div>
+
+      {/* Complaint Card Render */}
+      {complaints.length === 0 ? (
+        <p className="font-medium text-red-500 text-center">
+          No complaints found.
+        </p>
       ) : (
-        <div className="flex flex-col items-center">
-          <h1 className="mb-6 font-bold text-gray-700 text-2xl">
-            Player Complaints
-          </h1>
-          <div className="flex items-center gap-4 mb-4">
-            <Label
-              htmlFor="showByStatus"
-              className="font-semibold text-gray-700 whitespace-nowrap"
-            >
-              Show By Status
-            </Label>
-            <Select
-              options={statusOptions}
-              value={showByStatus}
-              onChange={(e) => {
-                setShowByStatus(e.target.value);
-              }}
-              className="w-full sm:max-w-xs"
+        <div className="gap-x-20 gap-y-10 grid md:grid-cols-2 lg:grid-cols-3">
+          {complaints.map((complaint) => (
+            <ComplaintCard
+              key={complaint.id}
+              complaint={complaint}
+              onClick={() => handleOpenComplaintModal(complaint)}
             />
-          </div>
-
-          <div className="space-y-8 mt-6 px-4 w-full max-w-[2000px]">
-            {complaints.map((group) => (
-              <div key={group.round_id}>
-                <h2
-                  className="inline mb-1 font-semibold text-gray-800 text-xl hover:underline cursor-pointer"
-                  title="Click to view all complaints in this round"
-                  onClick={() => handleViewRoundComplaints(group?.round_id)}
-                >
-                  {group.round_name}
-                </h2>
-                <p className="mb-3 text-gray-500 text-sm italic">
-                  Click the round title to view all complaints
-                </p>
-
-                <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                  {group.complaints.slice(0, 3).map((complaint) => (
-                    <ComplaintCard
-                      key={complaint.id}
-                      complaint={complaint}
-                      onClick={() =>
-                        handleOpenComplaintModal({
-                          ...complaint,
-                          round_name: group.round_name,
-                          round_id: group.round_id,
-                        })
-                      }
-                    />
-                  ))}
-
-                  {group.complaints.length > 3 && (
-                    <div className="flex justify-center items-center text-gray-600 text-md italic">
-                      ...and {group.complaints.length - 3} more
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
       )}
 
@@ -294,7 +230,7 @@ const Complaints = () => {
           <div className="flex flex-col gap-4 text-gray-700 text-sm">
             {/* ID + Status */}
             <div className="flex justify-between items-center">
-              <h2 className="font-semibold text-xl">
+              <h2 className="font-semibold text-lg">
                 Complaint ID: {selectedComplaint?.id}
               </h2>
               <span
@@ -305,11 +241,6 @@ const Complaints = () => {
                 {selectedComplaint?.status}
               </span>
             </div>
-
-            {/* Round Name */}
-            <p>
-              <strong>Round:</strong> {selectedComplaint?.round_name || "N/A"}
-            </p>
 
             {/* Title */}
             <p>
@@ -337,13 +268,20 @@ const Complaints = () => {
               {selectedComplaint?.account_id || "N/A"}
             </p>
 
+            {/* Created */}
+            <p className="text-gray-500">
+              <strong>Created:</strong> {selectedComplaint?.created_date}
+            </p>
+
+            {/* Updated */}
+            <p className="text-gray-500">
+              <strong>Updated:</strong> {selectedComplaint?.last_modified_date}
+            </p>
+
             {/* Reply Input */}
-            <p>
-              <p>
-                <strong>Your reply: </strong>
-                {selectedComplaint?.reply || "N/A"}{" "}
-              </p>
-              {/* <Input
+            <div className="gap-2 grid w-full">
+              <Label htmlFor="complaint_reply">Your reply</Label>
+              <Input
                 id="complaint_reply"
                 value={complaintReplyData.reply}
                 placeholder="Enter your reply here..."
@@ -357,22 +295,12 @@ const Complaints = () => {
               />
               {complaintErrors?.reply && (
                 <p className="text-red-500 text-xs">{complaintErrors.reply}</p>
-              )} */}
-            </p>
-
-            {/* Created */}
-            <p className="text-gray-500">
-              <strong>Created:</strong> {selectedComplaint?.created_date}
-            </p>
-
-            {/* Updated */}
-            <p className="text-gray-500">
-              <strong>Updated:</strong> {selectedComplaint?.last_modified_date}
-            </p>
+              )}
+            </div>
           </div>
 
           {/* Buttons */}
-          {/* <Modal.Footer>
+          <Modal.Footer>
             <Button
               content="Reject"
               disabled={!isPending(selectedComplaint?.status)}
@@ -394,12 +322,12 @@ const Complaints = () => {
               }
               onClick={() => handleOpenConfirmModal("approve")}
             />
-          </Modal.Footer> */}
+          </Modal.Footer>
         </Modal.Body>
       </Modal>
 
       {/* Confirm Modal */}
-      {/* <Dialog open={confirmModalShow} onOpenChange={handleCloseConfirmModal}>
+      <Dialog open={confirmModalShow} onOpenChange={handleCloseConfirmModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Action</DialogTitle>
@@ -418,9 +346,9 @@ const Complaints = () => {
             />
           </DialogFooter>
         </DialogContent>
-      </Dialog> */}
-    </>
+      </Dialog>
+    </div>
   );
 };
 
-export default Complaints;
+export default RoundComplaints;
