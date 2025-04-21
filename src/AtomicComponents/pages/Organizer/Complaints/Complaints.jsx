@@ -178,7 +178,7 @@ const Complaints = () => {
           <h1 className="font-bold text-gray-700 text-2xl">
             Player Complaints
           </h1>
-          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-6 px-4 w-full max-w-7xl">
+          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-6 px-4 w-full max-w-[2000px]">
             {complaints.map((complaint) => (
               <ComplaintCard
                 key={complaint.id}

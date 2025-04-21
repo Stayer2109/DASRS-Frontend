@@ -48,7 +48,7 @@ const ComplaintCard = ({ complaint, onClick }) => {
             <span className="truncate">{complaint?.match_name || "N/A"}</span>
           </div>
           <div className="flex gap-1">
-            <span className="font-medium">Your reply:</span>
+            <span className="font-medium"><strong>Your reply:</strong></span>
             <span className="truncate">{complaint?.reply || "N/A"}</span>
           </div>
         </div>
