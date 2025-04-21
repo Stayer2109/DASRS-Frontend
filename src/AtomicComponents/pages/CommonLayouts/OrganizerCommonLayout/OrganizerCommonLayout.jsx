@@ -19,6 +19,7 @@ import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import { Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useMediaQuery } from "react-responsive";
+import { Users } from "lucide-react";
 
 const OrganizerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -44,7 +45,7 @@ const OrganizerCommonLayout = () => {
     },
     {
       item: "Player Management",
-      icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
+      icon: <Users color={navBarIconColor} width={iconWidth} />,
       subMenu: [
         {
           item: "Add Player",

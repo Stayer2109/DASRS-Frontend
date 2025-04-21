@@ -118,16 +118,15 @@ export default function Header() {
       }}
     >
       {/* Left Side: Logo + Title */}
-      <div className="logo-container sm:flex items-center gap-4">
+      <div className="sm:flex items-center gap-4 logo-container">
         {/* Alt text for accessibility */}
         <img
           src={Logo}
           alt="DASRS Logo"
-          className="h-13 sm:h-20 bg-lime-300 rounded-full p-2 sm:p-2"
+          className="bg-lime-300 p-2 sm:p-2 rounded-full h-13 sm:h-20"
         />
         <h3
-          className="hidden sm:block text-h6 sm:text-h5 bg-lime-300 text-black 
-          px-standard-x py-standard-y rounded-lg"
+          className="hidden sm:block bg-lime-300 px-standard-x py-standard-y rounded-lg text-black text-h6 sm:text-h5"
         >
           Driving Assistant Support Racing System
         </h3>
@@ -135,7 +134,7 @@ export default function Header() {
 
       {/* Right Side: Lumpy Nav + Circle Icon */}
       {!isShown && (
-        <nav className="flex items-center group relative">
+        <nav className="group relative flex items-center">
           {/* Sliding nav items */}
           <ul
             className={`${
@@ -156,14 +155,13 @@ export default function Header() {
           {/* Circle button with the icon (overlaps the last pill) */}
           <button
             type="button"
-            className="bg-gray-nav w-13 h-13 sm:w-16 sm:h-16 rounded-full flex items-center justify-center z-1 group cursor-pointer"
+            className="group z-1 flex justify-center items-center bg-gray-nav rounded-full w-13 sm:w-16 h-13 sm:h-16 cursor-pointer"
             onClick={() => {
               toggleSidebar();
             }}
           >
             <SidebarIcon
-              className="w-7 h-7 sm:w-6 sm:h-6 group-hover:rotate-360 group-hover:scale-150
-          transition ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)] duration-700"
+              className="w-7 sm:w-6 h-7 sm:h-6 group-hover:rotate-360 group-hover:scale-150 transition duration-700 ease-[cubic-bezier(0.68, 0.19, 0.45, 0.82)]"
               color="white"
             />
           </button>
@@ -188,14 +186,14 @@ export default function Header() {
           >
             {/* Close Button */}
             <button
-              className="absolute top-3 right-6 sm:top-4 sm:right-4 bg-gray-700 rounded-full hover:bg-gray-600 cursor-pointer z-3"
+              className="top-3 sm:top-4 right-6 sm:right-4 z-3 absolute bg-gray-700 hover:bg-gray-600 rounded-full cursor-pointer"
               onClick={() => toggleSidebar()}
             >
               <CancelIcon
                 height={54}
                 width={54}
                 color={"white"}
-                className="close-icon transitions duration-150 ease-linear hover:scale-120 p-3 sm:p-2"
+                className="p-3 sm:p-2 hover:scale-120 transitions duration-150 ease-linear close-icon"
               />
             </button>
 
@@ -205,7 +203,7 @@ export default function Header() {
                 <li key={index}>
                   <Link
                     to={item.url}
-                    className="sidebar-items block px-8 py-4 sm:px-standard-x sm:py-4 text-mobile-h6 sm:text-h3"
+                    className="block px-8 sm:px-standard-x py-4 sm:py-4 text-mobile-h6 sm:text-h3 sidebar-items"
                   >
                     {item.navLink}
                   </Link>
