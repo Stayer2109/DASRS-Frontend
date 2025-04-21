@@ -356,7 +356,6 @@ export const TournamentRounds = () => {
     }
   };
 
-
   //#region MODAL CONTROL
   // DATA MANIPULATION FOR ROUND MANAGEMENT MODAL WHEN OPENED
   /**
