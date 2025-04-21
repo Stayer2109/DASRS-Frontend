@@ -37,6 +37,7 @@ import { MyTournaments } from "./AtomicComponents/pages/Player/MyTournaments/MyT
 import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTournamentRounds/TeamTournamentRounds";
 import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
 import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints";
+import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/RoundComplaints";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -74,36 +75,36 @@ const AppRoutes = () => {
           </Route>
         );
 
-        // case "STAFF":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
-              <Route path="/" element={<StaffCommonLayout />}>
-                <Route index element={<StaffHomePage />} />
-                <Route path="my-profile" element={<h1>My Profile</h1>} />
-                <Route path="player-management">
-                  <Route path="player-list" element={<PlayerList />} />
+      // case "STAFF":
+      // return (
+      //   <Route element={<PersistLogin />}>
+      //     <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
+      //       <Route path="/" element={<StaffCommonLayout />}>
+      //         <Route index element={<StaffHomePage />} />
+      //         <Route path="my-profile" element={<h1>My Profile</h1>} />
+      //         <Route path="player-management">
+      //           <Route path="player-list" element={<PlayerList />} />
 
-                  <Route path="add-player" element={<AddPlayerByImport />} />
-                </Route>
-                {/* For Tournaments */}
-                <Route path="tournaments" element={<TournamentList />} />
-                <Route
-                  path="tournaments/:tournamentId/rounds"
-                  element={<TournamentRounds />}
-                />
-                <Route
-                  path="tournaments/:tournamentId/teams"
-                  element={<TournamentTeams />}
-                />{" "}
-                <Route
-                  path="tournaments/:tournamentId/rounds/:roundId/matches"
-                  element={<RoundMatches />}
-                />
-              </Route>
-            </Route>
-          </Route>
-        );
+      //           <Route path="add-player" element={<AddPlayerByImport />} />
+      //         </Route>
+      //         {/* For Tournaments */}
+      //         <Route path="tournaments" element={<TournamentList />} />
+      //         <Route
+      //           path="tournaments/:tournamentId/rounds"
+      //           element={<TournamentRounds />}
+      //         />
+      //         <Route
+      //           path="tournaments/:tournamentId/teams"
+      //           element={<TournamentTeams />}
+      //         />{" "}
+      //         <Route
+      //           path="tournaments/:tournamentId/rounds/:roundId/matches"
+      //           element={<RoundMatches />}
+      //         />
+      //       </Route>
+      //     </Route>
+      //   </Route>
+      // );
 
       case "ORGANIZER":
         return (
@@ -133,6 +134,10 @@ const AppRoutes = () => {
                   element={<TournamentTeams />}
                 />
                 <Route path="complaints" element={<Complaints />} />
+                <Route
+                  path="complaints/round/:roundId"
+                  element={<RoundComplaints />}
+                />
                 <Route path="leaderboard">
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
                 </Route>

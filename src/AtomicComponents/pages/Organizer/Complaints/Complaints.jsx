@@ -1,20 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import ComplaintCard from "@/AtomicComponents/molecules/ComplaintCard/ComplaintCard";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/AtomicComponents/atoms/shadcn/dialog";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import Input from "@/AtomicComponents/atoms/Input/Input";
-import { ComplaintReplyValidation } from "@/utils/Validation";
 import { apiClient } from "@/config/axios/axios";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import Select from "@/AtomicComponents/atoms/Select/Select";
+import { useNavigate } from "react-router-dom";
 
 // STATUS STYLES
 const statusClass = (status) => {
@@ -31,80 +23,79 @@ const statusClass = (status) => {
   }
 };
 
-const isPending = (status) => status?.toString().toUpperCase() === "PENDING";
+const statusOptions = [
+  { value: "all", label: "All" },
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+];
+
+// KEY MAPPING FOR TOURNAMENT STATUS
+const complaintsStatusMap = {
+  all: "",
+  pending: "PENDING",
+  approved: "APPROVED",
+  rejected: "REJECTED",
+};
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
-  const [confirmModalShow, setConfirmModalShow] = useState(false);
-  const [complaintReplyData, setComplaintReplyData] = useState({
-    reply: "",
-    status: "",
-  });
-  const [complaintErrors, setComplaintErrors] = useState({});
-  const [confirmAction, setConfirmAction] = useState(null);
+  const [showByStatus, setShowByStatus] = useState("all");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  // GET STATUS PARAMS
+  const getStatusParam = () => {
+    return complaintsStatusMap[showByStatus] || null;
+  };
 
   // 📥 FETCH COMPLAINTS
   const fetchComplaints = async () => {
+    const statusParam = getStatusParam();
+
     try {
       setIsLoading(true);
-      const res = await apiClient.get("complaints");
+      const res = await apiClient.get("complaints/all", {
+        params: {
+          status: statusParam,
+          sortBy: "createdDate", // add this
+          sortDirection: "ASC", // and this
+        },
+      });
+
       if (res.data.http_status === 200) {
         setComplaints(res.data.data || []);
       }
     } catch (err) {
-      setError("Failed to load complaints");
-      Toast({
-        title: "Error",
-        type: "error",
-        message:
-          err.response?.data?.message ||
-          "Something went wrong. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // ✅ REPLY VALIDATION
-  const validateReply = () => {
-    const errors = ComplaintReplyValidation(complaintReplyData);
-    setComplaintErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  // 📨 HANDLE STATUS CHANGE
-  const handleConfirmStatusChange = async () => {
-    try {
-      setIsLoading(true);
-      const res = await apiClient.put(
-        `complaints/reply/${selectedComplaint?.id}`,
-        complaintReplyData
-      );
-
-      if (res.data.http_status === 200) {
-        fetchComplaints();
+      if (err.code === "ECONNABORTED") {
         Toast({
-          title: "Success",
-          type: "success",
-          message: `Complaint ${confirmAction} successfully.`,
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
         });
-        handleCloseComplaintModal();
-        handleCloseConfirmModal();
+      } else {
+        setError("Failed to load complaints");
+        Toast({
+          title: "Error",
+          type: "error",
+          message:
+            err.response?.data?.message ||
+            "Something went wrong. Please try again.",
+        });
       }
-    } catch (err) {
-      Toast({
-        title: "Error",
-        type: "error",
-        message: err.response?.data?.message || "Failed to process complaint.",
-      });
-      handleCloseConfirmModal();
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // HANDLE NAVIGATE TO ROUND'S COMPLAINTS
+  const handleViewRoundComplaints = (roundId) => {
+    // Navigate to the round's complaints page
+    navigate(`/complaints/round/${roundId}`);
   };
 
   //#region MODAL CONTROLLERS
@@ -112,32 +103,11 @@ const Complaints = () => {
   const handleOpenComplaintModal = (complaint) => {
     setSelectedComplaint(complaint);
     setComplaintModalShow(true);
-    setComplaintReplyData({
-      reply: complaint?.reply || "",
-      status: complaint?.status || "",
-    });
   };
 
   const handleCloseComplaintModal = () => {
     setComplaintModalShow(false);
     setSelectedComplaint(null);
-    setComplaintReplyData({ reply: "", status: "" });
-    setComplaintErrors({});
-  };
-
-  const handleOpenConfirmModal = (action) => {
-    if (!validateReply()) return;
-    setConfirmAction(action);
-    setConfirmModalShow(true);
-    setComplaintReplyData((prev) => ({
-      ...prev,
-      status: action === "approve" ? "APPROVED" : "REJECTED",
-    }));
-  };
-
-  const handleCloseConfirmModal = () => {
-    setConfirmModalShow(false);
-    setConfirmAction(null);
   };
   //#endregion
 
@@ -148,13 +118,16 @@ const Complaints = () => {
       setComplaints([]);
       setError(null);
     };
-  }, []);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showByStatus]);
   //#endregion
 
   return (
     <>
       {isLoading && <Spinner />}
 
+      {/* Errors Render */}
       {error && (
         <div className="bg-red-50 px-4 py-3 border border-red-200 rounded-md text-red-700">
           {error}
@@ -171,22 +144,68 @@ const Complaints = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center">
-          <h1 className="font-bold text-gray-700 text-2xl">
+          <h1 className="mb-6 font-bold text-gray-700 text-2xl">
             Player Complaints
           </h1>
-          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-6 px-4 w-full max-w-[2000px]">
-            {complaints.map((complaint) => (
-              <ComplaintCard
-                key={complaint.id}
-                complaint={complaint}
-                onClick={() => handleOpenComplaintModal(complaint)}
-              />
+          <div className="flex items-center gap-4 mb-4">
+            <Label
+              htmlFor="showByStatus"
+              className="font-semibold text-gray-700 whitespace-nowrap"
+            >
+              Show By Status
+            </Label>
+            <Select
+              options={statusOptions}
+              value={showByStatus}
+              onChange={(e) => {
+                setShowByStatus(e.target.value);
+              }}
+              className="w-full sm:max-w-xs"
+            />
+          </div>
+
+          <div className="space-y-8 mt-6 px-4 w-full max-w-[2000px]">
+            {complaints.map((group) => (
+              <div key={group.round_id}>
+                <h2
+                  className="inline mb-1 font-semibold text-gray-800 text-xl hover:underline cursor-pointer"
+                  title="Click to view all complaints in this round"
+                  onClick={() => handleViewRoundComplaints(group?.round_id)}
+                >
+                  {group.round_name}
+                </h2>
+                <p className="mb-3 text-gray-500 text-sm italic">
+                  Click the round title to view all complaints
+                </p>
+
+                <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {group.complaints.slice(0, 3).map((complaint) => (
+                    <ComplaintCard
+                      key={complaint.id}
+                      complaint={complaint}
+                      onClick={() =>
+                        handleOpenComplaintModal({
+                          ...complaint,
+                          round_name: group.round_name,
+                          round_id: group.round_id,
+                        })
+                      }
+                    />
+                  ))}
+
+                  {group.complaints.length > 3 && (
+                    <div className="flex justify-center items-center text-gray-600 text-md italic">
+                      ...and {group.complaints.length - 3} more
+                    </div>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Modal */}
+      {/* Complaint Modal */}
       <Modal
         size="md"
         show={complaintModalShow}
@@ -197,7 +216,7 @@ const Complaints = () => {
           <div className="flex flex-col gap-4 text-gray-700 text-sm">
             {/* ID + Status */}
             <div className="flex justify-between items-center">
-              <h2 className="font-semibold">
+              <h2 className="font-semibold text-xl">
                 Complaint ID: {selectedComplaint?.id}
               </h2>
               <span
@@ -208,6 +227,11 @@ const Complaints = () => {
                 {selectedComplaint?.status}
               </span>
             </div>
+
+            {/* Round Name */}
+            <p>
+              <strong>Round:</strong> {selectedComplaint?.round_name || "N/A"}
+            </p>
 
             {/* Title */}
             <p>
@@ -229,6 +253,20 @@ const Complaints = () => {
               <strong>Match:</strong> {selectedComplaint?.match_name || "N/A"}
             </p>
 
+            {/* Account */}
+            <p>
+              <strong>Account ID:</strong>{" "}
+              {selectedComplaint?.account_id || "N/A"}
+            </p>
+
+            {/* Reply Input */}
+            <p>
+              <p>
+                <strong>Your reply: </strong>
+                {selectedComplaint?.reply || "N/A"}{" "}
+              </p>
+            </p>
+
             {/* Created */}
             <p className="text-gray-500">
               <strong>Created:</strong> {selectedComplaint?.created_date}
@@ -238,76 +276,9 @@ const Complaints = () => {
             <p className="text-gray-500">
               <strong>Updated:</strong> {selectedComplaint?.last_modified_date}
             </p>
-
-            {/* Reply */}
-            <div className="gap-2 grid w-full">
-              <Label htmlFor="complaint_reply">Your reply</Label>
-              <Input
-                id="complaint_reply"
-                value={complaintReplyData.reply}
-                placeholder="Enter your reply here..."
-                disabled={!isPending(selectedComplaint?.status)}
-                onChange={(e) =>
-                  setComplaintReplyData({
-                    ...complaintReplyData,
-                    reply: e.target.value,
-                  })
-                }
-              />
-              {complaintErrors?.reply && (
-                <p className="text-red-500 text-xs">{complaintErrors.reply}</p>
-              )}
-            </div>
           </div>
-
-          {/* Buttons */}
-          <Modal.Footer>
-            <Button
-              content="Reject"
-              disabled={!isPending(selectedComplaint?.status)}
-              tooltipData={
-                !isPending(selectedComplaint?.status)
-                  ? "You cannot reject this complaint"
-                  : ""
-              }
-              onClick={() => handleOpenConfirmModal("reject")}
-            />
-            <Button
-              content="Approve"
-              bgColor="#FFF"
-              disabled={!isPending(selectedComplaint?.status)}
-              tooltipData={
-                !isPending(selectedComplaint?.status)
-                  ? "You cannot approve this complaint"
-                  : ""
-              }
-              onClick={() => handleOpenConfirmModal("approve")}
-            />
-          </Modal.Footer>
         </Modal.Body>
       </Modal>
-
-      {/* Confirm Modal */}
-      <Dialog open={confirmModalShow} onOpenChange={handleCloseConfirmModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Action</DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground text-sm">
-            Are you sure you want to{" "}
-            <strong className="text-black">{confirmAction}</strong> this
-            complaint?
-          </p>
-          <DialogFooter>
-            <Button content="No" onClick={handleCloseConfirmModal} />
-            <Button
-              content="Yes"
-              onClick={handleConfirmStatusChange}
-              bgColor="#FFF"
-            />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
