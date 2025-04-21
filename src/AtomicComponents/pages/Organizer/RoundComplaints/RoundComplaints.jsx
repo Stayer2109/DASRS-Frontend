@@ -203,32 +203,29 @@ const RoundComplaints = () => {
   //#endregion
 
   //#region USEEFFECTS
-  useEffect(() => {
-    if (roundId) fetchComplaintsData();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundId, showByStatus]);
-
-  // Fetch complaints when pageIndex or pageSize changes
-  useEffect(() => {
-    if (roundId) {
-      fetchComplaintsData();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageIndex, pageSize]);
-
+  // FETCH ROUND DATA ON MOUNT
   useEffect(() => {
     if (roundId) {
       fetchRoundData();
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [roundId]);
 
+  // REFRESH PAGE INDEX ON STATUS CHANGE
   useEffect(() => {
-    setPageIndex(1); // reset to page 1 when status changes
+    if (roundId) {
+      setPageIndex(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showByStatus]);
+
+  //  FETCH COMPLAINTS DATA WHEN EVER ROUND ID, STATUS, PAGE INDEX OR PAGE SIZE CHANGES
+  useEffect(() => {
+    if (roundId) {
+      fetchComplaintsData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundId, showByStatus, pageIndex, pageSize]);
   //#endregion
 
   return (
