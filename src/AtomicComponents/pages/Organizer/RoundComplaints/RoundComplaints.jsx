@@ -75,7 +75,7 @@ const RoundComplaints = () => {
         apiClient.get(`complaints/round/${roundId}`),
       ]);
       setRound(roundRes.data.data);
-      setComplaints(complaintsRes.data.data);
+      setComplaints(complaintsRes.data.data.content);
     } catch (err) {
       Toast({
         title: "Error",
