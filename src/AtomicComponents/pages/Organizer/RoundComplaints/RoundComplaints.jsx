@@ -11,6 +11,7 @@ import {
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import ComplaintCard from "@/AtomicComponents/molecules/ComplaintCard/ComplaintCard";
+import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
@@ -49,6 +50,7 @@ const complaintsStatusMap = {
 };
 
 const isPending = (status) => status?.toString().toUpperCase() === "PENDING";
+const displayedValues = [6, 9, 12, 15];
 
 const RoundComplaints = () => {
   const { roundId } = useParams();
@@ -57,6 +59,9 @@ const RoundComplaints = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showByStatus, setShowByStatus] = useState("all");
   const [error, setError] = useState(null);
+  const [pageSize, setPageSize] = useState(displayedValues[0]);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
   const [confirmModalShow, setConfirmModalShow] = useState(false);
@@ -67,28 +72,54 @@ const RoundComplaints = () => {
   const [complaintErrors, setComplaintErrors] = useState({});
   const [confirmAction, setConfirmAction] = useState(null);
 
-  const fetchData = async () => {
+  // GET STATUS PARAMS
+  const getStatusParam = () => {
+    return complaintsStatusMap[showByStatus] || null;
+  };
+
+  // FETCH ROUND DATA
+  const fetchRoundData = async () => {
     try {
       setIsLoading(true);
-      const [roundRes, complaintsRes] = await Promise.all([
-        apiClient.get(`rounds/${roundId}`),
-        apiClient.get(`complaints/round/${roundId}`),
-      ]);
-      setRound(roundRes.data.data);
-      setComplaints(complaintsRes.data.data);
+      const res = await apiClient.get(`rounds/${roundId}`);
+      setRound(res.data.data);
     } catch (err) {
       Toast({
         title: "Error",
         type: "error",
         message: err.response?.data?.message || "Failed to load data.",
       });
-      setError("Failed to load complaints");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ✅ REPLY VALIDATION
+  // FETCH COMPLAINTS DATA
+  const fetchComplaintsData = async () => {
+    const statusParam = getStatusParam();
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      const res = await apiClient.get(`complaints/round/${roundId}`, {
+        params: {
+          pageNo: pageIndex - 1,
+          pageSize,
+          sortBy: "status",
+          sortDirection: "desc",
+          status: statusParam,
+        },
+      });
+      setComplaints(res.data.data.content);
+      setTotalPages(res.data.data.total_pages || 1);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load complaints.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // REPLY VALIDATION
   const validateReply = () => {
     const errors = ComplaintReplyValidation(complaintReplyData);
     setComplaintErrors(errors);
@@ -105,7 +136,7 @@ const RoundComplaints = () => {
       );
 
       if (res.data.http_status === 200) {
-        fetchData();
+        fetchComplaintsData();
         Toast({
           title: "Success",
           type: "success",
@@ -125,6 +156,17 @@ const RoundComplaints = () => {
       setIsLoading(false);
     }
   };
+
+  //#region PAGINATION
+  const handlePagination = (_pageSize, newPageIndex) => {
+    setPageIndex(newPageIndex);
+  };
+
+  const handleChangePageSize = (newSize) => {
+    setPageSize(newSize);
+    setPageIndex(1);
+  };
+  //#endregion
 
   //#region MODAL CONTROLLERS
   // COMPLAINT MODAL
@@ -161,11 +203,29 @@ const RoundComplaints = () => {
   //#endregion
 
   //#region USEEFFECTS
+  // FETCH ROUND DATA ON MOUNT
   useEffect(() => {
-    if (roundId) fetchData();
-
+    if (roundId) {
+      fetchRoundData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundId, showByStatus]);
+  }, [roundId]);
+
+  // REFRESH PAGE INDEX ON STATUS CHANGE
+  useEffect(() => {
+    if (roundId) {
+      setPageIndex(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showByStatus]);
+
+  //  FETCH COMPLAINTS DATA WHEN EVER ROUND ID, STATUS, PAGE INDEX OR PAGE SIZE CHANGES
+  useEffect(() => {
+    if (roundId) {
+      fetchComplaintsData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundId, showByStatus, pageIndex, pageSize]);
   //#endregion
 
   return (
@@ -174,11 +234,12 @@ const RoundComplaints = () => {
 
       {/* Display Errors If Any Found */}
       {error && (
-        <div className="bg-red-50 px-4 py-3 border border-red-200 rounded-md text-red-700">
+        <div className="bg-red-50 mb-10 px-4 py-3 border border-red-200 rounded-md text-red">
           {error}
         </div>
       )}
 
+      {/* SHOW BY STATUS */}
       <div className="flex flex-col items-center">
         {" "}
         <h1 className="mb-6 font-bold text-gray-700 text-2xl text-center">
@@ -347,6 +408,19 @@ const RoundComplaints = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Pagination */}
+      <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
+        <DasrsPagination
+          pageSize={pageSize}
+          pageIndex={pageIndex}
+          page={pageIndex}
+          count={totalPages}
+          handlePagination={handlePagination}
+          handleChangePageSize={handleChangePageSize}
+          displayedValues={displayedValues}
+        />
+      </div>
     </div>
   );
 };

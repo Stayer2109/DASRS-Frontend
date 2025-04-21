@@ -143,7 +143,7 @@ export const RoundMatches = () => {
       }));
     } catch (error) {
       console.error("Error fetching score details:", error);
-      toast.error("Failed to load score details");
+      toast.error(error.response.data.message);
     } finally {
       setLoadingScores((prev) => ({
         ...prev,
@@ -235,7 +235,9 @@ export const RoundMatches = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     {(() => {
-                      const teamList = Array.isArray(match?.teams) ? match?.teams : [];
+                      const teamList = Array.isArray(match?.teams)
+                        ? match?.teams
+                        : [];
                       if (teamList.length === 0) {
                         return (
                           <div className="text-gray-500 text-sm text-center italic">
@@ -245,7 +247,9 @@ export const RoundMatches = () => {
                       }
 
                       const uniqueTeams = Array.from(
-                        new Map(teamList.map((team) => [team?.team_id, team])).values()
+                        new Map(
+                          teamList.map((team) => [team?.team_id, team])
+                        ).values()
                       );
 
                       return uniqueTeams.length <= 2 ? (
@@ -330,8 +334,8 @@ export const RoundMatches = () => {
                                     <LoadingIndicator size="small" />
                                   </div>
                                 ) : scoreDetails[
-                                  `${match.match_id}-${team?.team_id}`
-                                ] ? (
+                                    `${match.match_id}-${team?.team_id}`
+                                  ] ? (
                                   <div className="space-y-4 p-2">
                                     {scoreDetails[
                                       `${match?.match_id}-${team?.team_id}`

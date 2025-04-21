@@ -19,6 +19,7 @@ export const RoundStatusBadge = ({ status }) => {
     COMPLETED: { className: "bg-green-100 text-green-800", label: "Completed" },
     PENDING: { className: "bg-yellow-100 text-yellow-800", label: "Pending" },
     TERMINATED: { className: "bg-red-100 text-red-800", label: "Terminated" },
+    ACTIVE: { className: "bg-blue-100 text-blue-800", label: "Active" },
   };
 
   const { className, label } = statusMap[status] || {
@@ -65,7 +66,9 @@ export const RoundCard = ({ round, onViewMatches, onViewLeaderboard }) => {
               <Calendar className="h-4 w-4 mr-2 text-gray-500" />
               <span className="text-muted-foreground">End:</span>
             </div>
-            <span className="text-right">{formatDateString(round.end_date)}</span>
+            <span className="text-right">
+              {formatDateString(round.end_date)}
+            </span>
 
             <div className="flex items-center">
               <Map className="h-4 w-4 mr-2 text-gray-500" />
