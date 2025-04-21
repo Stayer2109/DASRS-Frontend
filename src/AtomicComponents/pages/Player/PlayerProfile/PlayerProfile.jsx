@@ -15,11 +15,7 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/card";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@/AtomicComponents/organisms/Modal/Modal";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
 import useAuth from "@/hooks/useAuth";
 import { ConvertDate } from "@/utils/DateConvert";
@@ -216,8 +212,8 @@ const PlayerProfile = () => {
           onHide={updateProfileModalClose}
           size="sm"
         >
-          <ModalHeader content={"Update Profile"} />
-          <ModalBody>
+          <Modal.Header content={"Update Profile"} />
+          <Modal.Body>
             <form
               onSubmit={handleUpdateProfileDataSubmit}
               className="space-y-6"
@@ -398,7 +394,7 @@ const PlayerProfile = () => {
                 />
               </div>
             </form>
-          </ModalBody>
+          </Modal.Body>
         </Modal>
       </div>
     </>
