@@ -43,7 +43,7 @@ const Complaints = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
-  const [showByStatus, setShowByStatus] = useState("all")
+  const [showByStatus, setShowByStatus] = useState("all");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
