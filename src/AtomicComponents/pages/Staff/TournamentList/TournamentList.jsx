@@ -175,9 +175,9 @@ export const TournamentList = () => {
       const apiCall =
         formMode === "edit"
           ? apiClient.put(
-            `/tournaments/${selectedTournament.tournament_id}`,
-            normalizedData
-          )
+              `/tournaments/${selectedTournament.tournament_id}`,
+              normalizedData
+            )
           : apiClient.post("/tournaments", normalizedData);
 
       const response = await apiCall;
@@ -532,7 +532,6 @@ export const TournamentList = () => {
         <div className="flex flex-wrap justify-between gap-2 mb-4">
           <Select
             options={statusOptions}
-            placeHolder={"Select status"}
             value={showByStatus}
             onChange={(e) => {
               setShowByStatus(e.target.value);
@@ -638,7 +637,7 @@ export const TournamentList = () => {
                               preventEdit={
                                 row.is_started ||
                                 row.status.toString().toLowerCase() ===
-                                "terminated"
+                                  "terminated"
                               }
                               onExtend={() =>
                                 handleOpenTournamentExtendedEndDateModal(row)
@@ -925,11 +924,12 @@ export const TournamentList = () => {
                   value={FormatDateInput(tournamentExtendedEndDate) || ""}
                   min={
                     FormatToISODate(selectedTournament?.end_date) <
-                      FormatToISODate(new Date())
+                    FormatToISODate(new Date())
                       ? FormatDateInput(new Date(Date.now() + 86400000))
                       : FormatDateInput(
-                        new Date(selectedTournament?.end_date).getTime() + 86400000
-                      )
+                          new Date(selectedTournament?.end_date).getTime() +
+                            86400000
+                        )
                   }
                   onChange={(e) => {
                     setTournamentExtendedEndDate(e.target.value);

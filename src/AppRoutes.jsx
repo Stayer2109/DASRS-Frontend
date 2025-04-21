@@ -1,42 +1,46 @@
 /** @format */
 
 // import React from "react";
+
+import "react-tooltip/dist/react-tooltip.css";
+
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+
+import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
-import HomePage from "./AtomicComponents/pages/Home/Homepage";
-import useAuth from "./hooks/useAuth";
-import PersistLogin from "./config/provider/PersistLogin";
-import RequireAuth from "./config/provider/RequireAuth";
-import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPassword";
-import ScrollToTop from "./others/ScrollToTop";
 import CommonLayout from "./AtomicComponents/pages/CommonLayouts/GuestCommonLayout/CommonLayout";
+import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints";
+import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPassword";
+import HomePage from "./AtomicComponents/pages/Home/Homepage";
+import { MyTeam } from "./AtomicComponents/pages/Player/MyTeam/MyTeam";
+import { MyTournaments } from "./AtomicComponents/pages/Player/MyTournaments/MyTournaments";
+import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
+import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
+import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
+import PersistLogin from "./config/provider/PersistLogin";
+import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
+import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
+import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
+import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
+import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
+import { PlayerTeams } from "./AtomicComponents/pages/Player/PlayerTeams/PlayerTeams";
+import RequireAuth from "./config/provider/RequireAuth";
+import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
+import ScrollToTop from "./others/ScrollToTop";
+import { Settings } from "./AtomicComponents/organisms/Settings/Settings";
 import StaffCommonLayout from "./AtomicComponents/pages/CommonLayouts/StaffCommonLayout/StaffCommonLayout";
 import StaffHomePage from "./AtomicComponents/pages/Staff/HomePage/StaffHomePage";
-import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
-import "react-tooltip/dist/react-tooltip.css";
+import { TeamDetails } from "./AtomicComponents/pages/Player/TeamDetails/TeamDetails";
+import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTournamentRounds/TeamTournamentRounds";
+import { Toaster } from "react-hot-toast";
+import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
+import { TournamentRegistration } from "./AtomicComponents/pages/Player/TournamentRegistration/TournamentRegistration";
 import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
 import { TournamentTeams } from "./AtomicComponents/molecules/TournamentTeams/TournamentTeams";
-import PlayerList from "./AtomicComponents/pages/Staff/PlayerList/PlayerList";
-import { RoundMatches } from "./AtomicComponents/molecules/RoundMatches/RoundMatches";
-import { TournamentList } from "./AtomicComponents/pages/Staff/TournamentList/TournamentList";
-import PlayerCommonLayout from "./AtomicComponents/pages/CommonLayouts/PlayerCommonLayout/PlayerCommonLayout";
-import PlayerRounds from "./AtomicComponents/pages/Player/PlayerRounds/PlayerRounds";
-import PlayerMatches from "./AtomicComponents/pages/Player/PlayerMatches/PlayerMatches";
 import _AssignPlayer from "./AtomicComponents/pages/Player/AssignPlayer/AssignPlayer";
-import PlayerProfile from "./AtomicComponents/pages/Player/PlayerProfile/PlayerProfile";
-import OrganizerCommonLayout from "./AtomicComponents/pages/CommonLayouts/OrganizerCommonLayout/OrganizerCommonLayout";
-import { Overview } from "./AtomicComponents/organisms/Overview/Overview";
-import { Settings } from "./AtomicComponents/organisms/Settings/Settings";
-import { PlayerTeams } from "./AtomicComponents/pages/Player/PlayerTeams/PlayerTeams";
-import { TeamDetails } from "./AtomicComponents/pages/Player/TeamDetails/TeamDetails";
-import { MyTeam } from "./AtomicComponents/pages/Player/MyTeam/MyTeam";
-import { TournamentRegistration } from "./AtomicComponents/pages/Player/TournamentRegistration/TournamentRegistration";
-import { MyTournaments } from "./AtomicComponents/pages/Player/MyTournaments/MyTournaments";
-import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTournamentRounds/TeamTournamentRounds";
-import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
-import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints";
+import useAuth from "./hooks/useAuth";
+import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/RoundComplaints";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -74,36 +78,36 @@ const AppRoutes = () => {
           </Route>
         );
 
-        // case "STAFF":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
-              <Route path="/" element={<StaffCommonLayout />}>
-                <Route index element={<StaffHomePage />} />
-                <Route path="my-profile" element={<h1>My Profile</h1>} />
-                <Route path="player-management">
-                  <Route path="player-list" element={<PlayerList />} />
+      // case "STAFF":
+      // return (
+      //   <Route element={<PersistLogin />}>
+      //     <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
+      //       <Route path="/" element={<StaffCommonLayout />}>
+      //         <Route index element={<StaffHomePage />} />
+      //         <Route path="my-profile" element={<h1>My Profile</h1>} />
+      //         <Route path="player-management">
+      //           <Route path="player-list" element={<PlayerList />} />
 
-                  <Route path="add-player" element={<AddPlayerByImport />} />
-                </Route>
-                {/* For Tournaments */}
-                <Route path="tournaments" element={<TournamentList />} />
-                <Route
-                  path="tournaments/:tournamentId/rounds"
-                  element={<TournamentRounds />}
-                />
-                <Route
-                  path="tournaments/:tournamentId/teams"
-                  element={<TournamentTeams />}
-                />{" "}
-                <Route
-                  path="tournaments/:tournamentId/rounds/:roundId/matches"
-                  element={<RoundMatches />}
-                />
-              </Route>
-            </Route>
-          </Route>
-        );
+      //           <Route path="add-player" element={<AddPlayerByImport />} />
+      //         </Route>
+      //         {/* For Tournaments */}
+      //         <Route path="tournaments" element={<TournamentList />} />
+      //         <Route
+      //           path="tournaments/:tournamentId/rounds"
+      //           element={<TournamentRounds />}
+      //         />
+      //         <Route
+      //           path="tournaments/:tournamentId/teams"
+      //           element={<TournamentTeams />}
+      //         />{" "}
+      //         <Route
+      //           path="tournaments/:tournamentId/rounds/:roundId/matches"
+      //           element={<RoundMatches />}
+      //         />
+      //       </Route>
+      //     </Route>
+      //   </Route>
+      // );
 
       case "ORGANIZER":
         return (
@@ -133,6 +137,10 @@ const AppRoutes = () => {
                   element={<TournamentTeams />}
                 />
                 <Route path="complaints" element={<Complaints />} />
+                <Route
+                  path="complaints/round/:roundId"
+                  element={<RoundComplaints />}
+                />
                 <Route path="leaderboard">
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
                 </Route>
