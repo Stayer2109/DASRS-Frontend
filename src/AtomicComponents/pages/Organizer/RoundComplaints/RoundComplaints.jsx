@@ -89,6 +89,7 @@ const RoundComplaints = () => {
         type: "error",
         message: err.response?.data?.message || "Failed to load data.",
       });
+      setError("Failed to load complaints");
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +120,6 @@ const RoundComplaints = () => {
     }
   };
 
-  // REPLY VALIDATION
   const validateReply = () => {
     const errors = ComplaintReplyValidation(complaintReplyData);
     setComplaintErrors(errors);
@@ -226,6 +226,12 @@ const RoundComplaints = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundId, showByStatus, pageIndex, pageSize]);
+
+  useEffect(() => {
+    if (roundId) fetchData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundId, showByStatus]);
   //#endregion
 
   return (

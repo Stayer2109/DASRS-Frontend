@@ -13,6 +13,7 @@ import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { Plus, Users, Shield, AlertTriangle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 
 export const TournamentTeams = () => {
   const { tournamentId } = useParams();
@@ -21,6 +22,8 @@ export const TournamentTeams = () => {
   const [teams, setTeams] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,6 +79,11 @@ export const TournamentTeams = () => {
     navigate("/tournaments");
   };
 
+  const handleViewPlayers = (team) => {
+    setSelectedTeam(team);
+    setShowMembersModal(true);
+  };
+
   // Status badge renderer
   const renderStatusBadge = (status) => {
     const statusConfig = {
@@ -108,6 +116,31 @@ export const TournamentTeams = () => {
     );
   };
 
+  const renderMembersList = () => {
+    if (!selectedTeam) return null;
+
+    return (
+      <div className="space-y-3">
+        {selectedTeam.team_members.map((member) => (
+          <div
+            key={member.account_id}
+            className="bg-gray-50 p-3 rounded-lg space-y-1"
+          >
+            <div className="font-medium">
+              {member.first_name} {member.last_name}
+            </div>
+            <div className="text-sm text-gray-500 flex flex-col gap-1">
+              <div>Email: {member.email}</div>
+              <div>Phone: {member.phone}</div>
+              <div>Gender: {member.gender || "Not specified"}</div>
+              <div>DOB: {new Date(member.dob).toLocaleDateString()}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -117,93 +150,112 @@ export const TournamentTeams = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb items={breadcrumbItems} />
+    <>
+      <div className="space-y-6">
+        <Breadcrumb items={breadcrumbItems} />
 
-      <div className="flex justify-between items-center gap-5">
-        <h2 className="text-2xl font-bold">
-          {tournament?.tournament_name} - Teams
-        </h2>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            onClick={handleBackToTournament}
-            className="cursor-pointer"
-          >
-            Back to Tournaments
-          </Button>
-          {auth?.role === "ORGANIZER" && (
-            <Button onClick={handleAddTeam} className="cursor-pointer">
-              <Plus className="h-4 w-4 mr-2" /> Add Team
+        <div className="flex justify-between items-center gap-5">
+          <h2 className="text-2xl font-bold">
+            {tournament?.tournament_name} - Teams
+          </h2>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              onClick={handleBackToTournament}
+              className="cursor-pointer"
+            >
+              Back to Tournaments
             </Button>
-          )}
+          </div>
         </div>
+
+        {error ? (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            {error}
+          </div>
+        ) : teams.length === 0 ? (
+          <div className="text-center py-8 bg-gray-50 rounded-md">
+            <p className="text-muted-foreground mb-4">
+              No teams have been added to this tournament yet.
+            </p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {teams.map((team) => (
+              <Card
+                key={team.id}
+                className="overflow-hidden hover:shadow-md transition-shadow"
+              >
+                <CardHeader className="bg-gray-50 p-4 pb-3">
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-bold">
+                      {team.team_name}
+                    </CardTitle>
+                    <div>
+                      {renderStatusBadge(team.status)}
+                      {renderDisqualifiedBadge(team.disqualified)}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-3">
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Team Counts</span>
+                      <span className="font-medium px-2 py-1 ">
+                        {team.team_members.length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Team Tag</span>
+                      <span className="font-medium bg-gray-100 px-2 py-1 rounded">
+                        {team.team_tag}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full cursor-pointer"
+                        onClick={() => handleViewPlayers(team)}
+                      >
+                        <Users className="h-4 w-4 mr-2" /> View Players
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-2 cursor-pointer"
+                      >
+                        <Shield className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
-      {error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-          {error}
-        </div>
-      ) : teams.length === 0 ? (
-        <div className="text-center py-8 bg-gray-50 rounded-md">
-          <p className="text-muted-foreground mb-4">
-            No teams have been added to this tournament yet.
-          </p>
-          {auth?.role === "ORGANIZER" && (
-            <Button variant="outline" onClick={handleAddTeam}>
-              <Plus className="h-4 w-4 mr-2" /> Add First Team
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {teams.map((team) => (
-            <Card
-              key={team.id}
-              className="overflow-hidden hover:shadow-md transition-shadow"
-            >
-              <CardHeader className="bg-gray-50 p-4 pb-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg font-bold">
-                    {team.name}
-                  </CardTitle>
-                  <div>
-                    {renderStatusBadge(team.status)}
-                    {renderDisqualifiedBadge(team.disqualified)}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 pt-3">
-                <div className="flex flex-col space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Team Tag</span>
-                    <span className="font-medium bg-gray-100 px-2 py-1 rounded">
-                      {team.tag}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full cursor-pointer"
-                    >
-                      <Users className="h-4 w-4 mr-2" /> View Players
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="ml-2 cursor-pointer"
-                    >
-                      <Shield className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+      {/* Members Modal */}
+      <Modal
+        show={showMembersModal}
+        onHide={() => setShowMembersModal(false)}
+        size="md"
+      >
+        <Modal.Header
+          content={`${selectedTeam?.team_name || "Team"} Members (${
+            selectedTeam?.team_members?.length || 0
+          })`}
+          className="pb-4 border-b"
+        />
+        <Modal.Body className="py-4">{renderMembersList()}</Modal.Body>
+        <Modal.Footer className="border-t pt-4">
+          <Button variant="outline" onClick={() => setShowMembersModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 };
