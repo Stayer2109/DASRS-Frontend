@@ -10,6 +10,7 @@ export const Button = ({
   form,
   toolTipPos = "top",
   borderColor = "#000",
+  tooltipId = "my-tooltip",
   disabled = false,
   onClick = () => {},
   bgColor = "#4683FF", // Default color is blue
@@ -79,7 +80,7 @@ export const Button = ({
   return (
     <>
       <button
-        data-tooltip-id="my-tooltip"
+        data-tooltip-id={tooltipId}
         data-tooltip-content={tooltipData}
         data-tooltip-place={toolTipPos}
         className={`${className} px-standard-x py-standard-y rounded-[2px]`}
@@ -99,7 +100,7 @@ export const Button = ({
       >
         {content}
       </button>
-      <Tooltip id="my-tooltip" style={{ borderRadius: "8px" }} />
+      <Tooltip id={tooltipId} style={{ borderRadius: "8px", zIndex: 999 }} />
     </>
   );
 };

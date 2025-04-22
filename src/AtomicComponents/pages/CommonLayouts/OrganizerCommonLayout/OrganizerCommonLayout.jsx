@@ -129,7 +129,7 @@ const OrganizerCommonLayout = () => {
       {/* Main content */}
       <div
         className={`flex-1 transition-all duration-300 p-10 max-h-screen flex flex-col overflow-auto ${
-          isMobile ? "z-0" : "z-auto"
+          isMobile ? "z-0" : "z-50"
         }`}
       >
         <Outlet />
