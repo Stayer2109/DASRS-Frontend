@@ -26,7 +26,7 @@ const Select = ({ placeHolder, value, onChange, options, className }) => {
         value={value}
         onChange={onChange}
       >
-        <option value="" disabled hidden>
+        <option value="" disabled>
           {placeHolder}
         </option>
         {(options || []).map((option, index) => (

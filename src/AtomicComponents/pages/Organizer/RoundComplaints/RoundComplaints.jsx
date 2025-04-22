@@ -16,8 +16,11 @@ import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
 import { ComplaintReplyValidation } from "@/utils/Validation";
+import { PlusIcon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Tooltip } from "recharts";
 
 // STATUS CLASS CSS
 const statusClass = (status) => {
@@ -64,7 +67,7 @@ const RoundComplaints = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectOptions, setSelectOptions] = useState([]);
   const [allComplaints, setAllComplaints] = useState([]);
-  const [rematchData, setRematchData] = useState([{ match: "", note: "" }]);
+  const [rematchData, setRematchData] = useState([null]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
   const [rematchModalShow, setRematchModalShow] = useState(false);
@@ -187,7 +190,7 @@ const RoundComplaints = () => {
             "The server is taking too long to respond. Please try again.",
         });
       } else {
-        setError("Failed to load rounds. Please try again.");
+        setError("Failed to load complaints. Please try again.");
         Toast({
           title: "Error",
           type: "error",
@@ -197,18 +200,59 @@ const RoundComplaints = () => {
     }
   };
 
-  // HANDLE ADD REMATCH ITEM DATA
-  const handleAddRematchItem = () => {
-    setRematchData((prev) => [...prev, { match: "", note: "" }]);
-  };
-
   // GET AVAILABLE MATCHTEAMID FOR REMATCH
   const fetchAvailableMatchTeamId = async () => {
     try {
       setIsLoading(true);
-      const res = await apiClient.get(`complaints/status/APPROVED`);
+      const res = await apiClient.get(
+        `complaints/round/${roundId}/status/APPROVED`
+      );
 
-      console.log(res.data.data);
+      const resSelectOptions = res.data.data
+        .map((item) => ({
+          value: item.match_team_id,
+          label: item.team_name,
+        }))
+        .filter(
+          (option, index, self) =>
+            index === self.findIndex((o) => o.value === option.value)
+        );
+      setSelectOptions(resSelectOptions);
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // HANDLE REMATCH FORM SUBMIT
+  const handleSubmitRematchForm = async (e) => {
+    e.preventDefault();
+
+    const validMatchIds = rematchData.filter((id) => id && id !== "");
+
+    const params = new URLSearchParams();
+    validMatchIds.forEach((id) => {
+      params.append("matchTeamId", id);
+    });
+
+    try {
+      setIsLoading(true);
+      const res = await apiClient.post(`/matches/rematch?${params.toString()}`);
+      console.log(res);
       
     } catch (err) {
       if (err.code === "ECONNABORTED") {
@@ -219,7 +263,6 @@ const RoundComplaints = () => {
             "The server is taking too long to respond. Please try again.",
         });
       } else {
-        setError("Failed to load rounds. Please try again.");
         Toast({
           title: "Error",
           type: "error",
@@ -345,6 +388,7 @@ const RoundComplaints = () => {
           <Select
             options={statusOptions}
             value={showByStatus}
+            placeHolder={"Select status"}
             onChange={(e) => {
               setShowByStatus(e.target.value);
             }}
@@ -516,31 +560,99 @@ const RoundComplaints = () => {
       <Modal size="sm" show={rematchModalShow} onHide={handleCloseRematchModal}>
         <Modal.Header content="Create Rematch" />
         <Modal.Body>
-          <form id="rematchForm">
+          <form id="rematchForm" onSubmit={handleSubmitRematchForm}>
             <div className="flex flex-col gap-4 text-gray-700 text-sm">
-              {rematchData.map((item, index) => (
+              {rematchData.map((matchTeamId, index) => (
                 <div key={index} className="flex flex-col gap-2 pb-4">
                   <Label htmlFor={`match-${index}`}>Team Id #{index + 1}</Label>
-                  <Select />
+                  <div className="flex items-center gap-2">
+                    <Select
+                      id={`match-${index}`}
+                      options={selectOptions.filter((option) => {
+                        const currentValue = String(matchTeamId);
+                        const optionValue = String(option.value);
+                        const isUsedElsewhere = rematchData.some(
+                          (id, i) => i !== index && String(id) === optionValue
+                        );
+                        return !isUsedElsewhere || optionValue === currentValue;
+                      })}
+                      value={matchTeamId ?? ""}
+                      placeHolder="Select team"
+                      onChange={(e) => {
+                        const updated = [...rematchData];
+                        updated[index] = e.target.value;
+                        setRematchData(updated);
+                      }}
+                      className="w-full"
+                    />
+
+                    {/* ❌ Remove button (skip first select) */}
+                    {rematchData.length > 1 && (
+                      <Button
+                        content="❌"
+                        tooltipData="Remove This"
+                        onClick={() => {
+                          const updated = [...rematchData];
+                          updated.splice(index, 1);
+                          setRematchData(updated);
+                        }}
+                        className="px-2 py-1"
+                      />
+                    )}
+                  </div>
                 </div>
               ))}
 
-              <Button
-                type="button"
-                content="➕ Add New"
-                onClick={handleAddRematchItem}
-                className="self-center mt-2"
-              />
+              {/* Clear All + Add New buttons */}
+              <div className="flex flex-col items-center gap-4">
+                <div>
+                  <Button
+                    type="button"
+                    content={
+                      <div className="flex items-center gap-2">
+                        <span>Add New</span>
+                        <PlusIcon className="w-4 h-4" />
+                      </div>
+                    }
+                    onClick={() => setRematchData((prev) => [...prev, null])}
+                  />
+                </div>
+
+                <div>
+                  <Button
+                    onClick={() => setRematchData([null])}
+                    content={
+                      <div className="flex items-center gap-2">
+                        <span>Clear Selections</span>
+                        <Trash2Icon className="w-4 h-4" />
+                      </div>
+                    }
+                  />
+                </div>
+              </div>
             </div>
           </form>
         </Modal.Body>
+
         <Modal.Footer>
           <Button content="Cancel" onClick={handleCloseRematchModal} />
           <Button
+            //disabled if every value is null or empty
+            disabled={rematchData.every((v) => v === null || v === "")}
             content="Create Rematch"
             bgColor="#FFF"
-            onClick={handleCloseRematchModal}
+            tooltipData={
+              rematchData.every((v) => v === null || v === "")
+                ? "Please select at least one team"
+                : ""
+            }
+            tooltipId="modal-tooltip"
+            form="rematchForm"
+            type="submit"
           />
+
+          {/* Tooltip scoped to modal only */}
+          <Tooltip id="modal-tooltip" style={{ borderRadius: "8px" }} />
         </Modal.Footer>
       </Modal>
 
