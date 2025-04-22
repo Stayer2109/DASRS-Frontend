@@ -62,8 +62,12 @@ const RoundComplaints = () => {
   const [pageSize, setPageSize] = useState(displayedValues[0]);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectOptions, setSelectOptions] = useState([]);
+  const [allComplaints, setAllComplaints] = useState([]);
+  const [rematchData, setRematchData] = useState([{ match: "", note: "" }]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
+  const [rematchModalShow, setRematchModalShow] = useState(false);
   const [confirmModalShow, setConfirmModalShow] = useState(false);
   const [complaintReplyData, setComplaintReplyData] = useState({
     reply: "",
@@ -71,6 +75,11 @@ const RoundComplaints = () => {
   });
   const [complaintErrors, setComplaintErrors] = useState({});
   const [confirmAction, setConfirmAction] = useState(null);
+
+  // CHECK IF COMPLAINTS HAVE APPROVED STATUS
+  const hasApprovedComplaint = allComplaints.some(
+    (complaint) => complaint.status?.toUpperCase() === "APPROVED"
+  );
 
   // GET STATUS PARAMS
   const getStatusParam = () => {
@@ -157,6 +166,71 @@ const RoundComplaints = () => {
     }
   };
 
+  // FETCH ALL COMPLAINTS
+  const fetchAllComplaints = async () => {
+    try {
+      const res = await apiClient.get(`complaints/round/${roundId}`, {
+        params: {
+          pageNo: 0,
+          pageSize: 1000, // large enough to fetch all (adjust if needed)
+          sortBy: "status",
+          sortDirection: "desc",
+        },
+      });
+      setAllComplaints(res.data.data.content);
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        setError("Failed to load rounds. Please try again.");
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    }
+  };
+
+  // HANDLE ADD REMATCH ITEM DATA
+  const handleAddRematchItem = () => {
+    setRematchData((prev) => [...prev, { match: "", note: "" }]);
+  };
+
+  // GET AVAILABLE MATCHTEAMID FOR REMATCH
+  const fetchAvailableMatchTeamId = async () => {
+    try {
+      setIsLoading(true);
+      const res = await apiClient.get(`complaints/status/APPROVED`);
+
+      console.log(res.data.data);
+      
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        setError("Failed to load rounds. Please try again.");
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   //#region PAGINATION
   const handlePagination = (_pageSize, newPageIndex) => {
     setPageIndex(newPageIndex);
@@ -186,6 +260,7 @@ const RoundComplaints = () => {
     setComplaintErrors({});
   };
 
+  // CONFIRM MODAL
   const handleOpenConfirmModal = (action) => {
     if (!validateReply()) return;
     setConfirmAction(action);
@@ -200,6 +275,15 @@ const RoundComplaints = () => {
     setConfirmModalShow(false);
     setConfirmAction(null);
   };
+
+  // REMATCH MODAL
+  const handleOpenRematchModal = () => {
+    setRematchModalShow(true);
+  };
+
+  const handleCloseRematchModal = () => {
+    setRematchModalShow(false);
+  };
   //#endregion
 
   //#region USEEFFECTS
@@ -207,7 +291,10 @@ const RoundComplaints = () => {
   useEffect(() => {
     if (roundId) {
       fetchRoundData();
+      fetchAllComplaints();
+      fetchAvailableMatchTeamId(); // 👈 fetch all data once
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundId]);
 
@@ -229,7 +316,7 @@ const RoundComplaints = () => {
   //#endregion
 
   return (
-    <div className="p-4">
+    <div className="relative p-4">
       {isLoading && <Spinner />}
 
       {/* Display Errors If Any Found */}
@@ -242,9 +329,12 @@ const RoundComplaints = () => {
       {/* SHOW BY STATUS */}
       <div className="flex flex-col items-center">
         {" "}
-        <h1 className="mb-6 font-bold text-gray-700 text-2xl text-center">
-          Complaints of - Round: {round?.round_name}
+        <h1 className="font-bold text-gray-700 text-2xl text-center">
+          Complaints of Round: {round?.round_name}
         </h1>
+        <h className="mb-6 font-bold text-yellow-600 text-sm italic">
+          (There must be one approved complaint in order to create rematch)
+        </h>
         <div className="flex items-center gap-4 mb-4">
           <Label
             htmlFor="showByStatus"
@@ -259,6 +349,19 @@ const RoundComplaints = () => {
               setShowByStatus(e.target.value);
             }}
             className="w-full sm:max-w-xs"
+          />
+        </div>
+        <div className="flex justify-center mb-6">
+          <Button
+            content="Create Rematch For Round"
+            disabled={!hasApprovedComplaint}
+            tooltipData={
+              hasApprovedComplaint
+                ? "Create a rematch for this round"
+                : "You cannot create a rematch for this round"
+            }
+            onClick={handleOpenRematchModal}
+            className="px-6 py-2"
           />
         </div>
       </div>
@@ -408,6 +511,38 @@ const RoundComplaints = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Rematch Modal */}
+      <Modal size="sm" show={rematchModalShow} onHide={handleCloseRematchModal}>
+        <Modal.Header content="Create Rematch" />
+        <Modal.Body>
+          <form id="rematchForm">
+            <div className="flex flex-col gap-4 text-gray-700 text-sm">
+              {rematchData.map((item, index) => (
+                <div key={index} className="flex flex-col gap-2 pb-4">
+                  <Label htmlFor={`match-${index}`}>Team Id #{index + 1}</Label>
+                  <Select />
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                content="➕ Add New"
+                onClick={handleAddRematchItem}
+                className="self-center mt-2"
+              />
+            </div>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button content="Cancel" onClick={handleCloseRematchModal} />
+          <Button
+            content="Create Rematch"
+            bgColor="#FFF"
+            onClick={handleCloseRematchModal}
+          />
+        </Modal.Footer>
+      </Modal>
 
       {/* Pagination */}
       <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
