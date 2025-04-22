@@ -76,11 +76,6 @@ export const Tournament = () => {
 
   return (
     <div className="space-y-6">
-      {/* Reusing your breadcrumb style */}
-      <Breadcrumb items={breadcrumbItems} />
-
-      <TournamentHeader onNewTournament={handleNewTournament} />
-
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
           {error}

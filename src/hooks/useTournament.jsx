@@ -38,7 +38,7 @@ export const useTournament = () => {
       setError(null);
 
       const response = await apiAuth.get(
-        `tournaments?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=SORT_BY_ID_ASC`
+        `tournaments?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=SORT_BY_ID_ASC&status=ALL`
       );
 
       // Extract tournament data from response

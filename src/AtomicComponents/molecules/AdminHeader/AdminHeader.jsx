@@ -49,18 +49,6 @@ export const AdminHeader = ({ activeTab }) => {
 
           {/* Quick Actions */}
           <div className="flex items-center gap-6">
-            {/* Search Bar */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <Input
-                type="text"
-                placeholder="Search..."
-                className="pl-10 w-64"
-              />
-            </div>
-
             {/* Admin Profile */}
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-gray-700">Admin</span>

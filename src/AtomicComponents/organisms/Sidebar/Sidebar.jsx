@@ -54,7 +54,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
         </Button>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="space-y-2 flex flex-col">
         <Button
           variant={activeTab === "overview" ? "secondary" : "ghost"}
           className="w-full justify-start"
