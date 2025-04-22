@@ -48,8 +48,21 @@ const ComplaintCard = ({ complaint, onClick }) => {
             <span className="truncate">{complaint?.match_name || "N/A"}</span>
           </div>
           <div className="flex gap-1">
-            <span className="font-medium"><strong>Your reply:</strong></span>
+            <span className="font-medium">
+              <strong>Your reply:</strong>
+            </span>
             <span className="truncate">{complaint?.reply || "N/A"}</span>
+          </div>
+          <div className="flex gap-1">
+            <span
+              className={`font-semibold
+                ${complaint?.has_rematch ? "text-green-600" : "text-red-600"}
+              `}
+            >
+              {complaint?.has_rematch
+                ? "Rematch created"
+                : "Rematch not created"}
+            </span>
           </div>
         </div>
       </CardHeader>
@@ -66,6 +79,7 @@ ComplaintCard.propTypes = {
     status: PropTypes.string.isRequired,
     reply: PropTypes.string,
     created_date: PropTypes.string.isRequired,
+    has_rematch: PropTypes.bool.isRequired,
     last_modified_date: PropTypes.string.isRequired,
   }).isRequired,
   onClick: PropTypes.func,

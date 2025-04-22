@@ -1,4 +1,5 @@
 import { Button } from "@/AtomicComponents/atoms/Button/Button";
+import Checkbox from "@/AtomicComponents/atoms/Checkbox/Checkbox";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import {
@@ -16,8 +17,7 @@ import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
 import { ComplaintReplyValidation } from "@/utils/Validation";
-import { PlusIcon } from "lucide-react";
-import { Trash2Icon } from "lucide-react";
+import { useMemo } from "react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Tooltip } from "recharts";
@@ -37,6 +37,7 @@ const statusClass = (status) => {
   }
 };
 
+// STATUS OPTIONS FOR SELECT
 const statusOptions = [
   { value: "all", label: "All" },
   { value: "pending", label: "Pending" },
@@ -52,10 +53,12 @@ const complaintsStatusMap = {
   rejected: "REJECTED",
 };
 
+// CHECK IF STATUS IS PENDING
 const isPending = (status) => status?.toString().toUpperCase() === "PENDING";
 const displayedValues = [6, 9, 12, 15];
 
 const RoundComplaints = () => {
+  //#region VARIABLES DECLARATION
   const { roundId } = useParams();
   const [round, setRound] = useState(null);
   const [complaints, setComplaints] = useState([]);
@@ -66,8 +69,9 @@ const RoundComplaints = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectOptions, setSelectOptions] = useState([]);
+  const [expandedTeams, setExpandedTeams] = useState([]);
   const [allComplaints, setAllComplaints] = useState([]);
-  const [rematchData, setRematchData] = useState([null]);
+  const [rematchData, setRematchData] = useState([]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
   const [rematchModalShow, setRematchModalShow] = useState(false);
@@ -78,15 +82,58 @@ const RoundComplaints = () => {
   });
   const [complaintErrors, setComplaintErrors] = useState({});
   const [confirmAction, setConfirmAction] = useState(null);
+  //#endregion
 
   // CHECK IF COMPLAINTS HAVE APPROVED STATUS
   const hasApprovedComplaint = allComplaints.some(
     (complaint) => complaint.status?.toUpperCase() === "APPROVED"
   );
 
+  const disabledMatchTeamIds = useMemo(() => {
+    return new Set(
+      allComplaints
+        .filter((c) => c.has_rematch && c.match_team_id)
+        .map((c) => c.match_team_id)
+    );
+  }, [allComplaints]);
+
   // GET STATUS PARAMS
   const getStatusParam = () => {
     return complaintsStatusMap[showByStatus] || null;
+  };
+
+  // COLLAPSING TEAMS
+  const toggleTeamCollapse = (team) => {
+    setExpandedTeams((prev) =>
+      prev.includes(team) ? prev.filter((t) => t !== team) : [...prev, team]
+    );
+  };
+
+  // TEAM SELECT ALL
+  const toggleTeamSelect = (team) => {
+    const playersInTeam = selectOptions.filter((option) =>
+      option.label.includes(team)
+    );
+
+    const enabledPlayers = playersInTeam.filter(
+      (player) => !disabledMatchTeamIds.has(player.value)
+    );
+
+    const allEnabledChecked = enabledPlayers.every((player) =>
+      rematchData.includes(player.value)
+    );
+
+    if (allEnabledChecked) {
+      // Deselect only enabled players
+      const toRemove = enabledPlayers.map((p) => p.value);
+      setRematchData((prev) => prev.filter((id) => !toRemove.includes(id)));
+    } else {
+      // Select only enabled & unchecked players
+      const toAdd = enabledPlayers
+        .map((p) => p.value)
+        .filter((id) => !rematchData.includes(id));
+      setRematchData((prev) => [...prev, ...toAdd]);
+    }
   };
 
   // FETCH ROUND DATA
@@ -148,12 +195,18 @@ const RoundComplaints = () => {
       );
 
       if (res.data.http_status === 200) {
-        fetchComplaintsData();
+        await Promise.all([
+          fetchComplaintsData(),
+          fetchAllComplaints(),
+          fetchAvailableMatchTeamId(),
+        ]);
+
         Toast({
           title: "Success",
           type: "success",
           message: `Complaint ${confirmAction} successfully.`,
         });
+
         handleCloseComplaintModal();
         handleCloseConfirmModal();
       }
@@ -211,7 +264,7 @@ const RoundComplaints = () => {
       const resSelectOptions = res.data.data
         .map((item) => ({
           value: item.match_team_id,
-          label: item.team_name,
+          label: `${item.full_name} (${item.team_name})`,
         }))
         .filter(
           (option, index, self) =>
@@ -242,7 +295,7 @@ const RoundComplaints = () => {
   const handleSubmitRematchForm = async (e) => {
     e.preventDefault();
 
-    const validMatchIds = rematchData.filter((id) => id && id !== "");
+    const validMatchIds = rematchData.filter((id) => !!id);
 
     const params = new URLSearchParams();
     validMatchIds.forEach((id) => {
@@ -253,7 +306,6 @@ const RoundComplaints = () => {
       setIsLoading(true);
       const res = await apiClient.post(`/matches/rematch?${params.toString()}`);
       console.log(res);
-      
     } catch (err) {
       if (err.code === "ECONNABORTED") {
         Toast({
@@ -330,26 +382,17 @@ const RoundComplaints = () => {
   //#endregion
 
   //#region USEEFFECTS
-  // FETCH ROUND DATA ON MOUNT
+  // FETCH DATA ON MOUNT
   useEffect(() => {
-    if (roundId) {
-      fetchRoundData();
-      fetchAllComplaints();
-      fetchAvailableMatchTeamId(); // 👈 fetch all data once
-    }
-
+    if (!roundId) return;
+    fetchRoundData();
+    fetchAllComplaints();
+    fetchAvailableMatchTeamId();
+    setPageIndex(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundId]);
+  }, [roundId, showByStatus]);
 
-  // REFRESH PAGE INDEX ON STATUS CHANGE
-  useEffect(() => {
-    if (roundId) {
-      setPageIndex(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showByStatus]);
-
-  //  FETCH COMPLAINTS DATA WHEN EVER ROUND ID, STATUS, PAGE INDEX OR PAGE SIZE CHANGES
+  // FETCH COMPLAINTS DATA ON CHANGE
   useEffect(() => {
     if (roundId) {
       fetchComplaintsData();
@@ -359,316 +402,351 @@ const RoundComplaints = () => {
   //#endregion
 
   return (
-    <div className="relative p-4">
-      {isLoading && <Spinner />}
+    <>
+      <div className="z-50">{isLoading && <Spinner />}</div>
 
-      {/* Display Errors If Any Found */}
-      {error && (
-        <div className="bg-red-50 mb-10 px-4 py-3 border border-red-200 rounded-md text-red">
-          {error}
-        </div>
-      )}
-
-      {/* SHOW BY STATUS */}
-      <div className="flex flex-col items-center">
-        {" "}
-        <h1 className="font-bold text-gray-700 text-2xl text-center">
-          Complaints of Round: {round?.round_name}
-        </h1>
-        <h className="mb-6 font-bold text-yellow-600 text-sm italic">
-          (There must be one approved complaint in order to create rematch)
-        </h>
-        <div className="flex items-center gap-4 mb-4">
-          <Label
-            htmlFor="showByStatus"
-            className="font-semibold text-gray-700 whitespace-nowrap"
-          >
-            Show By Status
-          </Label>
-          <Select
-            options={statusOptions}
-            value={showByStatus}
-            placeHolder={"Select status"}
-            onChange={(e) => {
-              setShowByStatus(e.target.value);
-            }}
-            className="w-full sm:max-w-xs"
-          />
-        </div>
-        <div className="flex justify-center mb-6">
-          <Button
-            content="Create Rematch For Round"
-            disabled={!hasApprovedComplaint}
-            tooltipData={
-              hasApprovedComplaint
-                ? "Create a rematch for this round"
-                : "You cannot create a rematch for this round"
-            }
-            onClick={handleOpenRematchModal}
-            className="px-6 py-2"
-          />
-        </div>
-      </div>
-
-      {/* Complaint Card Render */}
-      {complaints.length === 0 ? (
-        <p className="font-medium text-red-500 text-center">
-          No complaints found.
-        </p>
-      ) : (
-        <div className="gap-x-20 gap-y-10 grid md:grid-cols-2 lg:grid-cols-3">
-          {complaints.map((complaint) => (
-            <ComplaintCard
-              key={complaint.id}
-              complaint={complaint}
-              onClick={() => handleOpenComplaintModal(complaint)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Complaint Modal */}
-      <Modal
-        size="md"
-        show={complaintModalShow}
-        onHide={handleCloseComplaintModal}
-      >
-        <Modal.Header content="Complaint Details" />
-        <Modal.Body>
-          <div className="flex flex-col gap-4 text-gray-700 text-sm">
-            {/* ID + Status */}
-            <div className="flex justify-between items-center">
-              <h2 className="font-semibold text-lg">
-                Complaint ID: {selectedComplaint?.id}
-              </h2>
-              <span
-                className={`${statusClass(
-                  selectedComplaint?.status
-                )} px-3 py-2`}
-              >
-                {selectedComplaint?.status}
-              </span>
-            </div>
-
-            {/* Title */}
-            <p>
-              <strong>Title:</strong> {selectedComplaint?.title}
-            </p>
-
-            {/* Description */}
-            <p>
-              <strong>Description:</strong> {selectedComplaint?.description}
-            </p>
-
-            {/* Team */}
-            <p>
-              <strong>Team:</strong> {selectedComplaint?.team_name || "N/A"}
-            </p>
-
-            {/* Match */}
-            <p>
-              <strong>Match:</strong> {selectedComplaint?.match_name || "N/A"}
-            </p>
-
-            {/* Account */}
-            <p>
-              <strong>Account ID:</strong>{" "}
-              {selectedComplaint?.account_id || "N/A"}
-            </p>
-
-            {/* Created */}
-            <p className="text-gray-500">
-              <strong>Created:</strong> {selectedComplaint?.created_date}
-            </p>
-
-            {/* Updated */}
-            <p className="text-gray-500">
-              <strong>Updated:</strong> {selectedComplaint?.last_modified_date}
-            </p>
-
-            {/* Reply Input */}
-            <div className="gap-2 grid w-full">
-              <Label htmlFor="complaint_reply">Your reply</Label>
-              <Input
-                id="complaint_reply"
-                value={complaintReplyData.reply}
-                placeholder="Enter your reply here..."
-                disabled={!isPending(selectedComplaint?.status)}
-                onChange={(e) =>
-                  setComplaintReplyData({
-                    ...complaintReplyData,
-                    reply: e.target.value,
-                  })
-                }
-              />
-              {complaintErrors?.reply && (
-                <p className="text-red-500 text-xs">{complaintErrors.reply}</p>
-              )}
-            </div>
+      <div className="relative p-4">
+        {/* Display Errors If Any Found */}
+        {error && (
+          <div className="bg-red-50 mb-10 px-4 py-3 border border-red-200 rounded-md text-red">
+            {error}
           </div>
+        )}
 
-          {/* Buttons */}
-          <Modal.Footer>
-            <Button
-              content="Reject"
-              disabled={!isPending(selectedComplaint?.status)}
-              tooltipData={
-                !isPending(selectedComplaint?.status)
-                  ? "You cannot reject this complaint"
-                  : ""
-              }
-              onClick={() => handleOpenConfirmModal("reject")}
+        {/* SHOW BY STATUS */}
+        <div className="flex flex-col items-center">
+          {" "}
+          <h1 className="font-bold text-gray-700 text-2xl text-center">
+            Complaints of Round: {round?.round_name}
+          </h1>
+          <h className="mb-6 font-bold text-yellow-600 text-sm italic">
+            (There must be one approved complaint in order to create rematch)
+          </h>
+          <div className="flex items-center gap-4 mb-4">
+            <Label
+              htmlFor="showByStatus"
+              className="font-semibold text-gray-700 whitespace-nowrap"
+            >
+              Show By Status
+            </Label>
+            <Select
+              options={statusOptions}
+              value={showByStatus}
+              placeHolder={"Select status"}
+              onChange={(e) => {
+                setShowByStatus(e.target.value);
+              }}
+              className="w-full sm:max-w-xs"
             />
+          </div>
+          <div className="flex justify-center mb-6">
             <Button
-              content="Approve"
-              bgColor="#FFF"
-              disabled={!isPending(selectedComplaint?.status)}
+              content="Create Rematch For Round"
+              disabled={!hasApprovedComplaint}
               tooltipData={
-                !isPending(selectedComplaint?.status)
-                  ? "You cannot approve this complaint"
-                  : ""
+                hasApprovedComplaint
+                  ? "Create a rematch for this round"
+                  : "You cannot create a rematch for this round"
               }
-              onClick={() => handleOpenConfirmModal("approve")}
+              tooltipId="create-button-tooltip"
+              onClick={handleOpenRematchModal}
+              className="px-6 py-2"
             />
-          </Modal.Footer>
-        </Modal.Body>
-      </Modal>
+          </div>
+        </div>
 
-      {/* Confirm Modal */}
-      <Dialog open={confirmModalShow} onOpenChange={handleCloseConfirmModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Action</DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground text-sm">
-            Are you sure you want to{" "}
-            <strong className="text-black">{confirmAction}</strong> this
-            complaint?
+        {/* Complaint Card Render */}
+        {complaints.length === 0 ? (
+          <p className="font-medium text-red-500 text-center">
+            No complaints found.
           </p>
-          <DialogFooter>
-            <Button content="No" onClick={handleCloseConfirmModal} />
-            <Button
-              content="Yes"
-              onClick={handleConfirmStatusChange}
-              bgColor="#FFF"
-            />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        ) : (
+          <div className="gap-x-20 gap-y-10 grid md:grid-cols-2 lg:grid-cols-3">
+            {complaints.map((complaint) => (
+              <ComplaintCard
+                key={complaint.id}
+                complaint={complaint}
+                onClick={() => handleOpenComplaintModal(complaint)}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Rematch Modal */}
-      <Modal size="sm" show={rematchModalShow} onHide={handleCloseRematchModal}>
-        <Modal.Header content="Create Rematch" />
-        <Modal.Body>
-          <form id="rematchForm" onSubmit={handleSubmitRematchForm}>
+        {/* Complaint Modal */}
+        <Modal
+          size="md"
+          show={complaintModalShow}
+          onHide={handleCloseComplaintModal}
+        >
+          <Modal.Header content="Complaint Details" />
+          <Modal.Body>
             <div className="flex flex-col gap-4 text-gray-700 text-sm">
-              {rematchData.map((matchTeamId, index) => (
-                <div key={index} className="flex flex-col gap-2 pb-4">
-                  <Label htmlFor={`match-${index}`}>Team Id #{index + 1}</Label>
-                  <div className="flex items-center gap-2">
-                    <Select
-                      id={`match-${index}`}
-                      options={selectOptions.filter((option) => {
-                        const currentValue = String(matchTeamId);
-                        const optionValue = String(option.value);
-                        const isUsedElsewhere = rematchData.some(
-                          (id, i) => i !== index && String(id) === optionValue
-                        );
-                        return !isUsedElsewhere || optionValue === currentValue;
-                      })}
-                      value={matchTeamId ?? ""}
-                      placeHolder="Select team"
-                      onChange={(e) => {
-                        const updated = [...rematchData];
-                        updated[index] = e.target.value;
-                        setRematchData(updated);
-                      }}
-                      className="w-full"
-                    />
+              {/* ID + Status */}
+              <div className="flex justify-between items-center">
+                <h2 className="font-semibold text-lg">
+                  Complaint ID: {selectedComplaint?.id}
+                </h2>
+                <span
+                  className={`${statusClass(
+                    selectedComplaint?.status
+                  )} px-3 py-2`}
+                >
+                  {selectedComplaint?.status}
+                </span>
+              </div>
 
-                    {/* ❌ Remove button (skip first select) */}
-                    {rematchData.length > 1 && (
-                      <Button
-                        content="❌"
-                        tooltipData="Remove This"
-                        onClick={() => {
-                          const updated = [...rematchData];
-                          updated.splice(index, 1);
-                          setRematchData(updated);
-                        }}
-                        className="px-2 py-1"
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
+              {/* Title */}
+              <p>
+                <strong>Title:</strong> {selectedComplaint?.title}
+              </p>
 
-              {/* Clear All + Add New buttons */}
-              <div className="flex flex-col items-center gap-4">
-                <div>
-                  <Button
-                    type="button"
-                    content={
-                      <div className="flex items-center gap-2">
-                        <span>Add New</span>
-                        <PlusIcon className="w-4 h-4" />
-                      </div>
-                    }
-                    onClick={() => setRematchData((prev) => [...prev, null])}
-                  />
-                </div>
+              {/* Description */}
+              <p>
+                <strong>Description:</strong> {selectedComplaint?.description}
+              </p>
 
-                <div>
-                  <Button
-                    onClick={() => setRematchData([null])}
-                    content={
-                      <div className="flex items-center gap-2">
-                        <span>Clear Selections</span>
-                        <Trash2Icon className="w-4 h-4" />
-                      </div>
-                    }
-                  />
-                </div>
+              {/* Team */}
+              <p>
+                <strong>Team:</strong> {selectedComplaint?.team_name || "N/A"}
+              </p>
+
+              {/* Match */}
+              <p>
+                <strong>Match:</strong> {selectedComplaint?.match_name || "N/A"}
+              </p>
+
+              {/* Account */}
+              <p>
+                <strong>Account ID:</strong>{" "}
+                {selectedComplaint?.account_id || "N/A"}
+              </p>
+              
+              <p>
+                <strong>Rematch Status:</strong>{" "}
+                {selectedComplaint?.has_rematch ? (
+                  <span className="font-medium text-green-600">
+                    Already has rematch
+                  </span>
+                ) : (
+                  <span className="font-medium text-red-600">
+                    Not created rematch
+                  </span>
+                )}
+              </p>
+
+              {/* Created */}
+              <p className="text-gray-500">
+                <strong>Created:</strong> {selectedComplaint?.created_date}
+              </p>
+
+              {/* Updated */}
+              <p className="text-gray-500">
+                <strong>Updated:</strong>{" "}
+                {selectedComplaint?.last_modified_date}
+              </p>
+
+              {/* Reply Input */}
+              <div className="gap-2 grid w-full">
+                <Label htmlFor="complaint_reply">Your reply</Label>
+                <Input
+                  id="complaint_reply"
+                  value={complaintReplyData.reply}
+                  placeholder="Enter your reply here..."
+                  disabled={!isPending(selectedComplaint?.status)}
+                  onChange={(e) =>
+                    setComplaintReplyData({
+                      ...complaintReplyData,
+                      reply: e.target.value,
+                    })
+                  }
+                />
+                {complaintErrors?.reply && (
+                  <p className="text-red-500 text-xs">
+                    {complaintErrors.reply}
+                  </p>
+                )}
               </div>
             </div>
-          </form>
-        </Modal.Body>
 
-        <Modal.Footer>
-          <Button content="Cancel" onClick={handleCloseRematchModal} />
-          <Button
-            //disabled if every value is null or empty
-            disabled={rematchData.every((v) => v === null || v === "")}
-            content="Create Rematch"
-            bgColor="#FFF"
-            tooltipData={
-              rematchData.every((v) => v === null || v === "")
-                ? "Please select at least one team"
-                : ""
-            }
-            tooltipId="modal-tooltip"
-            form="rematchForm"
-            type="submit"
+            {/* Buttons */}
+            <Modal.Footer>
+              <Button
+                content="Reject"
+                disabled={!isPending(selectedComplaint?.status)}
+                tooltipId="reject-button-tooltip"
+                tooltipData={
+                  !isPending(selectedComplaint?.status)
+                    ? "You cannot reject this complaint"
+                    : ""
+                }
+                onClick={() => handleOpenConfirmModal("reject")}
+              />
+              <Button
+                content="Approve"
+                bgColor="#FFF"
+                disabled={!isPending(selectedComplaint?.status)}
+                tooltipId="approve-button-tooltip"
+                tooltipData={
+                  !isPending(selectedComplaint?.status)
+                    ? "You cannot approve this complaint"
+                    : ""
+                }
+                onClick={() => handleOpenConfirmModal("approve")}
+              />
+            </Modal.Footer>
+          </Modal.Body>
+        </Modal>
+
+        {/* Confirm Modal */}
+        <Dialog open={confirmModalShow} onOpenChange={handleCloseConfirmModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Action</DialogTitle>
+            </DialogHeader>
+            <p className="text-muted-foreground text-sm">
+              Are you sure you want to{" "}
+              <strong className="text-black">{confirmAction}</strong> this
+              complaint?
+            </p>
+            <DialogFooter>
+              <Button content="No" onClick={handleCloseConfirmModal} />
+              <Button
+                content="Yes"
+                onClick={handleConfirmStatusChange}
+                bgColor="#FFF"
+              />
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Rematch Modal */}
+        <Modal
+          size="sm"
+          show={rematchModalShow}
+          onHide={handleCloseRematchModal}
+        >
+          <Modal.Header content="Create Rematch" />
+          <Modal.Body>
+            <form id="rematchForm" onSubmit={handleSubmitRematchForm}>
+              <div className="flex flex-col gap-4 text-gray-700 text-sm">
+                {[
+                  ...new Set(
+                    selectOptions.map((o) =>
+                      o.label.split("(")[1].replace(")", "")
+                    )
+                  ),
+                ].map((team) => {
+                  const playersInTeam = selectOptions.filter((option) =>
+                    option.label.includes(team)
+                  );
+
+                  const allChecked = playersInTeam.every((player) =>
+                    rematchData.includes(player.value)
+                  );
+
+                  const isOpen = expandedTeams.includes(team);
+
+                  const allDisabled = playersInTeam.every((player) =>
+                    disabledMatchTeamIds.has(player.value)
+                  );
+
+                  return (
+                    <div
+                      key={team}
+                      className={`p-3 border rounded-md cursor-pointer transition-colors duration-[.15s] ease-linear ${
+                        allChecked && !allDisabled ? "bg-blue-100" : ""
+                      } ${allDisabled ? "opacity-65" : ""}`}
+                    >
+                      <div
+                        onClick={() => toggleTeamCollapse(team)}
+                        className="group flex justify-between items-center mb-2 cursor-pointer"
+                      >
+                        <h5 className="font-semibold text-blue-700 text-h5 group-hover:underline group-hover:scale-105">
+                          {team} {isOpen ? "▾" : "▸"}
+                        </h5>
+
+                        {!allDisabled && (
+                          <p
+                            onClick={(e) => {
+                              e.stopPropagation(); // prevent triggering collapse when selecting all
+                              toggleTeamSelect(team);
+                            }}
+                            className="text-blue-500 text-sm hover:underline"
+                          >
+                            {allChecked ? "Deselect All" : "Select All"}
+                          </p>
+                        )}
+                      </div>
+
+                      {isOpen &&
+                        playersInTeam.map((player) => (
+                          <Checkbox
+                            key={player.value}
+                            id={`checkbox-${player.value}`}
+                            label={player.label.split(" (")[0]}
+                            checked={
+                              rematchData.includes(player.value) ||
+                              disabledMatchTeamIds.has(player.value)
+                            }
+                            disabled={disabledMatchTeamIds.has(player.value)}
+                            onChange={(e) => {
+                              if (disabledMatchTeamIds.has(player.value))
+                                return;
+
+                              if (e.target.checked) {
+                                setRematchData((prev) => [
+                                  ...prev,
+                                  player.value,
+                                ]);
+                              } else {
+                                setRematchData((prev) =>
+                                  prev.filter((v) => v !== player.value)
+                                );
+                              }
+                            }}
+                          />
+                        ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </form>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button content="Cancel" onClick={handleCloseRematchModal} />
+            <Button
+              disabled={rematchData.filter(Boolean).length === 0}
+              content="Create Rematch"
+              bgColor="#FFF"
+              tooltipData={
+                rematchData.filter(Boolean).length === 0
+                  ? "Please select at least one player"
+                  : ""
+              }
+              tooltipId="modal-tooltip"
+              form="rematchForm"
+              type="submit"
+            />
+
+            <Tooltip id="modal-tooltip" style={{ borderRadius: "8px" }} />
+          </Modal.Footer>
+        </Modal>
+
+        {/* Pagination */}
+        <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
+          <DasrsPagination
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            page={pageIndex}
+            count={totalPages}
+            handlePagination={handlePagination}
+            handleChangePageSize={handleChangePageSize}
+            displayedValues={displayedValues}
           />
-
-          {/* Tooltip scoped to modal only */}
-          <Tooltip id="modal-tooltip" style={{ borderRadius: "8px" }} />
-        </Modal.Footer>
-      </Modal>
-
-      {/* Pagination */}
-      <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
-        <DasrsPagination
-          pageSize={pageSize}
-          pageIndex={pageIndex}
-          page={pageIndex}
-          count={totalPages}
-          handlePagination={handlePagination}
-          handleChangePageSize={handleChangePageSize}
-          displayedValues={displayedValues}
-        />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

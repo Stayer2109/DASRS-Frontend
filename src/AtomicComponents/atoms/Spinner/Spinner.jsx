@@ -1,23 +1,23 @@
 /** @format */
 
 import { useEffect } from "react";
+import ReactDOM from "react-dom";
 import "./Spinner.scss";
 
 const Spinner = () => {
 	useEffect(() => {
-		// Add the "loading" class to the body when the spinner mounts
 		document.body.classList.add("loading");
-
 		return () => {
-			// Remove the "loading" class when the spinner unmounts
 			document.body.classList.remove("loading");
 		};
 	}, []);
 
-	return (
+	// 🔥 Render into <body> using portal to escape normal z-index stacking
+	return ReactDOM.createPortal(
 		<div className='loader-container'>
 			<div className='loader' />
-		</div>
+		</div>,
+		document.body
 	);
 };
 
