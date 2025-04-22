@@ -9,7 +9,6 @@ import { Environment } from "../Environment/Environment";
 import { Car } from "../Car/Car";
 
 export const AdminContent = ({ activeTab }) => {
-  console.log("AdminContent rendering with activeTab:", activeTab);
 
   const renderContent = () => {
     switch (activeTab) {

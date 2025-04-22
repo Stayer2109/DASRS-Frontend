@@ -17,7 +17,7 @@ body.loading {
 	justify-content: center;
 	align-items: center;
 	background: rgba(0, 0, 0, 0.5); // Dimming the background
-	z-index: 9999;
+	z-index: 1000;
 
 	.loader {
 		width: 48px;
