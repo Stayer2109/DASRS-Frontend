@@ -2,6 +2,7 @@ import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Plus } from "lucide-react";
 import { useCarManagement } from "@/hooks/useCarManagement";
 import { CarModal } from "@/AtomicComponents/molecules/CarModal/CarModal";
+import { CarDetailsModal } from "@/AtomicComponents/molecules/CarDetailsModal/CarDetailsModal";
 import { toast } from "sonner";
 import {
   Card,
@@ -23,7 +24,6 @@ export const Car = () => {
   const {
     tableData,
     isLoading,
-    error,
     isModalOpen,
     setIsModalOpen,
     formMode,
@@ -34,33 +34,43 @@ export const Car = () => {
     handleStatusToggle,
     handleEdit,
     handleDelete,
+    isDetailsModalOpen,
+    setIsDetailsModalOpen,
+    selectedCar,
+    handleViewDetails,
   } = useCarManagement();
 
   const handleCreate = () => {
     setFormMode("create");
     setFormData({
       car_name: "",
-      maximum_torque: 0,
-      minimum_engine_rpm: 0,
-      maximum_engine_rpm: 0,
-      shift_up_rpm: 0,
-      shift_down_rpm: 0,
-      final_drive_ratio: 0,
-      anti_roll_force: 0,
-      steering_helper_strength: 0,
-      traction_helper_strength: 0,
-      is_enabled: true
+      maximum_torque: 100,
+      minimum_engine_rpm: 200,
+      maximum_engine_rpm: 500,
+      shift_up_rpm: 0.1,
+      shift_down_rpm: 0.1,
+      final_drive_ratio: 1,
+      anti_roll_force: 100,
+      steering_helper_strength: 1,
+      traction_helper_strength: 1,
+      front_camper: -10,
+      rear_camper: -10,
+      front_ssr: 10000,
+      rear_ssr: 10000,
+      front_suspension: 0.1,
+      rear_suspension: 0.1,
+      front_ssd: 1000,
+      rear_ssd: 1000,
+      max_brake_torque: 2500,
+      is_enabled: true,
     });
     setIsModalOpen(true);
   };
 
-  if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
-  }
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle>Cars Management</CardTitle>
         <Button onClick={handleCreate}>
           <Plus className="mr-2 h-4 w-4" /> Add Car
         </Button>
@@ -70,15 +80,8 @@ export const Car = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Max Torque</TableHead>
-              <TableHead>Min Engine RPM</TableHead>
-              <TableHead>Max Engine RPM</TableHead>
-              <TableHead>Shift Up RPM</TableHead>
-              <TableHead>Shift Down RPM</TableHead>
-              <TableHead>Final Drive Ratio</TableHead>
-              <TableHead>Anti Roll Force</TableHead>
-              <TableHead>Steering Helper</TableHead>
-              <TableHead>Traction Helper</TableHead>
+              <TableHead>Created Date</TableHead>
+              <TableHead>Last Modified Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -86,7 +89,7 @@ export const Car = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={12} className="text-center">
+                <TableCell colSpan={5} className="text-center">
                   Loading...
                 </TableCell>
               </TableRow>
@@ -94,15 +97,8 @@ export const Car = () => {
               tableData.map((car) => (
                 <TableRow key={car.car_id}>
                   <TableCell>{car.car_name}</TableCell>
-                  <TableCell>{car.maximum_torque}</TableCell>
-                  <TableCell>{car.minimum_engine_rpm}</TableCell>
-                  <TableCell>{car.maximum_engine_rpm}</TableCell>
-                  <TableCell>{car.shift_up_rpm}</TableCell>
-                  <TableCell>{car.shift_down_rpm}</TableCell>
-                  <TableCell>{car.final_drive_ratio}</TableCell>
-                  <TableCell>{car.anti_roll_force}</TableCell>
-                  <TableCell>{car.steering_helper_strength}</TableCell>
-                  <TableCell>{car.traction_helper_strength}</TableCell>
+                  <TableCell>{car.created_date}</TableCell>
+                  <TableCell>{car.last_modified_date}</TableCell>
                   <TableCell>
                     <Switch
                       checked={car.is_enabled}
@@ -113,6 +109,13 @@ export const Car = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleViewDetails(car.car_id)}
+                      >
+                        View
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -141,6 +144,12 @@ export const Car = () => {
           formMode={formMode}
           formData={formData}
           onSubmit={handleFormSubmit}
+        />
+
+        <CarDetailsModal
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          carData={selectedCar}
         />
       </CardContent>
     </Card>
