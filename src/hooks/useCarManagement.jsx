@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiAuth } from "@/config/axios/axios";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const useCarManagement = () => {
   const [tableData, setTableData] = useState([]);
@@ -29,6 +30,8 @@ export const useCarManagement = () => {
     traction_helper_strength: 0,
     is_enabled: true
   });
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -57,19 +60,44 @@ export const useCarManagement = () => {
     fetchData();
   }, [pagination.pageNo, pagination.pageSize, sortColumn, sortOrder]);
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e, submittedFormData) => {
     e.preventDefault();
     try {
+      const payload = {
+        car_name: submittedFormData.car_name,
+        maximum_torque: submittedFormData.maximum_torque,
+        minimum_engine_rpm: submittedFormData.minimum_engine_rpm,
+        maximum_engine_rpm: submittedFormData.maximum_engine_rpm,
+        shift_up_rpm: submittedFormData.shift_up_rpm,
+        shift_down_rpm: submittedFormData.shift_down_rpm,
+        final_drive_ratio: submittedFormData.final_drive_ratio,
+        anti_roll_force: submittedFormData.anti_roll_force,
+        steering_helper_strength: submittedFormData.steering_helper_strength,
+        traction_helper_strength: submittedFormData.traction_helper_strength,
+        front_camper: submittedFormData.front_camper,
+        rear_camper: submittedFormData.rear_camper,
+        front_ssr: submittedFormData.front_ssr,
+        rear_ssr: submittedFormData.rear_ssr,
+        front_suspension: submittedFormData.front_suspension,
+        rear_suspension: submittedFormData.rear_suspension,
+        front_ssd: submittedFormData.front_ssd,
+        rear_ssd: submittedFormData.rear_ssd,
+        max_brake_torque: submittedFormData.max_brake_torque
+      };
+
       if (formMode === "create") {
-        await apiAuth.post("cars", formData);
+        await apiAuth.post("cars", payload);
       } else {
-        await apiAuth.put(`cars/${formData.car_id}`, formData);
+        await apiAuth.put(`cars/${submittedFormData.car_id}`, payload);
       }
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
-      console.error("Error saving car:", err);
-      setError("Failed to save car. Please try again.");
+  Toast({
+    title: "Error",
+    message: err.response?.data?.message || "Error processing request.",
+    type: "error",
+  });
     }
   };
 
@@ -122,6 +150,14 @@ export const useCarManagement = () => {
     }
   };
 
+  const handleViewDetails = (id) => {
+    const carDetails = tableData.find((item) => item.car_id === id);
+    if (carDetails) {
+      setSelectedCar(carDetails);
+      setIsDetailsModalOpen(true);
+    }
+  };
+
   return {
     tableData,
     isLoading,
@@ -141,5 +177,9 @@ export const useCarManagement = () => {
     handleDelete,
     handleStatusToggle,
     handleSort,
+    isDetailsModalOpen,
+    setIsDetailsModalOpen,
+    selectedCar,
+    handleViewDetails,
   };
 };
