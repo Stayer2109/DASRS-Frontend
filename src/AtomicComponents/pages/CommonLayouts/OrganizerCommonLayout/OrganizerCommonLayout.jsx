@@ -4,12 +4,10 @@ import {
   AddPlayerIcon,
   ComplaintIcon,
   HomeIcon,
-  LeaderboardIcon,
   ListIcon,
   SettingIcon,
   SidebarIcon,
   TournamentIcon,
-  UserIcon,
   UserInformationIcon,
 } from "@/assets/icon-svg";
 import { motion, useAnimation } from "framer-motion";
@@ -131,8 +129,8 @@ const OrganizerCommonLayout = () => {
       {/* Main content */}
       <div
         className={`flex-1 transition-all duration-300 p-10 max-h-screen flex flex-col overflow-auto ${
-          isMobile ? "z-0" : "z-[50]"
-        } p-10`}
+          isMobile ? "z-0" : "z-auto"
+        }`}
       >
         <Outlet />
       </div>
