@@ -31,6 +31,7 @@ import { ChevronDown } from "lucide-react";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Button as ButtonShadcn } from "@/AtomicComponents/atoms/shadcn/button";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import { NormalizeServerErrors } from "@/utils/NormalizeError";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
@@ -143,18 +144,7 @@ const PlayerMatches = () => {
         }
       }
     } catch (error) {
-      if (error.response?.status === 400 && error.response.data?.data) {
-        const serverErrors = NormalizeServerErrors(error.response.data.data);
-        setUpdateProfileErrors((prev) => ({
-          ...prev,
-          ...serverErrors,
-        }));
-      }
-      Toast({
-        title: "Error",
-        message: error.response?.data?.message || "Failed to assign player",
-        type: "error",
-      });
+      console.log("Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -494,7 +484,7 @@ const PlayerMatches = () => {
                     </div>
                   )}
 
-                  <div className="text-center space-y-2">
+                  <div className="text-center">
                     {match?.status.toString().toLowerCase() === "pending" ? (
                       <Button
                         className="font-semibold"
@@ -608,7 +598,6 @@ const PlayerMatches = () => {
 
             <div className="text-center">
               <Button
-                disabled={!assignData.assignee || !assignData.matchTeamid}
                 content={
                   selectedMatch?.match_team?.find(
                     (m) => m.match_team_id === assignData.matchTeamid
@@ -617,116 +606,6 @@ const PlayerMatches = () => {
                     : "Assign Player"
                 }
                 type="submit"
-              />
-            </div>
-          </form>
-        </Modal.Body>
-      </Modal>
-
-      {/* Complaint Modal */}
-      <Modal
-        size="md"
-        show={complaintModalShow}
-        onHide={handleComplaintModalClose}
-      >
-        <Modal.Header content="Submit Match Complaint" />
-        <Modal.Body>
-          <form
-            onSubmit={handleSubmitComplaint}
-            className="flex flex-col gap-6"
-          >
-            <div className="space-y-4">
-              <div>
-                <h2 className="font-bold text-lg">
-                  {selectedMatch?.match_name}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {selectedMatch?.match_code}
-                </p>
-              </div>
-
-              {/* Add slot selection */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Select Player Slot
-                </label>
-                {!selectedMatch?.match_team ||
-                selectedMatch.match_team.length === 0 ? (
-                  <p className="text-md text-red-500">No slots available</p>
-                ) : (
-                  <Select
-                    options={selectedMatch.match_team.map((m, index) => ({
-                      value: m.match_team_id,
-                      label: `Slot ${index + 1}${
-                        m.player_id
-                          ? ` - ${m.player_name || "Unknown Player"}`
-                          : " (Empty)"
-                      }`,
-                    }))}
-                    placeHolder="Select slot to complain about"
-                    value={complaintData.matchTeamId}
-                    onChange={(e) =>
-                      setComplaintData((prev) => ({
-                        ...prev,
-                        matchTeamId: e.target.value,
-                      }))
-                    }
-                    required
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md"
-                  value={complaintData.title}
-                  onChange={(e) =>
-                    setComplaintData((prev) => ({
-                      ...prev,
-                      title: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  className="w-full p-2 border rounded-md min-h-[100px]"
-                  value={complaintData.description}
-                  onChange={(e) =>
-                    setComplaintData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button
-                content="Cancel"
-                onClick={handleComplaintModalClose}
-                type="button"
-              />
-              <Button
-                content="Submit Complaint"
-                type="submit"
-                disabled={
-                  !complaintData.matchTeamId ||
-                  !complaintData.title ||
-                  !complaintData.description ||
-                  isLoading
-                }
               />
             </div>
           </form>

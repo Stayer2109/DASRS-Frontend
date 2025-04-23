@@ -319,7 +319,7 @@ export const TournamentList = () => {
           pageSize,
           status: statusParam,
           sortBy: sortByParam,
-          keyword: debouncedSearchTerm || undefined, // ← pass search param
+          keyword: debouncedSearchTerm || undefined,
         },
       });
 
@@ -668,7 +668,6 @@ export const TournamentList = () => {
           <DasrsPagination
             pageSize={pageSize}
             pageIndex={pageIndex}
-            page={pageIndex}
             count={totalPages}
             handlePagination={handlePagination}
             handleChangePageSize={handleChangePageSize}
