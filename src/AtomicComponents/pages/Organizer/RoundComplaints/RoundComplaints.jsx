@@ -520,7 +520,7 @@ const RoundComplaints = () => {
                 <strong>Account ID:</strong>{" "}
                 {selectedComplaint?.account_id || "N/A"}
               </p>
-              
+
               <p>
                 <strong>Rematch Status:</strong>{" "}
                 {selectedComplaint?.has_rematch ? (
@@ -678,34 +678,36 @@ const RoundComplaints = () => {
                         )}
                       </div>
 
-                      {isOpen &&
-                        playersInTeam.map((player) => (
-                          <Checkbox
-                            key={player.value}
-                            id={`checkbox-${player.value}`}
-                            label={player.label.split(" (")[0]}
-                            checked={
-                              rematchData.includes(player.value) ||
-                              disabledMatchTeamIds.has(player.value)
-                            }
-                            disabled={disabledMatchTeamIds.has(player.value)}
-                            onChange={(e) => {
-                              if (disabledMatchTeamIds.has(player.value))
-                                return;
-
-                              if (e.target.checked) {
-                                setRematchData((prev) => [
-                                  ...prev,
-                                  player.value,
-                                ]);
-                              } else {
-                                setRematchData((prev) =>
-                                  prev.filter((v) => v !== player.value)
-                                );
+                      <div className="flex flex-col gap-2">
+                        {isOpen &&
+                          playersInTeam.map((player) => (
+                            <Checkbox
+                              key={player.value}
+                              id={`checkbox-${player.value}`}
+                              label={player.label.split(" (")[0]}
+                              checked={
+                                rematchData.includes(player.value) ||
+                                disabledMatchTeamIds.has(player.value)
                               }
-                            }}
-                          />
-                        ))}
+                              disabled={disabledMatchTeamIds.has(player.value)}
+                              onChange={(e) => {
+                                if (disabledMatchTeamIds.has(player.value))
+                                  return;
+
+                                if (e.target.checked) {
+                                  setRematchData((prev) => [
+                                    ...prev,
+                                    player.value,
+                                  ]);
+                                } else {
+                                  setRematchData((prev) =>
+                                    prev.filter((v) => v !== player.value)
+                                  );
+                                }
+                              }}
+                            />
+                          ))}
+                      </div>
                     </div>
                   );
                 })}
