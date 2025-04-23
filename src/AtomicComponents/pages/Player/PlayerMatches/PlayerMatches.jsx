@@ -484,7 +484,7 @@ const PlayerMatches = () => {
                     </div>
                   )}
 
-                  <div className="text-center">
+                  <div className="flex justify-between items-center mt-4">
                     {match?.status.toString().toLowerCase() === "pending" ? (
                       <Button
                         className="font-semibold"
@@ -606,6 +606,116 @@ const PlayerMatches = () => {
                     : "Assign Player"
                 }
                 type="submit"
+              />
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Complaint Modal */}
+      <Modal
+        size="md"
+        show={complaintModalShow}
+        onHide={handleComplaintModalClose}
+      >
+        <Modal.Header content="Submit Match Complaint" />
+        <Modal.Body>
+          <form
+            onSubmit={handleSubmitComplaint}
+            className="flex flex-col gap-6"
+          >
+            <div className="space-y-4">
+              <div>
+                <h2 className="font-bold text-lg">
+                  {selectedMatch?.match_name}
+                </h2>
+                <p className="text-gray-500 text-sm">
+                  {selectedMatch?.match_code}
+                </p>
+              </div>
+
+              {/* Add slot selection */}
+              <div className="space-y-2">
+                <label className="block font-medium text-gray-700 text-sm">
+                  Select Player Slot
+                </label>
+                {!selectedMatch?.match_team ||
+                selectedMatch.match_team.length === 0 ? (
+                  <p className="text-md text-red-500">No slots available</p>
+                ) : (
+                  <Select
+                    options={selectedMatch.match_team.map((m, index) => ({
+                      value: m.match_team_id,
+                      label: `Slot ${index + 1}${
+                        m.player_id
+                          ? ` - ${m.player_name || "Unknown Player"}`
+                          : " (Empty)"
+                      }`,
+                    }))}
+                    placeHolder="Select slot to complain about"
+                    value={complaintData.matchTeamId}
+                    onChange={(e) =>
+                      setComplaintData((prev) => ({
+                        ...prev,
+                        matchTeamId: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block font-medium text-gray-700 text-sm">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  className="p-2 border rounded-md w-full"
+                  value={complaintData.title}
+                  onChange={(e) =>
+                    setComplaintData((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block font-medium text-gray-700 text-sm">
+                  Description
+                </label>
+                <textarea
+                  className="p-2 border rounded-md w-full min-h-[100px]"
+                  value={complaintData.description}
+                  onChange={(e) =>
+                    setComplaintData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                content="Cancel"
+                onClick={handleComplaintModalClose}
+                type="button"
+              />
+              <Button
+                content="Submit Complaint"
+                type="submit"
+                disabled={
+                  !complaintData.matchTeamId ||
+                  !complaintData.title ||
+                  !complaintData.description ||
+                  isLoading
+                }
               />
             </div>
           </form>
