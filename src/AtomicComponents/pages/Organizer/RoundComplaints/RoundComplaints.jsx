@@ -84,11 +84,12 @@ const RoundComplaints = () => {
   const [confirmAction, setConfirmAction] = useState(null);
   //#endregion
 
-  // CHECK IF COMPLAINTS HAVE APPROVED STATUS
+  // CHECK IF THERE IS ANY APPROVED COMPLAINTS TO RENDER REMATCH CREATE BUTTON
   const hasApprovedComplaint = allComplaints.some(
     (complaint) => complaint.status?.toUpperCase() === "APPROVED"
   );
 
+  // RETURN SET OF DISABLED MATCH TEAM IDS OR SELECT OPTIONS AND ONLY RE-RENDER IF ALL COMPLAINTS CHANGE
   const disabledMatchTeamIds = useMemo(() => {
     return new Set(
       allComplaints

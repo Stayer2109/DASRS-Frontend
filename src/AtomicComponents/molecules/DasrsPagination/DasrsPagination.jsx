@@ -1,5 +1,6 @@
 import { MenuItem, Pagination as PaginationMui, Select } from "@mui/material";
 import PropTypes from "prop-types";
+import { useState } from "react";
 
 export default function DasrsPagination({
   pageSize,
@@ -10,8 +11,11 @@ export default function DasrsPagination({
   displayedValues = [10, 15, 20, 25],
   ...props
 }) {
+  const [goToPage, setGoToPage] = useState("");
+
   return (
-    <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-4 mt-4">
+    <div className="flex flex-col justify-center items-center gap-4 mt-4 w-full">
+      {/* Pagination Buttons */}
       <PaginationMui
         {...props}
         showFirstButton
@@ -26,7 +30,7 @@ export default function DasrsPagination({
           display: "flex",
           justifyContent: "center",
           gap: 2,
-          "& .css-yuzg60-MuiButtonBase-root-MuiPaginationItem-root": {
+          "& .MuiPaginationItem-root": {
             borderRadius: "50%",
             color: "#2D3748",
             fontWeight: "bold",
@@ -36,79 +40,56 @@ export default function DasrsPagination({
               color: "white",
             },
           },
-          "& .MuiPaginationItem-previousNext": {
-            // borderRadius: "50%",
-            // color: "#2D3748",
-            fontWeight: "bold",
-            backgroundColor: "transparent",
-            "&.Mui-selected": {
-              backgroundColor: "#2D3748",
-              color: "white",
-            },
-          },
-          "& .MuiPaginationItem-firstLast": {
-            // borderRadius: "50%",
-            // color: "#2D3748",
-            fontWeight: "bold",
-            backgroundColor: "transparent",
-            "&.Mui-selected": {
-              backgroundColor: "#2D3748",
-              color: "white",
-            },
-          },
         }}
-        className="flex-1"
       />
 
-      <div className="flex items-center gap-2 text-sm absolute right-0">
+      {/* Rows per page & Go to page */}
+      <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
         <span className="font-semibold">Rows per page:</span>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={pageSize || 10}
+          labelId="rows-select-label"
+          id="rows-select"
+          value={pageSize}
           onChange={(event) =>
             handleChangePageSize(event.target.value, pageIndex)
-          } // Pass event.target.value directly
+          }
           label="Rows per page"
           sx={{
-            "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {
+            "& .MuiOutlinedInput-notchedOutline": {
               border: "none !important",
               padding: "1px !important",
             },
+            "& .MuiSelect-select": {
+              paddingTop: "4px",
+              paddingBottom: "4px",
+            },
           }}
-          className="min-w-[80px] text-sm bg-white rounded border border-gray-300"
+          className="bg-white border border-gray-300 rounded min-w-[80px] text-sm"
         >
-          {displayedValues && displayedValues.length > 0 ? (
-            displayedValues.map((value) => (
-              <MenuItem key={value} value={value}>
-                {value}
-              </MenuItem>
-            ))
-          ) : (
-            <>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={15}>15</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-              <MenuItem value={25}>25</MenuItem>
-            </>
-          )}
+          {displayedValues.map((value) => (
+            <MenuItem key={value} value={value}>
+              {value}
+            </MenuItem>
+          ))}
         </Select>
 
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2">
           <span className="font-semibold">Go to page:</span>
           <input
             type="number"
             min={1}
             max={count}
-            className="w-16 px-2 py-1 border border-gray-300 rounded"
+            value={goToPage || 1}
+            onChange={(e) => setGoToPage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                const value = parseInt(e.target.value, 10);
+                const value = parseInt(goToPage, 10);
                 if (!isNaN(value) && value >= 1 && value <= count) {
                   handlePagination(pageSize, value);
                 }
               }
             }}
+            className="px-2 py-1 border border-gray-300 rounded w-16"
           />
         </div>
       </div>

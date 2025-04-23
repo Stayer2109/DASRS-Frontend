@@ -31,6 +31,7 @@ import { ChevronDown } from "lucide-react";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Button as ButtonShadcn } from "@/AtomicComponents/atoms/shadcn/button";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import { NormalizeServerErrors } from "@/utils/NormalizeError";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
@@ -102,15 +103,7 @@ const PlayerMatches = () => {
         setAssignModalShow(false);
       }
     } catch (error) {
-      if (error.response?.status === 400 && error.response.data?.data) {
-        const serverErrors = NormalizeServerErrors(error.response.data.data);
-
-        // Merge existing and new errors
-        setUpdateProfileErrors((prev) => ({
-          ...prev,
-          ...serverErrors,
-        }));
-      }
+      console.log("Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -460,13 +453,18 @@ const PlayerMatches = () => {
             {/* Select slot */}
             <div className="">
               <label className="block mb-1">Select slot</label>
-              {!selectedMatch?.match_team || selectedMatch.match_team.length === 0 ? (
+              {!selectedMatch?.match_team ||
+              selectedMatch.match_team.length === 0 ? (
                 <p className="text-md text-red-500">No slots available</p>
               ) : (
                 <Select
                   options={selectedMatch.match_team.map((m, index) => ({
                     value: m.match_team_id,
-                    label: `Slot ${index + 1}${m.player_id ? ` (Assigned to ${m.player_name || 'Someone'})` : ''}`,
+                    label: `Slot ${index + 1}${
+                      m.player_id
+                        ? ` (Assigned to ${m.player_name || "Someone"})`
+                        : ""
+                    }`,
                   }))}
                   placeHolder="Select slot"
                   onChange={(e) =>
@@ -496,11 +494,12 @@ const PlayerMatches = () => {
 
             <div className="text-center">
               <Button
-                disabled={!assignData.assignee || !assignData.matchTeamid}
                 content={
-                  selectedMatch?.match_team?.find(m => m.match_team_id === assignData.matchTeamid)?.player_id 
-                  ? "Reassign Player" 
-                  : "Assign Player"
+                  selectedMatch?.match_team?.find(
+                    (m) => m.match_team_id === assignData.matchTeamid
+                  )?.player_id
+                    ? "Reassign Player"
+                    : "Assign Player"
                 }
                 type="submit"
               />
