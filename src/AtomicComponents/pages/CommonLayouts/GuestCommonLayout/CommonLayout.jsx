@@ -112,9 +112,6 @@ const CommonLayout = () => {
 
       // Decode jwt token
       const decodedToken = jwtDecode(accessToken);
-      console.log(accessToken);
-
-      console.log(decodedToken);
 
       // Get information
       const role = decodedToken.role;
@@ -161,8 +158,6 @@ const CommonLayout = () => {
       if (response.status === 200) {
         setSuccessMessage(response.data.message);
       }
-
-      console.log(response);
     } catch (error) {
       console.log(error);
       setForgetPasswordErrors(error.response.data.error);
