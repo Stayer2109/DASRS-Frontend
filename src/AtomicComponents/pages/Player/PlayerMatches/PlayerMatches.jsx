@@ -62,10 +62,15 @@ const PlayerMatches = () => {
   // HANDLE SELECT MATCH
   const handleSelectMatch = (match) => {
     setSelectedMatch(match);
+    
+    // Set default values for the first available slot and first player
+    const firstAvailableSlot = match.match_team?.[0]?.match_team_id || "";
+    const firstPlayer = playerOptions?.[0]?.value || "";
+    
     setAssignData({
-      matchTeamid: "", // user will select this later
+      matchTeamid: firstAvailableSlot,
       assigner: playerId,
-      assignee: "",
+      assignee: firstPlayer,
     });
   };
 
@@ -100,17 +105,48 @@ const PlayerMatches = () => {
           type: "success",
         });
         setAssignModalShow(false);
+        
+        // Refetch matches data
+        if (roundId && playerId) {
+          const fetchMatches = async () => {
+            try {
+              const response = assignedModeToggle
+                ? await apiClient.get(
+                    `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
+                  )
+                : await apiClient.get(`matches/team/${auth?.teamId}`);
+
+              if (response.data.http_status === 200) {
+                const data = response.data.data;
+                const formattedData = data;
+                setMatchesList(Array.isArray(formattedData) ? formattedData : []);
+              }
+            } catch (error) {
+              console.error("Error fetching matches:", error);
+              Toast({
+                title: "Error",
+                message: "Failed to refresh matches data",
+                type: "error",
+              });
+            }
+          };
+
+          await fetchMatches();
+        }
       }
     } catch (error) {
       if (error.response?.status === 400 && error.response.data?.data) {
         const serverErrors = NormalizeServerErrors(error.response.data.data);
-
-        // Merge existing and new errors
         setUpdateProfileErrors((prev) => ({
           ...prev,
           ...serverErrors,
         }));
       }
+      Toast({
+        title: "Error",
+        message: error.response?.data?.message || "Failed to assign player",
+        type: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -469,6 +505,7 @@ const PlayerMatches = () => {
                     label: `Slot ${index + 1}${m.player_id ? ` (Assigned to ${m.player_name || 'Someone'})` : ''}`,
                   }))}
                   placeHolder="Select slot"
+                  value={assignData.matchTeamid}
                   onChange={(e) =>
                     setAssignData((prev) => ({
                       ...prev,
@@ -485,6 +522,7 @@ const PlayerMatches = () => {
               <Select
                 options={playerOptions}
                 placeHolder="Select player"
+                value={assignData.assignee}
                 onChange={(e) =>
                   setAssignData((prev) => ({
                     ...prev,
