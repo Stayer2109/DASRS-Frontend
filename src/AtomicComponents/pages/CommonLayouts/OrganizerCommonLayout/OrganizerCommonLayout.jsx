@@ -4,6 +4,7 @@ import {
   AddPlayerIcon,
   ComplaintIcon,
   HomeIcon,
+  LeaderboardIcon,
   ListIcon,
   SettingIcon,
   SidebarIcon,
@@ -66,6 +67,11 @@ const OrganizerCommonLayout = () => {
       item: "Complaints",
       icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,
       link: "/complaints",
+    },
+    {
+      item: "Leaderboard",
+      icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/leaderboard",
     },
     {
       item: "Settings",
