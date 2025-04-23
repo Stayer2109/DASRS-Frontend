@@ -6,6 +6,7 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/tabs";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+import LeaderboardCard from "@/AtomicComponents/molecules/LeaderboardCard/LeaderboardCard";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import { apiClient } from "@/config/axios/axios";
 import { useEffect, useState } from "react";
@@ -24,9 +25,27 @@ const Leaderboard = () => {
   const [tournamentPageIndex, setTournamentPageIndex] = useState(1);
   const [tournamentTotalPages, setTournamentTotalPages] = useState(1);
 
+  // Round Pagination
+  const [roundPageSize, setRoundPageSize] = useState(6);
+  const [roundPageIndex, setRoundPageIndex] = useState(1);
+  const [roundTotalPages, setRoundTotalPages] = useState(1);
+
+  // Selected Items
+  const [selectedTournamentLeaderboard, setSelectedTournamentLeaderboard] =
+    useState(null);
+  const [selectedRound, setSelectedRound] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState(null);
   //#endregion
 
+  // HANDLE ONCLICK LEADERBOARD ITEM
+  const handleLeaderboardItemClick = (itemId) => {
+    if (activeTab === "tournaments") {
+      fetchTournamentLeaderboard(itemId);
+    }
+  };
+
   // #region FETCHING DATA
+  // Fetching Completed Tournaments
   const fetchCompletedTournaments = async () => {
     try {
       setIsLoading(true);
@@ -64,10 +83,24 @@ const Leaderboard = () => {
     }
   };
 
+  // Fetching Completed Rounds
   const fetchCompletedRounds = async () => {
     try {
       setIsLoading(true);
-      const response = await apiClient.get(``);
+      const response = await apiClient.get(`rounds`, {
+        params: {
+          pageNo: roundPageIndex - 1,
+          pageSize: roundPageSize,
+          sortBy: "SORT_BY_ID_ASC",
+          status: "COMPLETED",
+        },
+      });
+
+      if (response.data.http_status === 200) {
+        const data = response.data.data;
+        setCompletedRounds(data.content || []);
+        setRoundTotalPages(data.total_pages || 1);
+      }
     } catch (err) {
       if (err.code === "ECONNABORTED") {
         Toast({
@@ -92,8 +125,47 @@ const Leaderboard = () => {
     try {
       setIsLoading(true);
       const response = await apiClient.get(`teams`);
-      log
+      log;
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  // Fetching Tournament Leaderboard
+  const fetchTournamentLeaderboard = async (tournamentId) => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(
+        `leaderboards/tournament/${tournamentId}`,
+        {
+          params: {
+            pageNo: 0,
+            pageSize: 100,
+            sortBy: "id",
+            sortDirection: "asc",
+          },
+        }
+      );
+
+      if (response.data.http_status === 200) {
+        const data = response.data.data.content;
+        setSelectedTournamentLeaderboard(data);
+      }
     } catch (err) {
       if (err.code === "ECONNABORTED") {
         Toast({
@@ -117,12 +189,21 @@ const Leaderboard = () => {
 
   // #region PAGINATION HANDLERS
   const handlePagination = (_pageSize, newPageIndex) => {
-    setTournamentPageIndex(newPageIndex);
+    if (activeTab === "tournaments") {
+      setTournamentPageIndex(newPageIndex);
+    } else if (activeTab === "rounds") {
+      setRoundPageIndex(newPageIndex);
+    }
   };
 
   const handleChangePageSize = (newSize) => {
-    setTournamentPageSize(newSize);
-    setTournamentPageIndex(1);
+    if (activeTab === "tournaments") {
+      setTournamentPageSize(newSize);
+      setTournamentPageIndex(1);
+    } else if (activeTab === "rounds") {
+      setRoundPageSize(newSize);
+      setRoundPageIndex(1);
+    }
   };
   //#endregion
 
@@ -134,8 +215,10 @@ const Leaderboard = () => {
   }, [tournamentPageSize, tournamentPageIndex]);
 
   useEffect(() => {
-    console.log("Active Tab:", activeTab);
-  }, [activeTab]);
+    fetchCompletedRounds();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundPageSize, roundPageIndex]);
   //#endregion
 
   return (
@@ -166,6 +249,9 @@ const Leaderboard = () => {
                   <li
                     key={tournament.id}
                     className="bg-muted shadow-sm p-2 border rounded"
+                    onClick={() =>
+                      handleLeaderboardItemClick(tournament?.tournament_id)
+                    }
                   >
                     {tournament.tournament_name}
                   </li>
@@ -183,19 +269,59 @@ const Leaderboard = () => {
               />
             </TabsContent>
 
+            {/* Rounds Tab Content */}
             <TabsContent value="rounds">
               <h2 className="mb-2 font-semibold text-lg">Completed Rounds</h2>
-              <div>Round list here...</div>
+              <ul className="space-y-2">
+                {completedRounds.map((round) => (
+                  <li
+                    key={round.id}
+                    className="bg-muted shadow-sm p-2 border rounded"
+                    onClick={() => handleLeaderboardItemClick(round)}
+                  >
+                    {round.round_name}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Pagination */}
+              <DasrsPagination
+                pageSize={roundPageSize}
+                pageIndex={roundPageIndex}
+                count={roundTotalPages}
+                handlePagination={handlePagination}
+                handleChangePageSize={handleChangePageSize}
+                displayedValues={[6, 8, 10, 12]}
+              />
             </TabsContent>
 
-            <TabsContent value="teams">
-              <h2 className="mb-2 font-semibold text-lg">Team List</h2>
-              <div>Team list here...</div>
+            <TabsContent value="Teams">
+              <h2 className="mb-2 font-semibold text-lg">Completed Rounds</h2>
+              <div>Round list here...</div>
             </TabsContent>
           </Tabs>
         </div>
 
-        <div className=""></div>
+        {/* Leaderboard Card */}
+        <div className="">
+          {activeTab === "tournaments" ? (
+            <>
+              {selectedTournamentLeaderboard?.length > 0 ? (
+                selectedTournamentLeaderboard.map((block, index) => (
+                  <LeaderboardCard key={index} type="tournament" data={block} />
+                ))
+              ) : (
+                <p className="text-muted-foreground">
+                  No leaderboard data available.
+                </p>
+              )}
+            </>
+          ) : activeTab === "rounds" ? (
+            <LeaderboardCard type="round" />
+          ) : activeTab === "teams" ? (
+            <LeaderboardCard />
+          ) : null}
+        </div>
       </div>
     </>
   );
