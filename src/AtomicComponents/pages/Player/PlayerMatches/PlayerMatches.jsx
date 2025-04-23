@@ -52,6 +52,12 @@ const PlayerMatches = () => {
   const roundNameFromState = location.state?.roundName;
   const [scoreDetails, setScoreDetails] = useState({});
   const [loadingScores, setLoadingScores] = useState({});
+  const [complaintModalShow, setComplaintModalShow] = useState(false);
+  const [complaintData, setComplaintData] = useState({
+    matchTeamId: "",
+    title: "",
+    description: "",
+  });
 
   // BREADCRUM ITEMS
   const breadcrumbItems = [
@@ -62,11 +68,11 @@ const PlayerMatches = () => {
   // HANDLE SELECT MATCH
   const handleSelectMatch = (match) => {
     setSelectedMatch(match);
-    
+
     // Set default values for the first available slot and first player
     const firstAvailableSlot = match.match_team?.[0]?.match_team_id || "";
     const firstPlayer = playerOptions?.[0]?.value || "";
-    
+
     setAssignData({
       matchTeamid: firstAvailableSlot,
       assigner: playerId,
@@ -105,7 +111,7 @@ const PlayerMatches = () => {
           type: "success",
         });
         setAssignModalShow(false);
-        
+
         // Refetch matches data
         if (roundId && playerId) {
           const fetchMatches = async () => {
@@ -119,7 +125,9 @@ const PlayerMatches = () => {
               if (response.data.http_status === 200) {
                 const data = response.data.data;
                 const formattedData = data;
-                setMatchesList(Array.isArray(formattedData) ? formattedData : []);
+                setMatchesList(
+                  Array.isArray(formattedData) ? formattedData : []
+                );
               }
             } catch (error) {
               console.error("Error fetching matches:", error);
@@ -235,6 +243,58 @@ const PlayerMatches = () => {
         ...prev,
         [`${matchId}-${teamId}`]: false,
       }));
+    }
+  };
+
+  const handleComplaintModalShow = (match) => {
+    setComplaintData({
+      matchTeamId: "",
+      title: "",
+      description: "",
+    });
+    setSelectedMatch(match);
+    setComplaintModalShow(true);
+  };
+
+  const handleComplaintModalClose = () => {
+    setComplaintModalShow(false);
+    setComplaintData({
+      matchTeamId: "",
+      title: "",
+      description: "",
+    });
+    setSelectedMatch(null);
+  };
+
+  const handleSubmitComplaint = async (e) => {
+    e.preventDefault();
+
+    try {
+      setIsLoading(true);
+      const response = await apiClient.post(
+        `complaints/create?matchTeamId=${complaintData.matchTeamId}`,
+        {
+          title: complaintData.title,
+          description: complaintData.description,
+        }
+      );
+
+      if (response.data.http_status === 201) {
+        Toast({
+          title: "Success",
+          message: "Complaint submitted successfully",
+          type: "success",
+        });
+        handleComplaintModalClose();
+      }
+    } catch (error) {
+      Toast({
+        title: "Error",
+        message: error.response?.data?.error || "Failed to submit complaint",
+        type: "error",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -434,7 +494,7 @@ const PlayerMatches = () => {
                     </div>
                   )}
 
-                  <div className="text-center">
+                  <div className="text-center space-y-2">
                     {match?.status.toString().toLowerCase() === "pending" ? (
                       <Button
                         className="font-semibold"
@@ -450,6 +510,15 @@ const PlayerMatches = () => {
                         content="Assign player"
                         disabled
                         tooltipData="Cannot assign player for this match"
+                      />
+                    )}
+
+                    {/* Add Complaint Button */}
+                    {match.match_team?.some((m) => m.player_id === auth.id) && (
+                      <Button
+                        className="font-semibold"
+                        content="Submit Complaint"
+                        onClick={() => handleComplaintModalShow(match)}
                       />
                     )}
                   </div>
@@ -496,13 +565,18 @@ const PlayerMatches = () => {
             {/* Select slot */}
             <div className="">
               <label className="block mb-1">Select slot</label>
-              {!selectedMatch?.match_team || selectedMatch.match_team.length === 0 ? (
+              {!selectedMatch?.match_team ||
+              selectedMatch.match_team.length === 0 ? (
                 <p className="text-md text-red-500">No slots available</p>
               ) : (
                 <Select
                   options={selectedMatch.match_team.map((m, index) => ({
                     value: m.match_team_id,
-                    label: `Slot ${index + 1}${m.player_id ? ` (Assigned to ${m.player_name || 'Someone'})` : ''}`,
+                    label: `Slot ${index + 1}${
+                      m.player_id
+                        ? ` (Assigned to ${m.player_name || "Someone"})`
+                        : ""
+                    }`,
                   }))}
                   placeHolder="Select slot"
                   value={assignData.matchTeamid}
@@ -536,11 +610,123 @@ const PlayerMatches = () => {
               <Button
                 disabled={!assignData.assignee || !assignData.matchTeamid}
                 content={
-                  selectedMatch?.match_team?.find(m => m.match_team_id === assignData.matchTeamid)?.player_id 
-                  ? "Reassign Player" 
-                  : "Assign Player"
+                  selectedMatch?.match_team?.find(
+                    (m) => m.match_team_id === assignData.matchTeamid
+                  )?.player_id
+                    ? "Reassign Player"
+                    : "Assign Player"
                 }
                 type="submit"
+              />
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Complaint Modal */}
+      <Modal
+        size="md"
+        show={complaintModalShow}
+        onHide={handleComplaintModalClose}
+      >
+        <Modal.Header content="Submit Match Complaint" />
+        <Modal.Body>
+          <form
+            onSubmit={handleSubmitComplaint}
+            className="flex flex-col gap-6"
+          >
+            <div className="space-y-4">
+              <div>
+                <h2 className="font-bold text-lg">
+                  {selectedMatch?.match_name}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {selectedMatch?.match_code}
+                </p>
+              </div>
+
+              {/* Add slot selection */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Select Player Slot
+                </label>
+                {!selectedMatch?.match_team ||
+                selectedMatch.match_team.length === 0 ? (
+                  <p className="text-md text-red-500">No slots available</p>
+                ) : (
+                  <Select
+                    options={selectedMatch.match_team.map((m, index) => ({
+                      value: m.match_team_id,
+                      label: `Slot ${index + 1}${
+                        m.player_id
+                          ? ` - ${m.player_name || "Unknown Player"}`
+                          : " (Empty)"
+                      }`,
+                    }))}
+                    placeHolder="Select slot to complain about"
+                    value={complaintData.matchTeamId}
+                    onChange={(e) =>
+                      setComplaintData((prev) => ({
+                        ...prev,
+                        matchTeamId: e.target.value,
+                      }))
+                    }
+                    required
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md"
+                  value={complaintData.title}
+                  onChange={(e) =>
+                    setComplaintData((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <textarea
+                  className="w-full p-2 border rounded-md min-h-[100px]"
+                  value={complaintData.description}
+                  onChange={(e) =>
+                    setComplaintData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                content="Cancel"
+                onClick={handleComplaintModalClose}
+                type="button"
+              />
+              <Button
+                content="Submit Complaint"
+                type="submit"
+                disabled={
+                  !complaintData.matchTeamId ||
+                  !complaintData.title ||
+                  !complaintData.description ||
+                  isLoading
+                }
               />
             </div>
           </form>
