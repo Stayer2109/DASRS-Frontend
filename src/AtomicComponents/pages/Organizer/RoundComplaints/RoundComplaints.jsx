@@ -17,8 +17,7 @@ import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
 import { ComplaintReplyValidation } from "@/utils/Validation";
-import { useMemo } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Tooltip } from "recharts";
 
@@ -306,7 +305,22 @@ const RoundComplaints = () => {
     try {
       setIsLoading(true);
       const res = await apiClient.post(`/matches/rematch?${params.toString()}`);
-      console.log(res);
+
+      if (res.data.http_status === 200) {
+        Toast({
+          title: "Success",
+          type: "success",
+          message: res.data.message || "Rematch created successfully.",
+        });
+      }
+
+      await Promise.all([
+        fetchComplaintsData(),
+        fetchAllComplaints(),
+        fetchAvailableMatchTeamId(),
+      ]);
+
+      handleCloseRematchModal();
     } catch (err) {
       if (err.code === "ECONNABORTED") {
         Toast({
@@ -521,7 +535,7 @@ const RoundComplaints = () => {
                 <strong>Account ID:</strong>{" "}
                 {selectedComplaint?.account_id || "N/A"}
               </p>
-              
+
               <p>
                 <strong>Rematch Status:</strong>{" "}
                 {selectedComplaint?.has_rematch ? (
