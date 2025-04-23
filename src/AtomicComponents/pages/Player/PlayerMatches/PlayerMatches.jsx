@@ -121,7 +121,9 @@ const PlayerMatches = () => {
                 ? await apiClient.get(
                     `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
                   )
-                : await apiClient.get(`matches/team/${auth?.teamId}`);
+                : await apiClient.get(
+                    `matches/round/${roundId}/team/${auth?.teamId}`
+                  );
 
               if (response.data.http_status === 200) {
                 const data = response.data.data;
@@ -164,7 +166,7 @@ const PlayerMatches = () => {
             )*/ await apiClient.get(
               `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
             )
-          : await apiClient.get(`matches/team/${auth?.teamId}`);
+          : await apiClient.get(`matches/round/${roundId}/team/${auth?.teamId}`);
 
         if (response.data.http_status === 200) {
           const data = response.data.data;
@@ -216,7 +218,6 @@ const PlayerMatches = () => {
   }, []);
 
   const fetchScoreDetails = async (matchId, teamId) => {
-    console.log("Fetching score details for:", matchId, teamId); // Add this for debugging
     setLoadingScores((prev) => ({ ...prev, [`${matchId}-${teamId}`]: true }));
     try {
       const response = await apiClient.get(
@@ -461,7 +462,6 @@ const PlayerMatches = () => {
                                 size="sm"
                                 className="w-full"
                                 onClick={() => {
-                                  console.log("Button clicked"); // Add this for debugging
                                   fetchScoreDetails(
                                     match.match_id,
                                     match.team_id
