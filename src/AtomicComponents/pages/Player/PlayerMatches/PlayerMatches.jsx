@@ -557,18 +557,11 @@ const PlayerMatches = () => {
               <label className="block mb-1">Select slot</label>
               {!selectedMatch?.match_team ||
               selectedMatch.match_team.length === 0 ? (
-              {!selectedMatch?.match_team ||
-              selectedMatch.match_team.length === 0 ? (
                 <p className="text-md text-red-500">No slots available</p>
               ) : (
                 <Select
                   options={selectedMatch.match_team.map((m, index) => ({
                     value: m.match_team_id,
-                    label: `Slot ${index + 1}${
-                      m.player_id
-                        ? ` (Assigned to ${m.player_name || "Someone"})`
-                        : ""
-                    }`,
                     label: `Slot ${index + 1}${
                       m.player_id
                         ? ` (Assigned to ${m.player_name || "Someone"})`
@@ -606,11 +599,6 @@ const PlayerMatches = () => {
             <div className="text-center">
               <Button
                 content={
-                  selectedMatch?.match_team?.find(
-                    (m) => m.match_team_id === assignData.matchTeamid
-                  )?.player_id
-                    ? "Reassign Player"
-                    : "Assign Player"
                   selectedMatch?.match_team?.find(
                     (m) => m.match_team_id === assignData.matchTeamid
                   )?.player_id
