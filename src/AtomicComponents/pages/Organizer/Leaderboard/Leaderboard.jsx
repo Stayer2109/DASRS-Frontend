@@ -64,7 +64,55 @@ const Leaderboard = () => {
     }
   };
 
-  const fetchCompletedRounds = async () => {};
+  const fetchCompletedRounds = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(``);
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(`teams`);
+      log
+
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
   //#endregion
 
   // #region PAGINATION HANDLERS
@@ -87,7 +135,6 @@ const Leaderboard = () => {
 
   useEffect(() => {
     console.log("Active Tab:", activeTab);
-    
   }, [activeTab]);
   //#endregion
 
