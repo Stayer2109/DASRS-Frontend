@@ -36,6 +36,7 @@ import { TeamTournamentRounds } from "./AtomicComponents/pages/Player/TeamTourna
 import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfile/OrganizerProfile";
 import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints";
 import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/RoundComplaints";
+import Leaderboard from "./AtomicComponents/pages/Organizer/Leaderboard/Leaderboard";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -136,7 +137,7 @@ const AppRoutes = () => {
                   path="complaints/round/:roundId"
                   element={<RoundComplaints />}
                 />
-                <Route path="leaderboard">
+                <Route path="leaderboard" element={<Leaderboard />}>
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
                 </Route>
                 <Route path="settings" element={<Settings />} />

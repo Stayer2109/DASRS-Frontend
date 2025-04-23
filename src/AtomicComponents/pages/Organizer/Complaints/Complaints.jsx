@@ -7,6 +7,7 @@ import { apiClient } from "@/config/axios/axios";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import Select from "@/AtomicComponents/atoms/Select/Select";
 import { useNavigate } from "react-router-dom";
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 
 // STATUS STYLES
 const statusClass = (status) => {
@@ -98,6 +99,9 @@ const Complaints = () => {
     navigate(`/complaints/round/${roundId}`);
   };
 
+  // BREADCRUMB ITEMS
+  const breadcrumbItems = [{ label: "Player complaints", href: "/complaints" }];
+
   //#region MODAL CONTROLLERS
   // COMPLAINT MODAL
   const handleOpenComplaintModal = (complaint) => {
@@ -133,6 +137,9 @@ const Complaints = () => {
           {error}
         </div>
       )}
+
+      {/* Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
 
       {/* If Complaint List Is Empty */}
       {complaints.length === 0 ? (
