@@ -21,9 +21,10 @@ const sortKeyMap = {
   first_name: "SORT_BY_FIRSTNAME",
   email: "SORT_BY_EMAIL",
   team_name: "SORT_BY_TEAMNAME",
+  role_name: "SORT_BY_ROLENAME",
 };
 
-const userStatatusParams = {
+const userRoleParams = {
   ALL: "ALL",
   ORGANIZER: "ORGANIZER",
   PLAYER: "PLAYER",
@@ -33,12 +34,13 @@ export const UserManagement = () => {
   const [playerList, setPlayerList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showByStatus, setShowByStatus] = useState("ALL");
+  const [showByRole, setShowByRole] = useState("ALL");
   const roleSelectOptions = [
     { value: "ALL", label: "ALL" },
     { value: "PLAYER", label: "Player" },
     { value: "ORGANIZER", label: "Organizer" },
   ];
+
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -62,8 +64,8 @@ export const UserManagement = () => {
     return baseKey ? `${baseKey}_${sortDirection}` : null;
   };
 
-  const getStatusParam = () => {
-    return userStatatusParams[showByStatus] || null;
+  const getRoleParam = () => {
+    return userRoleParams[showByRole] || null;
   };
 
   // HANDLE SORT
@@ -95,7 +97,8 @@ export const UserManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       const sortByParam = getSortByParam();
-      const statusParam = getStatusParam();
+      const statusParam = getRoleParam();
+
       try {
         setIsLoading(true);
         const response = await apiClient.get("accounts/admin", {
@@ -128,7 +131,7 @@ export const UserManagement = () => {
     sortByKey,
     sortDirection,
     debouncedSearchTerm,
-    showByStatus,
+    showByRole,
   ]);
 
   return (
@@ -151,10 +154,10 @@ export const UserManagement = () => {
         <div className="flex flex-wrap justify-between gap-2 mb-4">
           <Select
             options={roleSelectOptions}
-            value={showByStatus}
+            value={showByRole}
             placeHolder="Select Role"
             onChange={(e) => {
-              setShowByStatus(e.target.value);
+              setShowByRole(e.target.value);
             }}
             className="w-full sm:max-w-xl"
           />
