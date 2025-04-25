@@ -90,7 +90,7 @@ const ModalHeader = ({ content, className, icon = <CancelIcon /> }) => {
   return (
     <>
       <div className={`modal-header ${className}`}>
-        {content && <h4 className={`modal-title text-h4`}>{content}</h4>}
+        {content && <h3 className={`modal-title text-h3`}>{content}</h3>}
         <CircularButton icon={icon} className="cancel-mark" noBackground />
       </div>
     </>
