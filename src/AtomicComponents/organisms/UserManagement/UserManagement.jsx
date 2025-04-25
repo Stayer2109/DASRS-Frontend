@@ -13,6 +13,7 @@ import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { Tooltip } from "react-tooltip";
 import { apiClient } from "@/config/axios/axios";
 import { useDebounce } from "@/hooks/useDebounce";
+import Select from "@/AtomicComponents/atoms/Select/Select";
 
 const sortKeyMap = {
   account_id: "SORT_BY_ID",
@@ -22,10 +23,22 @@ const sortKeyMap = {
   team_name: "SORT_BY_TEAMNAME",
 };
 
+const userStatatusParams = {
+  ALL: "ALL",
+  ORGANIZER: "ORGANIZER",
+  PLAYER: "PLAYER",
+};
+
 export const UserManagement = () => {
   const [playerList, setPlayerList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showByStatus, setShowByStatus] = useState("ALL");
+  const roleSelectOptions = [
+    { value: "ALL", label: "ALL" },
+    { value: "PLAYER", label: "Player" },
+    { value: "ORGANIZER", label: "Organizer" },
+  ];
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -39,7 +52,7 @@ export const UserManagement = () => {
     { key: "first_name", label: "First Name", sortable: true },
     { key: "email", label: "Email", sortable: true },
     { key: "phone", label: "Phone", sortable: false },
-    { key: "team_name", label: "Team Name", sortable: true },
+    { key: "role_name", label: "Role", sortable: true },
   ];
 
   // GET SORT PARAMS
@@ -47,6 +60,10 @@ export const UserManagement = () => {
     if (!sortByKey || !sortDirection) return null;
     const baseKey = sortKeyMap[sortByKey];
     return baseKey ? `${baseKey}_${sortDirection}` : null;
+  };
+
+  const getStatusParam = () => {
+    return userStatatusParams[showByStatus] || null;
   };
 
   // HANDLE SORT
@@ -78,20 +95,22 @@ export const UserManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       const sortByParam = getSortByParam();
+      const statusParam = getStatusParam();
       try {
         setIsLoading(true);
-        const response = await apiClient.get("accounts/players", {
+        const response = await apiClient.get("accounts/admin", {
           params: {
             pageNo: pageIndex - 1,
             pageSize,
             sortBy: sortByParam,
             keyword: debouncedSearchTerm || undefined, // ← pass search param
+            role: statusParam,
           },
         });
 
         if (response.data.http_status === 200) {
           const data = response.data.data;
-          setPlayerList(response.data.data.players);
+          setPlayerList(response.data.data.content);
           setTotalPages(data.total_pages || 1);
         }
       } catch (err) {
@@ -103,7 +122,14 @@ export const UserManagement = () => {
 
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pageSize, pageIndex, sortByKey, sortDirection, debouncedSearchTerm]);
+  }, [
+    pageSize,
+    pageIndex,
+    sortByKey,
+    sortDirection,
+    debouncedSearchTerm,
+    showByStatus,
+  ]);
 
   return (
     <>
@@ -119,6 +145,18 @@ export const UserManagement = () => {
               setPageIndex(1); // Reset to page 1 on search
             }}
             className="px-4 py-2 border border-gray-300 rounded w-full sm:max-w-xl"
+          />
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-2 mb-4">
+          <Select
+            options={roleSelectOptions}
+            value={showByStatus}
+            placeHolder="Select Role"
+            onChange={(e) => {
+              setShowByStatus(e.target.value);
+            }}
+            className="w-full sm:max-w-xl"
           />
         </div>
       </div>
