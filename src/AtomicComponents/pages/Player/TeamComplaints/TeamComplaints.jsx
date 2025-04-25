@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
+import Select from "@/AtomicComponents/atoms/Select/Select";
+import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import ComplaintCard from "@/AtomicComponents/molecules/ComplaintCard/ComplaintCard";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
-import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-import { apiClient } from "@/config/axios/axios";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
-import Select from "@/AtomicComponents/atoms/Select/Select";
-import { useNavigate } from "react-router-dom";
-import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
+import { apiClient } from "@/config/axios/axios";
+import useAuth from "@/hooks/useAuth";
+import { useEffect } from "react";
+import { useState } from "react";
 
 // STATUS STYLES
 const statusClass = (status) => {
@@ -24,48 +25,20 @@ const statusClass = (status) => {
   }
 };
 
-const statusOptions = [
-  { value: "all", label: "All" },
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-];
-
-// KEY MAPPING FOR TOURNAMENT STATUS
-const complaintsStatusMap = {
-  all: "",
-  pending: "PENDING",
-  approved: "APPROVED",
-  rejected: "REJECTED",
-};
-
-const Complaints = () => {
+const TeamComplaints = () => {
+  const { auth } = useAuth();
+  const teamId = auth?.teamId;
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [complaintModalShow, setComplaintModalShow] = useState(false);
-  const [showByStatus, setShowByStatus] = useState("all");
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-  // GET STATUS PARAMS
-  const getStatusParam = () => {
-    return complaintsStatusMap[showByStatus] || null;
-  };
 
   // 📥 FETCH COMPLAINTS
   const fetchComplaints = async () => {
-    const statusParam = getStatusParam();
-
     try {
       setIsLoading(true);
-      const res = await apiClient.get("complaints/all", {
-        params: {
-          status: statusParam,
-          sortBy: "createdDate", // add this
-          sortDirection: "ASC", // and this
-        },
-      });
+      const res = await apiClient.get(`complaints/team/${teamId}`);
 
       if (res.data.http_status === 200) {
         setComplaints(res.data.data || []);
@@ -93,15 +66,6 @@ const Complaints = () => {
     }
   };
 
-  // HANDLE NAVIGATE TO ROUND'S COMPLAINTS
-  const handleViewRoundComplaints = (roundId) => {
-    // Navigate to the round's complaints page
-    navigate(`/complaints/round/${roundId}`);
-  };
-
-  // BREADCRUMB ITEMS
-  const breadcrumbItems = [{ label: "Player complaints", href: "/complaints" }];
-
   //#region MODAL CONTROLLERS
   // COMPLAINT MODAL
   const handleOpenComplaintModal = (complaint) => {
@@ -118,13 +82,14 @@ const Complaints = () => {
   //#region USEFFECTS CONTROLLERS
   useEffect(() => {
     fetchComplaints();
+
     return () => {
       setComplaints([]);
       setError(null);
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showByStatus]);
+  }, []);
   //#endregion
 
   return (
@@ -139,7 +104,7 @@ const Complaints = () => {
       )}
 
       {/* Breadcrumb */}
-      <Breadcrumb items={breadcrumbItems} />
+      {/* <Breadcrumb items={breadcrumbItems} /> */}
 
       {/* If Complaint List Is Empty */}
       {complaints.length === 0 ? (
@@ -161,34 +126,23 @@ const Complaints = () => {
             >
               Show By Status
             </Label>
-            <Select
-              options={statusOptions}
-              value={showByStatus}
-              onChange={(e) => {
-                setShowByStatus(e.target.value);
-              }}
-              className="w-full sm:max-w-xs"
-            />
           </div>
 
           <div className="space-y-8 mt-6 px-4 w-full max-w-[2000px]">
             {complaints.map((group) => (
-              <div key={group.round_id}>
+              <div key={group?.round_id}>
                 <h2
-                  className="inline font-semibold text-gray-800 text-xl hover:underline cursor-pointer"
+                  className="inline font-semibold text-gray-800 text-xl"
                   title="Click to view all complaints in this round"
-                  onClick={() => handleViewRoundComplaints(group?.round_id)}
                 >
-                  {group.round_name}
+                  {group?.round_name}
                 </h2>
-                <p className="mb-3 text-gray-500 text-sm italic">
-                  Click the round title to view all complaints
-                </p>
 
                 <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-2">
-                  {group.complaints.slice(0, 3).map((complaint) => (
+                  {group?.complaints?.map((complaint) => (
                     <ComplaintCard
-                      key={complaint.id}
+                      key={complaint?.id}
+                      mode="team"
                       complaint={complaint}
                       onClick={() =>
                         handleOpenComplaintModal({
@@ -199,12 +153,6 @@ const Complaints = () => {
                       }
                     />
                   ))}
-
-                  {group.complaints.length > 3 && (
-                    <div className="flex justify-center items-center text-gray-600 text-md italic">
-                      ...and {group.complaints.length - 3} more
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -224,7 +172,7 @@ const Complaints = () => {
             {/* ID + Status */}
             <div className="flex justify-between items-center">
               <h2 className="font-semibold text-xl">
-                Complaint ID: {selectedComplaint?.id}
+                Complaint: {selectedComplaint?.title}
               </h2>
               <span
                 className={`${statusClass(
@@ -255,20 +203,15 @@ const Complaints = () => {
               <strong>Description:</strong> {selectedComplaint?.description}
             </p>
 
-            {/* Account */}
-            <p>
-              <strong>From:</strong> {selectedComplaint?.full_name || "N/A"}
-            </p>
-
             {/* Team */}
             <p>
-              <strong>Team:</strong> {selectedComplaint?.team_name || "N/A"}
+              <strong>From:</strong> {selectedComplaint?.full_name || "N/A"}
             </p>
 
             {/* Reply Input */}
             <p>
               <p>
-                <strong>Your reply: </strong>
+                <strong>Reply from Organizer: </strong>
                 {selectedComplaint?.reply || "N/A"}{" "}
               </p>
             </p>
@@ -289,4 +232,4 @@ const Complaints = () => {
   );
 };
 
-export default Complaints;
+export default TeamComplaints;

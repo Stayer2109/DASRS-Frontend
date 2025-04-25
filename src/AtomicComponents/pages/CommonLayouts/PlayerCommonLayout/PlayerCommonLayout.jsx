@@ -5,6 +5,7 @@ import "./PlayerCommonLayout.scss";
 import { motion, useAnimation } from "framer-motion";
 import { useMediaQuery } from "react-responsive";
 import {
+  ComplaintIcon,
   HomeIcon,
   SidebarIcon,
   TournamentIcon,
@@ -69,7 +70,11 @@ const PlayerCommonLayout = () => {
         },
       ],
     },
-    ,
+    {
+      item: "Team Complaints",
+      icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/team-complaints",
+    },
   ];
 
   useEffect(() => {

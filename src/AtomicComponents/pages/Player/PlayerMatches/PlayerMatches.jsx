@@ -166,7 +166,9 @@ const PlayerMatches = () => {
             )*/ await apiClient.get(
               `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
             )
-          : await apiClient.get(`matches/round/${roundId}/team/${auth?.teamId}`);
+          : await apiClient.get(
+              `matches/round/${roundId}/team/${auth?.teamId}`
+            );
 
         if (response.data.http_status === 200) {
           const data = response.data.data;
@@ -504,13 +506,11 @@ const PlayerMatches = () => {
                     )}
 
                     {/* Add Complaint Button */}
-                    {match.match_team?.some((m) => m.player_id === auth.id) && (
-                      <Button
-                        className="font-semibold"
-                        content="Submit Complaint"
-                        onClick={() => handleComplaintModalShow(match)}
-                      />
-                    )}
+                    <Button
+                      className="font-semibold"
+                      content="Submit Complaint"
+                      onClick={() => handleComplaintModalShow(match)}
+                    />
                   </div>
                 </div>
               </CardContent>

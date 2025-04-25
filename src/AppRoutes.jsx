@@ -37,6 +37,7 @@ import OrganizerProfile from "./AtomicComponents/pages/Organizer/OrganizerProfil
 import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints";
 import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/RoundComplaints";
 import Leaderboard from "./AtomicComponents/pages/Organizer/Leaderboard/Leaderboard";
+import TeamComplaints from "./AtomicComponents/pages/Player/TeamComplaints/TeamComplaints";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -185,6 +186,7 @@ const AppRoutes = () => {
                     element={<TeamTournamentRounds />}
                   />
                 </Route>
+                <Route path="team-complaints" element={<TeamComplaints />} />
               </Route>
             </Route>
           </Route>
