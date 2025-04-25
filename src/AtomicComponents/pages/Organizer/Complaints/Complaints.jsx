@@ -142,75 +142,80 @@ const Complaints = () => {
       <Breadcrumb items={breadcrumbItems} />
 
       {/* If Complaint List Is Empty */}
-      {complaints.length === 0 ? (
-        <div className="flex flex-col justify-center items-center h-screen">
-          <h1 className="font-bold text-gray-700 text-2xl">
-            No Complaints Found
-          </h1>
-          <p className="text-gray-500">There are no complaints to display.</p>
+
+      <div className="flex flex-col items-center">
+        <h1 className="mb-6 font-bold text-gray-700 text-2xl">
+          Player Complaints
+        </h1>
+        <div className="flex items-center gap-4 mb-4">
+          <Label
+            htmlFor="showByStatus"
+            className="font-semibold text-gray-700 whitespace-nowrap"
+          >
+            Show By Status
+          </Label>
+          <Select
+            options={statusOptions}
+            value={showByStatus}
+            onChange={(e) => {
+              setShowByStatus(e.target.value);
+            }}
+            className="w-full sm:max-w-xs"
+          />
         </div>
-      ) : (
-        <div className="flex flex-col items-center">
-          <h1 className="mb-6 font-bold text-gray-700 text-2xl">
-            Player Complaints
-          </h1>
-          <div className="flex items-center gap-4 mb-4">
-            <Label
-              htmlFor="showByStatus"
-              className="font-semibold text-gray-700 whitespace-nowrap"
-            >
-              Show By Status
-            </Label>
-            <Select
-              options={statusOptions}
-              value={showByStatus}
-              onChange={(e) => {
-                setShowByStatus(e.target.value);
-              }}
-              className="w-full sm:max-w-xs"
-            />
-          </div>
 
-          <div className="space-y-8 mt-6 px-4 w-full max-w-[2000px]">
-            {complaints.map((group) => (
-              <div key={group.round_id}>
-                <h2
-                  className="inline font-semibold text-gray-800 text-xl hover:underline cursor-pointer"
-                  title="Click to view all complaints in this round"
-                  onClick={() => handleViewRoundComplaints(group?.round_id)}
-                >
-                  {group.round_name}
-                </h2>
-                <p className="mb-3 text-gray-500 text-sm italic">
-                  Click the round title to view all complaints
-                </p>
+        <div className="space-y-8 mt-6 px-4 w-full max-w-[2000px]">
+          {complaints.length === 0 ? (
+            <div className="flex flex-col justify-center items-center mt-30">
+              <h1 className="font-bold text-gray-700 text-2xl">
+                No Complaints Found
+              </h1>
+              <p className="text-gray-500">
+                There are no complaints to display.
+              </p>
+            </div>
+          ) : (
+            <>
+              {complaints.map((group) => (
+                <div key={group.round_id}>
+                  <h2
+                    className="inline font-semibold text-gray-800 text-xl hover:underline cursor-pointer"
+                    title="Click to view all complaints in this round"
+                    onClick={() => handleViewRoundComplaints(group?.round_id)}
+                  >
+                    {group.round_name}
+                  </h2>
+                  <p className="mb-3 text-gray-500 text-sm italic">
+                    Click the round title to view all complaints
+                  </p>
 
-                <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-2">
-                  {group.complaints.slice(0, 3).map((complaint) => (
-                    <ComplaintCard
-                      key={complaint.id}
-                      complaint={complaint}
-                      onClick={() =>
-                        handleOpenComplaintModal({
-                          ...complaint,
-                          round_name: group.round_name,
-                          round_id: group.round_id,
-                        })
-                      }
-                    />
-                  ))}
+                  <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-2">
+                    {group.complaints.slice(0, 3).map((complaint) => (
+                      <ComplaintCard
+                        key={complaint.id}
+                        complaint={complaint}
+                        onClick={() =>
+                          handleOpenComplaintModal({
+                            ...complaint,
+                            round_name: group.round_name,
+                            round_id: group.round_id,
+                          })
+                        }
+                      />
+                    ))}
 
-                  {group.complaints.length > 3 && (
-                    <div className="flex justify-center items-center text-gray-600 text-md italic">
-                      ...and {group.complaints.length - 3} more
-                    </div>
-                  )}
+                    {group.complaints.length > 3 && (
+                      <div className="flex justify-center items-center text-gray-600 text-md italic">
+                        ...and {group.complaints.length - 3} more
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Complaint Modal */}
       <Modal
