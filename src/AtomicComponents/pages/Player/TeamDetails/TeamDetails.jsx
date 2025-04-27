@@ -14,6 +14,13 @@ import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import { Crown, UserPlus } from "lucide-react";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/AtomicComponents/atoms/shadcn/dialog";
 
 export const TeamDetails = () => {
   const { teamId } = useParams();
@@ -23,6 +30,7 @@ export const TeamDetails = () => {
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
+  const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const navigate = useNavigate();
 
   const fetchTeamData = async () => {
@@ -40,6 +48,10 @@ export const TeamDetails = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleJoinTeamClick = () => {
+    setShowJoinConfirm(true);
   };
 
   const handleJoinTeam = async () => {
@@ -63,6 +75,9 @@ export const TeamDetails = () => {
         teamId: teamId,
         isLeader: false
       }));
+
+      // Close the confirmation dialog
+      setShowJoinConfirm(false);
 
       // Navigate to my team page
       navigate("/my-team", { replace: true });
@@ -106,80 +121,115 @@ export const TeamDetails = () => {
   if (!team) return <div>Team not found</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <Button
-        variant="outline"
-        onClick={() => navigate("/teams")}
-        className="mb-4"
-      >
-        Back to Teams
-      </Button>
+    <>
+      <div className="container mx-auto p-4">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/teams")}
+          className="mb-4"
+        >
+          Back to Teams
+        </Button>
 
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-2xl">{team.name}</CardTitle>
-              <span className="text-gray-500">Tag: {team.tag}</span>
-            </div>
-            <div className="flex gap-2 items-center">
-              {renderTeamStatusBadge(team.member_count)}
-              {team.status && (
-                <Badge variant={team.status === "ACTIVE" ? "success" : "destructive"}>
-                  {team.status}
-                </Badge>
-              )}
-              {team.disqualified && (
-                <Badge variant="destructive">Disqualified</Badge>
-              )}
-              {canJoinTeam() && (
-                <Button 
-                  onClick={handleJoinTeam}
-                  disabled={isJoining}
-                  className="ml-2"
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  {isJoining ? "Joining..." : "Join Team"}
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Team Members ({team.member_count}/5)</h3>
-              <div className="space-y-2">
-                {members.map((member) => (
-                  <div
-                    key={member.id}
-                    className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-                      member.is_leader 
-                        ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
-                        : 'bg-gray-50 hover:bg-gray-100'
-                    }`}
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-2xl">{team.name}</CardTitle>
+                <span className="text-gray-500">Tag: {team.tag}</span>
+              </div>
+              <div className="flex gap-2 items-center">
+                {renderTeamStatusBadge(team.member_count)}
+                {team.status && (
+                  <Badge variant={team.status === "ACTIVE" ? "success" : "destructive"}>
+                    {team.status}
+                  </Badge>
+                )}
+                {team.disqualified && (
+                  <Badge variant="destructive">Disqualified</Badge>
+                )}
+                {canJoinTeam() && (
+                  <Button 
+                    onClick={handleJoinTeamClick}
+                    disabled={isJoining}
+                    className="ml-2"
                   >
-                    <div className="flex items-center gap-2">
-                      {member.is_leader && (
-                        <Crown className="h-5 w-5 text-yellow-500" />
-                      )}
-                      <span className={`font-medium ${member.is_leader ? 'text-yellow-700' : ''}`}>
-                        {member.full_name}
-                      </span>
-                    </div>
-                    {member.is_leader && (
-                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
-                        Team Leader
-                      </Badge>
-                    )}
-                  </div>
-                ))}
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {isJoining ? "Joining..." : "Join Team"}
+                  </Button>
+                )}
               </div>
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Team Members ({team.member_count}/5)</h3>
+                <div className="space-y-2">
+                  {members.map((member) => (
+                    <div
+                      key={member.id}
+                      className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+                        member.is_leader 
+                          ? 'bg-yellow-50 hover:bg-yellow-100 border border-yellow-200' 
+                          : 'bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {member.is_leader && (
+                          <Crown className="h-5 w-5 text-yellow-500" />
+                        )}
+                        <span className={`font-medium ${member.is_leader ? 'text-yellow-700' : ''}`}>
+                          {member.full_name}
+                        </span>
+                      </div>
+                      {member.is_leader && (
+                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                          Team Leader
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Join Team Confirmation Dialog */}
+      <Dialog open={showJoinConfirm} onOpenChange={setShowJoinConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Join Team</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              Are you sure you want to join team{" "}
+              <span className="font-semibold">{team?.name}</span>?
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              You can only be a member of one team at a time.
+            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowJoinConfirm(false)}
+              disabled={isJoining}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleJoinTeam}
+              disabled={isJoining}
+            >
+              {isJoining ? "Joining..." : "Confirm"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

@@ -233,7 +233,7 @@ export const Overview = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer className="h-[400px]" config={chartConfig}>
+            <ChartContainer className="h-50%" config={chartConfig}>
               <AreaChart
                 data={chartData}
                 margin={{

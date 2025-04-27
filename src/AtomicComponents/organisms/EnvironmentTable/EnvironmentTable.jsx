@@ -35,11 +35,6 @@ export const EnvironmentTable = ({
           >
             Name
           </TableHead>
-          <TableHead>Friction</TableHead>
-          <TableHead>Visibility</TableHead>
-          <TableHead>Brake Efficiency</TableHead>
-          <TableHead>Slip Angle</TableHead>
-          <TableHead>Reaction Delay</TableHead>
           <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -50,17 +45,12 @@ export const EnvironmentTable = ({
             <TableCell className="font-medium">
               {environment.environment_name}
             </TableCell>
-            <TableCell>{environment.friction.toFixed(2)}</TableCell>
-            <TableCell>{environment.visibility.toFixed(2)}</TableCell>
-            <TableCell>{environment.brake_efficiency.toFixed(2)}</TableCell>
-            <TableCell>{environment.slip_angle.toFixed(2)}</TableCell>
-            <TableCell>{environment.reaction_delay.toFixed(2)}</TableCell>
             <TableCell>
-              <StatusIndicator 
+              <StatusIndicator
                 isEnabled={environment.status === "ACTIVE"}
-                onChange={() => 
+                onChange={() =>
                   onStatusToggle(
-                    environment.environment_id, 
+                    environment.environment_id,
                     environment.status === "ACTIVE"
                   )
                 }
@@ -88,4 +78,3 @@ export const EnvironmentTable = ({
     </Table>
   );
 };
-

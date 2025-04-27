@@ -21,11 +21,6 @@ export const EnvironmentModal = ({
     const formValues = new FormData(e.target);
     onSubmit({
       environment_name: formValues.get("environment_name"),
-      friction: parseFloat(formValues.get("friction")),
-      visibility: parseFloat(formValues.get("visibility")),
-      brake_efficiency: parseFloat(formValues.get("brake_efficiency")),
-      slip_angle: parseFloat(formValues.get("slip_angle")),
-      reaction_delay: parseFloat(formValues.get("reaction_delay")),
     });
   };
 
@@ -51,76 +46,6 @@ export const EnvironmentModal = ({
               name="environment_name"
               defaultValue={formData?.environment_name || ""}
               placeholder="Enter environment name"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="friction">Friction (0-1)</Label>
-            <Input
-              id="friction"
-              name="friction"
-              type="number"
-              step="0.1"
-              min="0"
-              max="1"
-              defaultValue={formData?.friction || 0.1}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="visibility">Visibility (0-1)</Label>
-            <Input
-              id="visibility"
-              name="visibility"
-              type="number"
-              step="0.1"
-              min="0"
-              max="1"
-              defaultValue={formData?.visibility || 0.1}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="brake_efficiency">Brake Efficiency (0-1)</Label>
-            <Input
-              id="brake_efficiency"
-              name="brake_efficiency"
-              type="number"
-              step="0.1"
-              min="0"
-              max="1"
-              defaultValue={formData?.brake_efficiency || 0.1}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="slip_angle">Slip Angle (0-1)</Label>
-            <Input
-              id="slip_angle"
-              name="slip_angle"
-              type="number"
-              step="0.1"
-              min="0"
-              max="1"
-              defaultValue={formData?.slip_angle || 0.1}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="reaction_delay">Reaction Delay (0-1)</Label>
-            <Input
-              id="reaction_delay"
-              name="reaction_delay"
-              type="number"
-              step="0.1"
-              min="0"
-              max="1"
-              defaultValue={formData?.reaction_delay || 0.1}
               required
             />
           </div>

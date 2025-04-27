@@ -6,6 +6,10 @@ import {
   TableRow,
 } from "@/AtomicComponents/molecules/Table/Table";
 import { useEffect, useState } from "react";
+import { Button as ShadcnButton } from "@/AtomicComponents/atoms/shadcn/button";
+import { Plus } from "lucide-react";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Input from "@/AtomicComponents/atoms/Input/Input";
@@ -47,6 +51,17 @@ export const UserManagement = () => {
   const [sortByKey, setSortByKey] = useState("account_id"); // default sort key
   const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newAccount, setNewAccount] = useState({
+    email: "",
+    address: "",
+    phone: "",
+    first_name: "",
+    last_name: "",
+    role_id: 2, // Fixed to Organizer role
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const columns = [
     { key: "account_id", label: "ID", sortable: true },
@@ -94,6 +109,46 @@ export const UserManagement = () => {
   };
   //#endregion
 
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setIsSubmitting(true);
+      const response = await apiClient.post("accounts/by-admin", {
+        ...newAccount,
+        role_id: 2 // Ensure role_id is always 2 for Organizer
+      });
+
+      if (response.data.http_status === 200 || response.data.http_status === 201) {
+        Toast({
+          title: "Success",
+          message: "Organizer account created successfully",
+          type: "success",
+        });
+        setShowAddModal(false);
+        // Reset form
+        setNewAccount({
+          email: "",
+          address: "",
+          phone: "",
+          first_name: "",
+          last_name: "",
+          role_id: 2,
+        });
+        // Refresh the table
+        fetchData();
+      }
+    } catch (error) {
+      Toast({
+        title: "Error",
+        message: error.response?.data?.message || "Failed to create organizer account",
+        type: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const sortByParam = getSortByParam();
@@ -138,6 +193,14 @@ export const UserManagement = () => {
     <>
       {isLoading && <Spinner />}
       <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <ShadcnButton 
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Add Organizer
+          </ShadcnButton>
+        </div>
         <div className="flex flex-wrap justify-between gap-2 mb-4">
           <Input
             type="text"
@@ -217,6 +280,86 @@ export const UserManagement = () => {
           handleChangePageSize={handleChangePageSize}
         />
       </div>
+
+      {/* Add Organizer Modal */}
+      <Modal
+        show={showAddModal}
+        onHide={() => setShowAddModal(false)}
+        size="sm"
+      >
+        <Modal.Header content="Add New Organizer" />
+        <Modal.Body>
+          <form onSubmit={handleCreateAccount} className="space-y-4">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <Input
+                  type="email"
+                  value={newAccount.email}
+                  onChange={(e) => setNewAccount(prev => ({...prev, email: e.target.value}))}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">First Name</label>
+                <Input
+                  type="text"
+                  value={newAccount.first_name}
+                  onChange={(e) => setNewAccount(prev => ({...prev, first_name: e.target.value}))}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Last Name</label>
+                <Input
+                  type="text"
+                  value={newAccount.last_name}
+                  onChange={(e) => setNewAccount(prev => ({...prev, last_name: e.target.value}))}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone</label>
+                <Input
+                  type="tel"
+                  value={newAccount.phone}
+                  onChange={(e) => setNewAccount(prev => ({...prev, phone: e.target.value}))}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Address</label>
+                <Input
+                  type="text"
+                  value={newAccount.address}
+                  onChange={(e) => setNewAccount(prev => ({...prev, address: e.target.value}))}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <ShadcnButton
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddModal(false)}
+              >
+                Cancel
+              </ShadcnButton>
+              <ShadcnButton
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating..." : "Create Organizer"}
+              </ShadcnButton>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
