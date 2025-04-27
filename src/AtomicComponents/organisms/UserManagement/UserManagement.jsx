@@ -155,7 +155,7 @@ export const UserManagement = () => {
           <Select
             options={roleSelectOptions}
             value={showByRole}
-            placeHolder="Select Role"
+            placeHolder="Select role"
             onChange={(e) => {
               setShowByRole(e.target.value);
             }}

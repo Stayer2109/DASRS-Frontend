@@ -33,12 +33,14 @@ const Leaderboard = () => {
   // Selected Items
   const [selectedTournamentLeaderboard, setSelectedTournamentLeaderboard] =
     useState(null);
+  const [selectedTournamentId, setSelectedTournamentId] = useState(null); // To track active tournament
   const [selectedRound, setSelectedRound] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState(null);
   //#endregion
 
   // HANDLE ONCLICK LEADERBOARD ITEM
-  const handleLeaderboardItemClick = (itemId) => {
+  const handleLeaderboardItemClick = (itemId, tournamentId) => {
+    setSelectedTournamentId(tournamentId); // Set the active tournament
     if (activeTab === "tournaments") {
       fetchTournamentLeaderboard(itemId);
     }
@@ -121,31 +123,6 @@ const Leaderboard = () => {
     }
   };
 
-  const fetchTeams = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.get(`teams`);
-      log;
-    } catch (err) {
-      if (err.code === "ECONNABORTED") {
-        Toast({
-          title: "Timeout",
-          type: "error",
-          message:
-            "The server is taking too long to respond. Please try again.",
-        });
-      } else {
-        Toast({
-          title: "Error",
-          type: "error",
-          message: err.response?.data?.message || "Error processing request.",
-        });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Fetching Tournament Leaderboard
   const fetchTournamentLeaderboard = async (tournamentId) => {
     try {
@@ -163,7 +140,7 @@ const Leaderboard = () => {
       );
 
       if (response.data.http_status === 200) {
-        const data = response.data.data.content;
+        const data = response.data.data;
         setSelectedTournamentLeaderboard(data);
       }
     } catch (err) {
@@ -236,7 +213,6 @@ const Leaderboard = () => {
             <TabsList>
               <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
               <TabsTrigger value="rounds">Rounds</TabsTrigger>
-              <TabsTrigger value="teams">Teams</TabsTrigger>
             </TabsList>
 
             {/* Tournaments Tab Content */}
@@ -248,9 +224,16 @@ const Leaderboard = () => {
                 {completedTournaments.map((tournament) => (
                   <li
                     key={tournament.id}
-                    className="bg-muted shadow-sm p-2 border rounded"
+                    className={`${
+                      selectedTournamentId === tournament.tournament_id
+                        ? "bg-gray-300"
+                        : "bg-muted hover:bg-gray-200"
+                    } shadow-sm p-2 border rounded cursor-pointer`}
                     onClick={() =>
-                      handleLeaderboardItemClick(tournament?.tournament_id)
+                      handleLeaderboardItemClick(
+                        tournament?.tournament_id,
+                        tournament?.tournament_id
+                      )
                     }
                   >
                     {tournament.tournament_name}
@@ -276,7 +259,7 @@ const Leaderboard = () => {
                 {completedRounds.map((round) => (
                   <li
                     key={round.id}
-                    className="bg-muted shadow-sm p-2 border rounded"
+                    className="bg-muted hover:bg-gray-200 shadow-sm p-2 border rounded cursor-pointer"
                     onClick={() => handleLeaderboardItemClick(round)}
                   >
                     {round.round_name}
@@ -306,10 +289,11 @@ const Leaderboard = () => {
         <div className="">
           {activeTab === "tournaments" ? (
             <>
-              {selectedTournamentLeaderboard?.length > 0 ? (
-                selectedTournamentLeaderboard.map((block, index) => (
-                  <LeaderboardCard key={index} type="tournament" data={block} />
-                ))
+              {selectedTournamentLeaderboard ? (
+                <LeaderboardCard
+                  type="tournament"
+                  tournamentData={selectedTournamentLeaderboard}
+                />
               ) : (
                 <p className="text-muted-foreground">
                   No leaderboard data available.

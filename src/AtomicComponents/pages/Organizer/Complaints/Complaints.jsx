@@ -157,6 +157,7 @@ const Complaints = () => {
           <Select
             options={statusOptions}
             value={showByStatus}
+            placeHolder="Select status"
             onChange={(e) => {
               setShowByStatus(e.target.value);
             }}

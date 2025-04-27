@@ -992,7 +992,7 @@ export const TournamentRounds = () => {
                   <Label>Match Type</Label>
                   <Select
                     options={MatchFinishTypeOptions}
-                    placeHolder={"Select Finish Type"}
+                    placeHolder={"Select finish type"}
                     value={formData?.finish_type}
                     onChange={(e) => {
                       setFormData((prev) => ({
