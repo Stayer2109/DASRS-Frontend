@@ -3,7 +3,13 @@ import "./Select.scss";
 import { ChevronDown } from "lucide-react";
 import PropTypes from "prop-types";
 
-const Select = ({ placeHolder, value, onChange, options, className }) => {
+const Select = ({
+  placeHolder = "Select options",
+  value,
+  onChange,
+  options,
+  className,
+}) => {
   return (
     <div className={`relative w-full ${className} group focus-within:z-10`}>
       {/* Chevron on the left */}
