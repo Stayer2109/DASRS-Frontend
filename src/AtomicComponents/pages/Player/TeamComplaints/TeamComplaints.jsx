@@ -150,7 +150,7 @@ const TeamComplaints = () => {
           <Select
             options={statusOptions}
             value={showByStatus}
-            placeHolder={"Select Status"}
+            placeHolder={"Select status"}
             onChange={(e) => {
               setShowByStatus(e.target.value);
             }}
