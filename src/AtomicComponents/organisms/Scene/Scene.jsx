@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/AtomicComponents/atoms/shadcn/card";
 import { SceneHeader } from "@/AtomicComponents/molecules/SceneHeader/SceneHeader";
 import { SceneTable } from "@/AtomicComponents/organisms/SceneTable/SceneTable";
 import { Pagination } from "@/AtomicComponents/molecules/Pagination/Pagination";
 import { SceneModal } from "@/AtomicComponents/organisms/SceneModal/SceneModal";
 import { useSceneManagement } from "@/hooks/useSceneManagement";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/AtomicComponents/atoms/shadcn/dialog";
+import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 
 export const Scene = () => {
   const {
@@ -32,6 +40,25 @@ export const Scene = () => {
     handlePageChange,
   } = useSceneManagement();
 
+  // Add new state for status confirmation
+  const [statusConfirmOpen, setStatusConfirmOpen] = useState(false);
+  const [sceneToToggle, setSceneToToggle] = useState(null);
+
+  // New function to handle status toggle click
+  const handleStatusToggleClick = (resourceId, currentStatus) => {
+    setSceneToToggle({ resourceId, currentStatus });
+    setStatusConfirmOpen(true);
+  };
+
+  // New function to handle confirmation
+  const handleStatusConfirm = () => {
+    if (sceneToToggle) {
+      handleStatusToggle(sceneToToggle.resourceId, sceneToToggle.currentStatus);
+    }
+    setStatusConfirmOpen(false);
+    setSceneToToggle(null);
+  };
+
   return (
     <>
       <Card className="w-full">
@@ -49,7 +76,7 @@ export const Scene = () => {
             sortColumn={sortColumn}
             sortOrder={sortOrder}
             onSort={handleSort}
-            onStatusToggle={handleStatusToggle}
+            onStatusToggle={handleStatusToggleClick}
             onEdit={handleEdit}
           />
         </CardContent>
@@ -74,6 +101,31 @@ export const Scene = () => {
         onTypeChange={handleTypeChange}
         onSubmit={handleFormSubmit}
       />
+
+      {/* Status Change Confirmation Dialog */}
+      <Dialog open={statusConfirmOpen} onOpenChange={setStatusConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Status Change</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to {sceneToToggle?.currentStatus ? 'disable' : 'enable'} this scene?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setStatusConfirmOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleStatusConfirm}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

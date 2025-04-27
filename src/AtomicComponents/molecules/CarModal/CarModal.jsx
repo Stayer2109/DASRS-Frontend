@@ -46,6 +46,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
               id="car_name"
               value={localFormData?.car_name || ""}
               onChange={(e) => handleFormDataChange("car_name", e.target.value)}
+              required
               placeholder="Enter car name"
             />
           </div>
@@ -66,7 +67,8 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="minimum_engine_rpm"
                       type="number"
-                      value={localFormData?.minimum_engine_rpm || 200}
+                      required
+                      value={localFormData?.minimum_engine_rpm || 700}
                       onChange={(e) =>
                         handleFormDataChange(
                           "minimum_engine_rpm",
@@ -82,7 +84,8 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="maximum_engine_rpm"
                       type="number"
-                      value={localFormData?.maximum_engine_rpm || 500}
+                      required
+                      value={localFormData?.maximum_engine_rpm || 7000}
                       onChange={(e) =>
                         handleFormDataChange(
                           "maximum_engine_rpm",
@@ -96,7 +99,8 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="maximum_torque"
                       type="number"
-                      value={localFormData?.maximum_torque || 100}
+                      value={localFormData?.maximum_torque || 4500}
+                      required
                       onChange={(e) =>
                         handleFormDataChange(
                           "maximum_torque",
@@ -110,8 +114,8 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="shift_up_rpm"
                       type="number"
-                      step="0.1"
-                      value={localFormData?.shift_up_rpm || 0.1}
+                      required
+                      value={localFormData?.shift_up_rpm || 5500}
                       onChange={(e) =>
                         handleFormDataChange(
                           "shift_up_rpm",
@@ -125,8 +129,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="shift_down_rpm"
                       type="number"
-                      step="0.1"
-                      value={localFormData?.shift_down_rpm || 0.1}
+                      value={localFormData?.shift_down_rpm || 2750}
                       onChange={(e) =>
                         handleFormDataChange(
                           "shift_down_rpm",
@@ -140,6 +143,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="final_drive_ratio"
                       type="number"
+                      required
                       value={localFormData?.final_drive_ratio || 1}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -165,6 +169,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="steering_helper_strength"
                       type="number"
+                      required
                       value={localFormData?.steering_helper_strength || 1}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -181,6 +186,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="traction_helper_strength"
                       type="number"
+                      required
                       value={localFormData?.traction_helper_strength || 1}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -204,6 +210,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="max_brake_torque"
                       type="number"
+                      required
                       value={localFormData?.max_brake_torque || 2500}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -218,6 +225,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="anti_roll_force"
                       type="number"
+                      required
                       value={localFormData?.anti_roll_force || 100}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -244,6 +252,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="front_camper"
                       type="number"
+                      required
                       value={localFormData?.front_camper || -10}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -258,6 +267,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="rear_camper"
                       type="number"
+                      required
                       value={localFormData?.rear_camper || -10}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -272,6 +282,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="front_ssr"
                       type="number"
+                      required
                       value={localFormData?.front_ssr || 10000}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -286,6 +297,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="rear_ssr"
                       type="number"
+                      required
                       value={localFormData?.rear_ssr || 10000}
                       onChange={(e) =>
                         handleFormDataChange("rear_ssr", Number(e.target.value))
@@ -298,6 +310,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                       id="front_suspension"
                       type="number"
                       step="0.1"
+                      required
                       value={localFormData?.front_suspension || 0.1}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -313,6 +326,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                       id="rear_suspension"
                       type="number"
                       step="0.1"
+                      required
                       value={localFormData?.rear_suspension || 0.1}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -327,6 +341,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="front_ssd"
                       type="number"
+                      required
                       value={localFormData?.front_ssd || 1000}
                       onChange={(e) =>
                         handleFormDataChange(
@@ -341,6 +356,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                     <Input
                       id="rear_ssd"
                       type="number"
+                      required
                       value={localFormData?.rear_ssd || 1000}
                       onChange={(e) =>
                         handleFormDataChange("rear_ssd", Number(e.target.value))

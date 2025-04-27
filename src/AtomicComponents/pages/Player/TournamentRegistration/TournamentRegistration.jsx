@@ -158,13 +158,44 @@ export const TournamentRegistration = () => {
           <DialogHeader>
             <DialogTitle>Confirm Tournament Registration</DialogTitle>
           </DialogHeader>
-          <p>
-            Are you sure you want to register your team for{" "}
-            <span className="font-semibold">
-              {selectedTournament?.tournament_name}
-            </span>
-            ?
-          </p>
+          <div className="py-4">
+            <p>
+              Are you sure you want to register your team for{" "}
+              <span className="font-semibold">
+                {selectedTournament?.tournament_name}
+              </span>
+              ?
+            </p>
+            <div className="mt-4 space-y-2 text-sm text-gray-500">
+              <div className="flex justify-between">
+                <span>Start Date:</span>
+                <span>
+                  {selectedTournament &&
+                    new Date(
+                      selectedTournament.start_date
+                    ).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>End Date:</span>
+                <span>
+                  {selectedTournament &&
+                    new Date(selectedTournament.end_date).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Teams:</span>
+                <span>
+                  {selectedTournament?.team_list?.length || 0}/
+                  {selectedTournament?.team_number}
+                </span>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-gray-500">
+              By registering, your team commits to participating in all
+              tournament matches during the specified period.
+            </p>
+          </div>
           <DialogFooter>
             <Button
               variant="outline"
@@ -172,9 +203,7 @@ export const TournamentRegistration = () => {
             >
               Cancel
             </Button>
-            <Button onClick={handleRegisterTeam}>
-              Register
-            </Button>
+            <Button onClick={handleRegisterTeam}>Confirm Registration</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -199,4 +228,3 @@ export const TournamentRegistration = () => {
     </div>
   );
 };
-

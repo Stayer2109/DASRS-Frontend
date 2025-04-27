@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { PencilIcon, TrashIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import {
@@ -9,6 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/AtomicComponents/atoms/shadcn/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/AtomicComponents/atoms/shadcn/dialog";
 import PropTypes from "prop-types";
 
 export const TournamentActions = ({
@@ -17,6 +24,37 @@ export const TournamentActions = ({
   onDelete,
   onChangeStatus,
 }) => {
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    status: null,
+  });
+
+  const handleStatusClick = (status) => {
+    setConfirmDialog({
+      isOpen: true,
+      status,
+    });
+  };
+
+  const handleConfirm = () => {
+    onChangeStatus(tournamentId, confirmDialog.status);
+    setConfirmDialog({ isOpen: false, status: null });
+  };
+
+  const handleCancel = () => {
+    setConfirmDialog({ isOpen: false, status: null });
+  };
+
+  const getStatusText = (status) => {
+    const statusMap = {
+      PENDING: "Pending",
+      ACTIVE: "Active",
+      COMPLETED: "Completed",
+      TERMINATED: "Terminated",
+    };
+    return statusMap[status] || status;
+  };
+
   return (
     <>
       <DropdownMenu>
@@ -44,38 +82,69 @@ export const TournamentActions = ({
           <DropdownMenuLabel>Change Status</DropdownMenuLabel>
           <DropdownMenuItem
             className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "PENDING")}
+            onClick={() => handleStatusClick("PENDING")}
           >
             Set to Pending
           </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "ACTIVE")}
+            onClick={() => handleStatusClick("ACTIVE")}
           >
             Set to Active
           </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "COMPLETED")}
+            onClick={() => handleStatusClick("COMPLETED")}
           >
             Set to Completed
           </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
-            onClick={() => onChangeStatus(tournamentId, "TERMINATED")}
+            onClick={() => handleStatusClick("TERMINATED")}
           >
             Set to Terminated
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             className="hover:text-red-600 cursor-pointer"
             onClick={() => onDelete(tournamentId)}
           >
             <TrashIcon className="h-4 w-4 mr-1" />
             Delete Tournament
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmDialog.isOpen} onOpenChange={handleCancel}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Status Change</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>
+              Are you sure you want to change the tournament status to{" "}
+              <span className="font-semibold">
+                {getStatusText(confirmDialog.status)}
+              </span>
+              ?
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirm}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

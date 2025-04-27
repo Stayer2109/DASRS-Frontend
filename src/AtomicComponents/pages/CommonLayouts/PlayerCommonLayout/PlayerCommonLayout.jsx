@@ -19,12 +19,37 @@ import { Users, ListIcon } from "lucide-react"; // Import ListIcon
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const { _auth } = useAuth();
+  const { auth } = useAuth(); // Changed _auth to auth since that's what's used in other components
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navBarIconColor = "#FAF9F6";
   const iconWidth = 28;
   const subIconWidth = 20;
+
+  // Create tournament submenu items based on conditions
+  const getTournamentSubMenu = () => {
+    const subMenu = [];
+
+    // Only show Registration if user is a team leader
+    if (auth?.isLeader) {
+      subMenu.push({
+        item: "Registration",
+        icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
+        link: "/tournaments/registration",
+      });
+    }
+
+    // Only show My Tournaments if user is in a team
+    if (auth?.teamId) {
+      subMenu.push({
+        item: "My Tournaments",
+        icon: <TournamentIcon color={navBarIconColor} width={subIconWidth} />,
+        link: "/tournaments/my-tournaments",
+      });
+    }
+
+    return subMenu;
+  };
 
   const sidebarData = [
     {
@@ -53,23 +78,14 @@ const PlayerCommonLayout = () => {
         },
       ],
     },
-    {
-      item: "Tournaments",
-      icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
-      subMenu: [
-        {
-          item: "Registration",
-          icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
-          link: "/tournaments/registration",
-          isLeaderOnly: true,
-        },
-        {
-          item: "My Tournaments",
-          icon: <TournamentIcon color={navBarIconColor} width={subIconWidth} />,
-          link: "/tournaments/my-tournaments",
-        },
-      ],
-    },
+    // Only show Tournaments menu if there are submenu items
+    ...(getTournamentSubMenu().length > 0 ? [
+      {
+        item: "Tournaments",
+        icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
+        subMenu: getTournamentSubMenu(),
+      },
+    ] : []),
     {
       item: "Team Complaints",
       icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,

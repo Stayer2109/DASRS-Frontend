@@ -19,7 +19,7 @@ export const useEnvironmentManagement = () => {
     environment_id: "",
     environment_name: "",
     description: "",
-    is_enable: true
+    is_enable: true,
   });
 
   // Fetch data from API
@@ -56,12 +56,10 @@ export const useEnvironmentManagement = () => {
       if (formMode === "create") {
         await apiAuth.post("environments", {
           environment_name: formData.environment_name,
-          description: formData.description,
         });
       } else {
         await apiAuth.put(`environments/${formData.environment_id}`, {
           environment_name: formData.environment_name,
-          description: formData.description,
         });
       }
       setIsModalOpen(false);
@@ -73,14 +71,14 @@ export const useEnvironmentManagement = () => {
   };
 
   const handleEdit = (id) => {
-    const environmentToEdit = tableData.find((item) => item.environment_id === id);
+    const environmentToEdit = tableData.find(
+      (item) => item.environment_id === id
+    );
     if (environmentToEdit) {
       setFormMode("edit");
       setFormData({
         environment_id: environmentToEdit.environment_id,
         environment_name: environmentToEdit.environment_name,
-        description: environmentToEdit.description,
-        is_enable: environmentToEdit.is_enable,
       });
       setIsModalOpen(true);
     }
@@ -102,15 +100,15 @@ export const useEnvironmentManagement = () => {
     try {
       // Convert boolean to expected status string
       const newStatus = currentStatus ? "INACTIVE" : "ACTIVE";
-      
-      await apiAuth.put(`environments/change-status/${id}?enable=${!currentStatus}`);
-      
+
+      await apiAuth.put(
+        `environments/change-status/${id}?enable=${!currentStatus}`
+      );
+
       // Update local state
       setTableData((prevData) =>
         prevData.map((item) =>
-          item.environment_id === id
-            ? { ...item, status: newStatus }
-            : item
+          item.environment_id === id ? { ...item, status: newStatus } : item
         )
       );
     } catch (err) {

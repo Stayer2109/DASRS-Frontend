@@ -44,11 +44,11 @@ export const Car = () => {
     setFormMode("create");
     setFormData({
       car_name: "",
-      maximum_torque: 100,
-      minimum_engine_rpm: 200,
-      maximum_engine_rpm: 500,
-      shift_up_rpm: 0.1,
-      shift_down_rpm: 0.1,
+      maximum_torque: 4500,
+      minimum_engine_rpm: 700,
+      maximum_engine_rpm: 7000,
+      shift_up_rpm: 5500,
+      shift_down_rpm: 2750,
       final_drive_ratio: 1,
       anti_roll_force: 100,
       steering_helper_strength: 1,
