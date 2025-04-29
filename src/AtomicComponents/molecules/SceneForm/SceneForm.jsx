@@ -4,17 +4,23 @@ import { Input } from "@/AtomicComponents/atoms/shadcn/input";
 import { Textarea } from "@/AtomicComponents/atoms/shadcn/textarea";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { LoadingSpinner } from "@/AtomicComponents/atoms/LoadingSpinner/LoadingSpinner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/AtomicComponents/atoms/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/AtomicComponents/atoms/shadcn/select";
 import { DialogFooter } from "@/AtomicComponents/atoms/shadcn/dialog";
 
-export const SceneForm = ({ 
-  formData, 
-  formMode, 
-  isSubmitting, 
-  onInputChange, 
+export const SceneForm = ({
+  formData,
+  formMode,
+  isSubmitting,
+  onInputChange,
   onTypeChange,
-  onSubmit, 
-  onCancel 
+  onSubmit,
+  onCancel,
 }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-4 pt-4">
@@ -47,7 +53,7 @@ export const SceneForm = ({
         </Select>
       </div>
 
-      <div className="grid w-full gap-2">
+      {/* <div className="grid w-full gap-2">
         <Label htmlFor="resource_image">Image URL</Label>
         <Input
           id="resource_image"
@@ -56,7 +62,7 @@ export const SceneForm = ({
           onChange={onInputChange}
           placeholder="Enter image URL"
         />
-      </div>
+      </div> */}
 
       <div className="grid w-full gap-2">
         <Label htmlFor="description">Description</Label>
@@ -65,17 +71,14 @@ export const SceneForm = ({
           name="description"
           value={formData.description || ""}
           onChange={onInputChange}
+          required
           placeholder="Enter scene description"
           rows={4}
         />
       </div>
 
       <DialogFooter>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>

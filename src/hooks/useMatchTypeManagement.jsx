@@ -1,5 +1,5 @@
+import apiClient from "@/config/axios/axios";
 import { useState, useEffect } from "react";
-import { apiAuth } from "@/config/axios/axios";
 
 export const useMatchTypeManagement = () => {
   const [tableData, setTableData] = useState([]);
@@ -22,7 +22,7 @@ export const useMatchTypeManagement = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await apiAuth.get(
+      const response = await apiClient.get(
         `match-types?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=${sortColumn}&sortDirection=${sortOrder}`
       );
 
@@ -47,9 +47,9 @@ export const useMatchTypeManagement = () => {
   const handleFormSubmit = async (formData) => {
     try {
       if (formMode === "create") {
-        await apiAuth.post("match-types", formData);
+        await apiClient.post("match-types", formData);
       } else {
-        await apiAuth.put(`match-types/${formData.match_type_id}`, formData);
+        await apiClient.put(`match-types/${formData.match_type_id}`, formData);
       }
       setIsModalOpen(false);
       fetchData();
@@ -63,7 +63,7 @@ export const useMatchTypeManagement = () => {
     try {
       const newStatus = currentStatus ? "INACTIVE" : "ACTIVE";
       
-      await apiAuth.put(`match-types/change-status/${id}?enable=${!currentStatus}`);
+      await apiClient.put(`match-types/change-status/${id}?enable=${!currentStatus}`);
       
       setTableData((prevData) =>
         prevData.map((item) =>
