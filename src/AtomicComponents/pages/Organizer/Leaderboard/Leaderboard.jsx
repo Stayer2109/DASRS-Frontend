@@ -6,10 +6,11 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/tabs";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
-import LeaderboardCard from "@/AtomicComponents/molecules/LeaderboardCard/LeaderboardCard";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
+import TournamentLeaderboardCard from "@/AtomicComponents/molecules/LeaderboardCard/TournamentLeaderboardCard/TournamentLeaderboardCard";
 import { apiClient } from "@/config/axios/axios";
 import { useEffect, useState } from "react";
+import RoundLeaderboardCard from "@/AtomicComponents/molecules/LeaderboardCard/RoundLeaderboardCard/RoundLeaderboardCard";
 
 const Leaderboard = () => {
   // #region VARIABLES DECLARATION
@@ -33,21 +34,26 @@ const Leaderboard = () => {
   // Selected Items
   const [selectedTournamentLeaderboard, setSelectedTournamentLeaderboard] =
     useState(null);
-  const [selectedTournamentId, setSelectedTournamentId] = useState(null); // To track active tournament
-  const [selectedRound, setSelectedRound] = useState(null);
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedTournamentId, setSelectedTournamentId] = useState(null);
+
+  const [selectedRoundLeaderboard, setSelectedRoundLeaderboard] =
+    useState(null);
+  const [selectedRoundId, setSelectedRoundId] = useState(null);
   //#endregion
 
   // HANDLE ONCLICK LEADERBOARD ITEM
-  const handleLeaderboardItemClick = (itemId, tournamentId) => {
-    setSelectedTournamentId(tournamentId); // Set the active tournament
+  const handleLeaderboardItemClick = (itemId) => {
     if (activeTab === "tournaments") {
       fetchTournamentLeaderboard(itemId);
+      setSelectedTournamentId(itemId); // Set the active tournament
+    } else if (activeTab === "rounds") {
+      fetchRoundLeaderboard(itemId);
+      setSelectedRoundId(itemId); // Set the active round
     }
   };
 
   // #region FETCHING DATA
-  // Fetching Completed Tournaments
+  // FETCHING COMPLETED TOURNAMENTS
   const fetchCompletedTournaments = async () => {
     try {
       setIsLoading(true);
@@ -85,7 +91,7 @@ const Leaderboard = () => {
     }
   };
 
-  // Fetching Completed Rounds
+  // FETCHING COMPLETED ROUNDS
   const fetchCompletedRounds = async () => {
     try {
       setIsLoading(true);
@@ -123,7 +129,7 @@ const Leaderboard = () => {
     }
   };
 
-  // Fetching Tournament Leaderboard
+  // FETCHING TOURNAMENT LEADERBOARD
   const fetchTournamentLeaderboard = async (tournamentId) => {
     try {
       setIsLoading(true);
@@ -142,6 +148,36 @@ const Leaderboard = () => {
       if (response.data.http_status === 200) {
         const data = response.data.data;
         setSelectedTournamentLeaderboard(data);
+      }
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // FETCHING ROUND LEADERBOARD
+  const fetchRoundLeaderboard = async (roundId) => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(`rounds/${roundId}`);
+
+      if (response.data.http_status === 200) {
+        const data = response.data.data;
+        setSelectedRoundLeaderboard(data);
       }
     } catch (err) {
       if (err.code === "ECONNABORTED") {
@@ -230,10 +266,7 @@ const Leaderboard = () => {
                         : "bg-muted hover:bg-gray-200"
                     } shadow-sm p-2 border rounded cursor-pointer`}
                     onClick={() =>
-                      handleLeaderboardItemClick(
-                        tournament?.tournament_id,
-                        tournament?.tournament_id
-                      )
+                      handleLeaderboardItemClick(tournament?.tournament_id)
                     }
                   >
                     {tournament.tournament_name}
@@ -260,7 +293,7 @@ const Leaderboard = () => {
                   <li
                     key={round.id}
                     className="bg-muted hover:bg-gray-200 shadow-sm p-2 border rounded cursor-pointer"
-                    onClick={() => handleLeaderboardItemClick(round)}
+                    onClick={() => handleLeaderboardItemClick(round?.round_id)}
                   >
                     {round.round_name}
                   </li>
@@ -290,7 +323,7 @@ const Leaderboard = () => {
           {activeTab === "tournaments" ? (
             <>
               {selectedTournamentLeaderboard ? (
-                <LeaderboardCard
+                <TournamentLeaderboardCard
                   type="tournament"
                   tournamentData={selectedTournamentLeaderboard}
                 />
@@ -301,9 +334,18 @@ const Leaderboard = () => {
               )}
             </>
           ) : activeTab === "rounds" ? (
-            <LeaderboardCard type="round" />
-          ) : activeTab === "teams" ? (
-            <LeaderboardCard />
+            <>
+              {selectedRoundLeaderboard ? (
+                <RoundLeaderboardCard
+                  type="round"
+                  roundData={selectedRoundLeaderboard}
+                />
+              ) : (
+                <p className="text-muted-foreground">
+                  No leaderboard data available.
+                </p>
+              )}
+            </>
           ) : null}
         </div>
       </div>
