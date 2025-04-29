@@ -189,7 +189,7 @@ const CommonLayout = () => {
         />
 
         {/* LOGIN MODAL */}
-        <Modal show={loginModalShow} size="sm" onHide={handleLoginModalHide}>
+        <Modal show={loginModalShow} size="md" onHide={handleLoginModalHide}>
           <Modal.Header content={"Login to website"} icon={<CancelIcon />} />
           <Modal.Body>
             <h1 className="mb-10 text-mobile-h6 sm:text-h1 text-center italic">
@@ -285,7 +285,7 @@ const CommonLayout = () => {
         {/* FORGET PASSWORD MODAL */}
         <Modal
           show={forgetPasswordModalShow}
-          size="sm"
+          size="md"
           onHide={() => {
             handleForgetPasswordModalHide();
             handleLoginModalShow();
