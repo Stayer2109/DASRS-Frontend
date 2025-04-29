@@ -16,16 +16,14 @@ const createAxiosInstance = (config = {}) => {
 
   // Add request interceptor
   instance.interceptors.request.use(
-    async (config) => {
+    (config) => {
       const accessToken = Cookies.get("accessToken");
       if (accessToken) {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
   // Add response interceptor
@@ -34,21 +32,20 @@ const createAxiosInstance = (config = {}) => {
     async (error) => {
       const originalRequest = error.config;
 
-      // If error is 403 and we haven't retried yet
-      if (error?.response?.status === 403 && !originalRequest._retry) {
+      // Handle 403 (Forbidden) - Try refresh token
+      if (error?.response?.status === 403 && !originalRequest?._retry) {
         originalRequest._retry = true;
 
         try {
           const refreshToken = Cookies.get("refreshToken");
-          
-          // Call refresh token endpoint using a fresh axios instance to avoid infinite loop
+
           const response = await axios.post(
             `${baseURL}auth/refresh-token`,
             {},
             {
-              headers: { 
+              headers: {
                 Authorization: `Bearer ${refreshToken}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
               },
               withCredentials: true,
             }
@@ -57,19 +54,28 @@ const createAxiosInstance = (config = {}) => {
           const newAccessToken = response.data.data.access_token;
           const newRefreshToken = response.data.data.refresh_token;
 
-          // Update cookies with new tokens
-          Cookies.set("accessToken", newAccessToken);
-          Cookies.set("refreshToken", newRefreshToken);
+          // Save new tokens
+          Cookies.set("accessToken", newAccessToken, { secure: true, sameSite: "Strict" });
+          Cookies.set("refreshToken", newRefreshToken, { secure: true, sameSite: "Strict" });
 
-          // Update auth header and retry original request
+          // Retry original request
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return instance(originalRequest);
+
         } catch (refreshError) {
-          // If refresh fails, clear tokens and reject
+          // Refresh token failed → logout and redirect
           Cookies.remove("accessToken");
           Cookies.remove("refreshToken");
+          window.location.href = "/";
           return Promise.reject(refreshError);
         }
+      }
+
+      // Handle 401 (Unauthorized) - No refresh, just logout and redirect
+      if (error?.response?.status === 401) {
+        Cookies.remove("accessToken");
+        Cookies.remove("refreshToken");
+        // window.location.href = "/";
       }
 
       return Promise.reject(error);
@@ -83,10 +89,9 @@ const createAxiosInstance = (config = {}) => {
 export const apiClient = createAxiosInstance();
 
 export const apiAuth = createAxiosInstance({
-  // Add any auth-specific configs here if needed
   headers: {
     "Content-Type": "application/json",
-  }
+  },
 });
 
 export default apiClient;

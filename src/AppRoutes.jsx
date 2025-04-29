@@ -38,6 +38,8 @@ import Complaints from "./AtomicComponents/pages/Organizer/Complaints/Complaints
 import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/RoundComplaints";
 import Leaderboard from "./AtomicComponents/pages/Organizer/Leaderboard/Leaderboard";
 import TeamComplaints from "./AtomicComponents/pages/Player/TeamComplaints/TeamComplaints";
+import NotFoundPage from "./AtomicComponents/pages/ErrorPage/NotFoundPage";
+import UnauthorizedPage from "./AtomicComponents/pages/ErrorPage/UnauthorizedPage";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -74,37 +76,6 @@ const AppRoutes = () => {
             </Route>
           </Route>
         );
-
-      // case "STAFF":
-      // return (
-      //   <Route element={<PersistLogin />}>
-      //     <Route element={<RequireAuth allowedRoles={["STAFF"]} />}>
-      //       <Route path="/" element={<StaffCommonLayout />}>
-      //         <Route index element={<StaffHomePage />} />
-      //         <Route path="my-profile" element={<h1>My Profile</h1>} />
-      //         <Route path="player-management">
-      //           <Route path="player-list" element={<PlayerList />} />
-
-      //           <Route path="add-player" element={<AddPlayerByImport />} />
-      //         </Route>
-      //         {/* For Tournaments */}
-      //         <Route path="tournaments" element={<TournamentList />} />
-      //         <Route
-      //           path="tournaments/:tournamentId/rounds"
-      //           element={<TournamentRounds />}
-      //         />
-      //         <Route
-      //           path="tournaments/:tournamentId/teams"
-      //           element={<TournamentTeams />}
-      //         />{" "}
-      //         <Route
-      //           path="tournaments/:tournamentId/rounds/:roundId/matches"
-      //           element={<RoundMatches />}
-      //         />
-      //       </Route>
-      //     </Route>
-      //   </Route>
-      // );
 
       case "ORGANIZER":
         return (
@@ -203,10 +174,7 @@ const AppRoutes = () => {
       <Routes>
         {renderRoutesByRole()}
         <Route path="reset-password/:token" element={<ForgetPassword />} />
-        <Route
-          path="*"
-          element={<h1 className="text-h1 text-red-500">Adu Ang Seng</h1>}
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ScrollToTop>
   );
