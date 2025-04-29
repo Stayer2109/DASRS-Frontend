@@ -18,7 +18,7 @@ const Modal = ({
   children = object,
   className = "",
   show = false,
-  onHide = () => { },
+  onHide = () => {},
   size = "xs",
 }) => {
   const modalRef = useRef();
@@ -74,8 +74,9 @@ const Modal = ({
         onKeyDown={handleClose}
       >
         <div
-          className={`modal ${className} ${show ? "modal-show" : "modal-closed"
-            } ${size}`}
+          className={`modal ${className} ${
+            show ? "modal-show" : "modal-closed"
+          } ${size}`}
           ref={modalRef}
           onClick={handleClose}
         >
@@ -108,7 +109,11 @@ const ModalBody = ({ children, className }) => {
 const ModalFooter = ({ children, className }) => {
   return (
     <>
-      <div className={`modal-footer flex justify-end gap-4 mt-6 p-[24px] border-t ${className}`}>{children}</div>
+      <div
+        className={`modal-footer flex justify-end gap-4 mt-6 p-[24px] border-t ${className}`}
+      >
+        {children}
+      </div>
     </>
   );
 };

@@ -292,7 +292,11 @@ const Leaderboard = () => {
                 {completedRounds.map((round) => (
                   <li
                     key={round.id}
-                    className="bg-muted hover:bg-gray-200 shadow-sm p-2 border rounded cursor-pointer"
+                    className={`${
+                      selectedRoundId === round?.round_id
+                        ? "bg-gray-300"
+                        : "bg-muted hover:bg-gray-200"
+                    } shadow-sm p-2 border rounded cursor-pointer`}
                     onClick={() => handleLeaderboardItemClick(round?.round_id)}
                   >
                     {round.round_name}
