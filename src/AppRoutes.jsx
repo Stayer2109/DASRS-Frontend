@@ -39,7 +39,6 @@ import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/
 import Leaderboard from "./AtomicComponents/pages/Organizer/Leaderboard/Leaderboard";
 import TeamComplaints from "./AtomicComponents/pages/Player/TeamComplaints/TeamComplaints";
 import NotFoundPage from "./AtomicComponents/pages/ErrorPage/NotFoundPage";
-import UnauthorizedPage from "./AtomicComponents/pages/ErrorPage/UnauthorizedPage";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
