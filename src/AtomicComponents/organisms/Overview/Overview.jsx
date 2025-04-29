@@ -17,6 +17,8 @@ import {
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { RefreshCw } from "lucide-react";
 import { DatePicker } from "@/AtomicComponents/atoms/shadcn/date-picker";
+import { apiClient } from "@/config/axios/axios";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const Overview = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -36,25 +38,29 @@ export const Overview = () => {
     try {
       setIsLoading(true);
       const [dashboardResponse, monthlyResponse] = await Promise.all([
-        fetch(
-          `https://capstone-project-dasrs.onrender.com/api/v1/tournaments/dashboard?startDate=${formatDate(
-            start
-          )}&endDate=${formatDate(end)}`
-        ),
-        fetch(
-          `https://capstone-project-dasrs.onrender.com/api/v1/tournaments/dashboard/monthly?startDate=${formatDate(
-            start
-          )}&endDate=${formatDate(end)}`
-        ),
+        apiClient.get("tournaments/dashboard", {
+          params: {
+            startDate: formatDate(start),
+            endDate: formatDate(end)
+          }
+        }),
+        apiClient.get("tournaments/dashboard/monthly", {
+          params: {
+            startDate: formatDate(start),
+            endDate: formatDate(end)
+          }
+        })
       ]);
 
-      const dashboardResult = await dashboardResponse.json();
-      const monthlyResult = await monthlyResponse.json();
-
-      setDashboardData(dashboardResult.data);
-      setMonthlyData(monthlyResult.data.weekly_dashboard);
+      setDashboardData(dashboardResponse.data.data);
+      setMonthlyData(monthlyResponse.data.data.weekly_dashboard);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      Toast({
+        title: "Error",
+        type: "error",
+        message: error.response?.data?.message || "Failed to fetch dashboard data"
+      });
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,5 @@
+import apiClient from "@/config/axios/axios";
 import { useState, useEffect } from "react";
-import { apiAuth } from "@/config/axios/axios";
 
 export const useSceneManagement = () => {
   const [tableData, setTableData] = useState([]);
@@ -33,7 +33,7 @@ export const useSceneManagement = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await apiAuth.get(
+      const response = await apiClient.get(
         `resources/admin?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=${sortColumn}&sortDirection=${sortOrder}`
       );
 
@@ -91,7 +91,7 @@ export const useSceneManagement = () => {
           description: formData.description,
         };
 
-        await apiAuth.post("resources", payload);
+        await apiClient.post("resources", payload);
       } else {
         // Edit existing scene
         const payload = {
@@ -101,7 +101,7 @@ export const useSceneManagement = () => {
           description: formData.description,
         };
 
-        await apiAuth.put(`resources/${formData.resource_id}`, payload);
+        await apiClient.put(`resources/${formData.resource_id}`, payload);
       }
 
       // Refresh data after successful operation
@@ -160,7 +160,7 @@ export const useSceneManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this scene?")) {
       try {
-        await apiAuth.delete(`resources/${id}`);
+        await apiClient.delete(`resources/${id}`);
         await fetchData();
       } catch (err) {
         console.error("Error deleting scene:", err);
@@ -195,7 +195,7 @@ export const useSceneManagement = () => {
       );
 
       // API call to update status
-      await apiAuth.put(
+      await apiClient.put(
         `resources/change-status/${id}?enable=${!currentStatus}`
       );
 
