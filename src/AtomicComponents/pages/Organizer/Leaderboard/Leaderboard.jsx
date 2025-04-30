@@ -331,6 +331,10 @@ const Leaderboard = () => {
                   type="tournament"
                   tournamentData={selectedTournamentLeaderboard}
                 />
+              ) : completedTournaments.length > 0 ? (
+                <p className="font-semibold text-muted-foreground italic">
+                  Please choose an item to view.
+                </p>
               ) : (
                 <p className="text-muted-foreground">
                   No leaderboard data available.
@@ -344,6 +348,10 @@ const Leaderboard = () => {
                   type="round"
                   roundData={selectedRoundLeaderboard}
                 />
+              ) : completedRounds.length > 0 ? (
+                <p className="font-semibold text-muted-foreground italic">
+                  Please choose an item to view.
+                </p>
               ) : (
                 <p className="text-muted-foreground">
                   No leaderboard data available.
