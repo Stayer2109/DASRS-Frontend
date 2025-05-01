@@ -86,7 +86,7 @@ export const useSceneManagement = () => {
         // Create new scene
         const payload = {
           resource_name: formData.resource_name,
-          resource_image: formData.resource_image || null,
+          resource_image: formData.resource_image,  // Remove the || null
           resource_type: formData.resource_type,
           description: formData.description,
         };
@@ -96,7 +96,7 @@ export const useSceneManagement = () => {
         // Edit existing scene
         const payload = {
           resource_name: formData.resource_name,
-          resource_image: formData.resource_image || null,
+          resource_image: formData.resource_image,  // Remove the || null
           resource_type: formData.resource_type,
           description: formData.description,
         };

@@ -21,9 +21,9 @@ import { ConvertDate } from "@/utils/DateConvert";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
 import { UpdateProfileValidation } from "@/utils/Validation";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import { FirebaseStorage } from "@/utils/FirebaseStorage";
 const inputCommonClassname = "w-full mb-1";
 
 const OrganizerProfile = () => {
@@ -32,6 +32,8 @@ const OrganizerProfile = () => {
   const [user, setUlayer] = useState(null);
   const [updateProfileShow, setUpdateProfileShow] = useState(false);
   const [updateProfileErrors, setUpdateProfileErrors] = useState({});
+  const fileInputRef = useRef(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const genderOptions = [
     { value: "Male", label: "Male" },
     { value: "Female", label: "Female" },
@@ -45,6 +47,62 @@ const OrganizerProfile = () => {
     first_name: "",
     last_name: "",
   });
+
+  // Handle avatar click to trigger file input
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Handle avatar upload
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingAvatar(true);
+
+      // Generate unique path for the avatar
+      const path = FirebaseStorage.generateUniquePath(file.name, 'avatars');
+      
+      // Upload image to Firebase
+      const imageURL = await FirebaseStorage.uploadImage(file, path, 2); // 2MB limit
+
+      // Update avatar URL in backend
+      const response = await apiClient.put(
+        `accounts/update-profile-picture?id=${auth?.id}&imageURL=${encodeURIComponent(imageURL)}`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        }
+      );
+
+      if (response.data.http_status === 200) {
+        // Refresh user data to show new avatar
+        await fetchPlayerData();
+        
+        Toast({
+          title: "Success",
+          message: "Avatar updated successfully",
+          type: "success",
+        });
+      }
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      Toast({
+        title: "Error",
+        message: error.message || "Failed to update avatar",
+        type: "error",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   // HANDLE UPDATE PROFILE DATA VALIDATION
   const handleUpdateProfileValidation = (data) => {
@@ -145,17 +203,43 @@ const OrganizerProfile = () => {
   return (
     <>
       {isLoading && <Spinner />}
+      {isUploadingAvatar && <Spinner />}
 
       <div className="flex justify-center items-center min-h-[80vh]">
         {user ? (
           <Card className="bg-white shadow-md p-6 rounded-xl w-full max-w-md">
             <CardHeader className="flex flex-col items-center gap-4 pb-2">
-              <Avatar className="mb-2 ring-2 ring-blue-500 w-24 h-24">
-                <AvatarImage src={user.avatar || ""} />
-                <AvatarFallback className="bg-gray-200 text-gray-600 text-4xl">
-                  {user.last_name?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+              <div
+                className="relative group cursor-pointer"
+                onClick={handleAvatarClick}
+              >
+                <Avatar className="mb-2 ring-2 ring-blue-500 w-24 h-24 transition-all duration-300 group-hover:ring-blue-600 group-hover:opacity-75">
+                  <AvatarImage src={user.avatar || ""} />
+                  <AvatarFallback className="bg-gray-200 text-gray-600 text-4xl">
+                    {user.last_name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+
+                {/* Hidden overlay text */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="text-white text-sm font-medium bg-blue-600 bg-opacity-80 px-3 py-2 rounded-md shadow-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                      <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                    </svg>
+                    Change Avatar
+                  </span>
+                </div>
+
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                />
+              </div>
               <CardTitle className="font-bold text-xl">
                 {user.first_name + " " + user.last_name}
               </CardTitle>
