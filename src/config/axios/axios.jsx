@@ -55,13 +55,18 @@ const createAxiosInstance = (config = {}) => {
           const newRefreshToken = response.data.data.refresh_token;
 
           // Save new tokens
-          Cookies.set("accessToken", newAccessToken, { secure: true, sameSite: "Strict" });
-          Cookies.set("refreshToken", newRefreshToken, { secure: true, sameSite: "Strict" });
+          Cookies.set("accessToken", newAccessToken, {
+            secure: true,
+            sameSite: "Strict",
+          });
+          Cookies.set("refreshToken", newRefreshToken, {
+            secure: true,
+            sameSite: "Strict",
+          });
 
           // Retry original request
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           return instance(originalRequest);
-
         } catch (refreshError) {
           // Refresh token failed → logout and redirect
           Cookies.remove("accessToken");
@@ -75,7 +80,7 @@ const createAxiosInstance = (config = {}) => {
       if (error?.response?.status === 401) {
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
-        // window.location.href = "/";
+        window.location.href = "/";
       }
 
       return Promise.reject(error);
