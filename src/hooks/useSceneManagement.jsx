@@ -1,3 +1,4 @@
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import apiClient from "@/config/axios/axios";
 import { useState, useEffect } from "react";
 
@@ -202,6 +203,11 @@ export const useSceneManagement = () => {
       // If API call fails, the catch block will revert the change
     } catch (err) {
       console.error("Error updating status:", err);
+      Toast({
+        title: "Error",
+        message: err.response?.data?.message || "Error processing request.",
+        type: "error",
+      });
 
       // Revert the optimistic update
       setTableData((prevData) =>
