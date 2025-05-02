@@ -82,7 +82,8 @@ export const useCarManagement = () => {
         rear_suspension: submittedFormData.rear_suspension,
         front_ssd: submittedFormData.front_ssd,
         rear_ssd: submittedFormData.rear_ssd,
-        max_brake_torque: submittedFormData.max_brake_torque
+        max_brake_torque: submittedFormData.max_brake_torque,
+        is_enabled: submittedFormData.is_enabled // Include is_enabled in the payload
       };
 
       if (formMode === "create") {
@@ -93,11 +94,11 @@ export const useCarManagement = () => {
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
-  Toast({
-    title: "Error",
-    message: err.response?.data?.message || "Error processing request.",
-    type: "error",
-  });
+      Toast({
+        title: "Error",
+        message: err.response?.data?.message || "Error processing request.",
+        type: "error",
+      });
     }
   };
 
@@ -106,7 +107,8 @@ export const useCarManagement = () => {
     if (carToEdit) {
       setFormMode("edit");
       setFormData({
-        ...carToEdit
+        ...carToEdit,
+        is_enabled: carToEdit.is_enabled // Ensure is_enabled is included
       });
       setIsModalOpen(true);
     }
@@ -124,22 +126,7 @@ export const useCarManagement = () => {
     }
   };
 
-  const handleStatusToggle = async (id, currentStatus) => {
-    try {
-      await apiAuth.put(`cars/change-status/${id}?enable=${!currentStatus}`);
-      
-      setTableData((prevData) =>
-        prevData.map((item) =>
-          item.car_id === id
-            ? { ...item, is_enabled: !currentStatus }
-            : item
-        )
-      );
-    } catch (err) {
-      console.error("Error updating status:", err);
-      setError("Failed to update status. Please try again.");
-    }
-  };
+ 
 
   const handleSort = (column) => {
     if (sortColumn === column) {
@@ -175,7 +162,6 @@ export const useCarManagement = () => {
     handleFormSubmit,
     handleEdit,
     handleDelete,
-    handleStatusToggle,
     handleSort,
     isDetailsModalOpen,
     setIsDetailsModalOpen,

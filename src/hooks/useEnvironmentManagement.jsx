@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { apiAuth } from "@/config/axios/axios";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const useEnvironmentManagement = () => {
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [sortColumn, setSortColumn] = useState("id");
   const [sortOrder, setSortOrder] = useState("asc");
   const [pagination, setPagination] = useState({
@@ -18,15 +18,13 @@ export const useEnvironmentManagement = () => {
   const [formData, setFormData] = useState({
     environment_id: "",
     environment_name: "",
-    description: "",
-    is_enable: true,
+    status: "ACTIVE", // Add status field with default value
   });
 
   // Fetch data from API
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      setError(null);
 
       const response = await apiAuth.get(
         `environments?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=${sortColumn}&sortDirection=${sortOrder}`
@@ -39,8 +37,12 @@ export const useEnvironmentManagement = () => {
         totalElements: response.data.data.total_elements || 0,
       }));
     } catch (err) {
+      Toast({
+        title: "Error",
+        type: "error",
+        message: err.response?.data?.message || "Error processing request.",
+      });
       console.error("Error fetching environments:", err);
-      setError("Failed to load environments. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -50,23 +52,27 @@ export const useEnvironmentManagement = () => {
     fetchData();
   }, [pagination.pageNo, pagination.pageSize, sortColumn, sortOrder]);
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+  const handleFormSubmit = async (formValues) => {
     try {
       if (formMode === "create") {
         await apiAuth.post("environments", {
-          environment_name: formData.environment_name,
+          environment_name: formValues.environment_name,
         });
       } else {
-        await apiAuth.put(`environments/${formData.environment_id}`, {
-          environment_name: formData.environment_name,
+        await apiAuth.put(`environments/${formValues.environment_id}`, {
+          environment_name: formValues.environment_name,
+          status: formValues.status, // Include status in the update payload
         });
       }
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
       console.error("Error saving environment:", err);
-      setError("Failed to save environment. Please try again.");
+      Toast({
+        title: "Error",
+        type: "error",
+        message: err.response?.data?.message || "Error processing request.",
+      });
     }
   };
 
@@ -79,6 +85,7 @@ export const useEnvironmentManagement = () => {
       setFormData({
         environment_id: environmentToEdit.environment_id,
         environment_name: environmentToEdit.environment_name,
+        status: environmentToEdit.status || "ACTIVE", // Include status in form data
       });
       setIsModalOpen(true);
     }
@@ -91,7 +98,11 @@ export const useEnvironmentManagement = () => {
         await fetchData();
       } catch (err) {
         console.error("Error deleting environment:", err);
-        setError("Failed to delete environment. Please try again.");
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
       }
     }
   };
@@ -113,7 +124,11 @@ export const useEnvironmentManagement = () => {
       );
     } catch (err) {
       console.error("Error updating status:", err);
-      setError("Failed to update status. Please try again.");
+      Toast({
+        title: "Error",
+        type: "error",
+        message: err.response?.data?.message || "Error processing request.",
+      });
     }
   };
 
@@ -133,7 +148,6 @@ export const useEnvironmentManagement = () => {
   return {
     tableData,
     isLoading,
-    error,
     sortColumn,
     sortOrder,
     pagination,

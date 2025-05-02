@@ -21,7 +21,6 @@ export const Environment = () => {
     handleEdit,
     handleDelete,
     handleSort,
-    handleStatusToggle,
     handlePageChange,
   } = useEnvironmentManagement();
 
@@ -43,7 +42,6 @@ export const Environment = () => {
             sortColumn={sortColumn}
             sortOrder={sortOrder}
             onSort={handleSort}
-            onStatusToggle={handleStatusToggle}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />

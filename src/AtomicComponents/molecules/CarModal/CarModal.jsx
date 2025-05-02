@@ -363,6 +363,7 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                       }
                     />
                   </div>
+                  {/* Status toggle - always visible in edit mode */}
                   {formMode === "edit" && (
                     <div className="flex items-center space-x-2">
                       <Label htmlFor="is_enabled">Status</Label>
@@ -373,6 +374,9 @@ export const CarModal = ({ isOpen, onClose, formMode, formData, onSubmit }) => {
                           handleFormDataChange("is_enabled", checked)
                         }
                       />
+                      <span className={`text-sm ${localFormData?.is_enabled ? 'text-green-600' : 'text-red-600'}`}>
+                        {localFormData?.is_enabled ? 'Active' : 'Inactive'}
+                      </span>
                     </div>
                   )}
                 </div>

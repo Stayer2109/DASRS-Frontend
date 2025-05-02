@@ -1,5 +1,5 @@
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
-import { Plus } from "lucide-react";
+import { Plus, Eye, Pencil } from "lucide-react";
 import { useCarManagement } from "@/hooks/useCarManagement";
 import { CarModal } from "@/AtomicComponents/molecules/CarModal/CarModal";
 import { CarDetailsModal } from "@/AtomicComponents/molecules/CarDetailsModal/CarDetailsModal";
@@ -100,35 +100,25 @@ export const Car = () => {
                   <TableCell>{car.created_date}</TableCell>
                   <TableCell>{car.last_modified_date}</TableCell>
                   <TableCell>
-                    <Switch
-                      checked={car.is_enabled}
-                      onCheckedChange={() =>
-                        handleStatusToggle(car.car_id, car.is_enabled)
-                      }
-                    />
+                    <Switch checked={car.is_enabled} />
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
-                        variant="secondary"
-                        size="sm"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleViewDetails(car.car_id)}
+                        className="h-8 w-8"
                       >
-                        View
+                        <Eye className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
-                        size="sm"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleEdit(car.car_id)}
+                        className="h-8 w-8"
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(car.car_id)}
-                      >
-                        Delete
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>

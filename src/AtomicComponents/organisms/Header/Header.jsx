@@ -125,10 +125,8 @@ export default function Header() {
           alt="DASRS Logo"
           className="bg-lime-300 p-2 sm:p-2 rounded-full h-13 sm:h-20"
         />
-        <h3
-          className="hidden sm:block bg-lime-300 px-standard-x py-standard-y rounded-lg text-black text-h6 sm:text-h5"
-        >
-          Driving Assistant Support Racing System
+        <h3 className="hidden sm:block bg-lime-300 px-standard-x py-standard-y rounded-lg text-black text-h6 sm:text-h5">
+          Digital Automotive Simulation Racing System
         </h3>
       </div>
 
