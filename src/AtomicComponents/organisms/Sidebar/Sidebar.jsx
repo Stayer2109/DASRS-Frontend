@@ -48,7 +48,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
           variant="ghost"
           size="icon"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="hover:bg-gray-800"
+          className="hover:bg-white"
         >
           {isExpanded ? <Menu size={20} /> : <ChevronRight size={20} />}
         </Button>
@@ -130,7 +130,7 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
         </Button>
       </nav>
 
-      <div className="mt-auto space-y-4">
+      <div className="mt-auto space-y-4 flex flex-col">
         <Separator className="my-4 bg-gray-800" />
         <Button
           variant="ghost"
