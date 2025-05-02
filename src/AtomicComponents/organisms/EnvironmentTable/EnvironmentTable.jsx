@@ -7,20 +7,11 @@ import {
   TableRow,
 } from "@/AtomicComponents/atoms/shadcn/table";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit } from "lucide-react";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { StatusIndicator } from "@/AtomicComponents/atoms/StatusIndicator/StatusIndicator";
 
-export const EnvironmentTable = ({
-  data,
-  isLoading,
-  sortColumn,
-  sortOrder,
-  onSort,
-  onStatusToggle,
-  onEdit,
-  onDelete,
-}) => {
+export const EnvironmentTable = ({ data, isLoading, onSort, onEdit }) => {
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -46,15 +37,7 @@ export const EnvironmentTable = ({
               {environment.environment_name}
             </TableCell>
             <TableCell>
-              <StatusIndicator
-                isEnabled={environment.status === "ACTIVE"}
-                onChange={() =>
-                  onStatusToggle(
-                    environment.environment_id,
-                    environment.status === "ACTIVE"
-                  )
-                }
-              />
+              <StatusIndicator isEnabled={environment.status === "ACTIVE"} />
             </TableCell>
             <TableCell className="text-right">
               <Button
@@ -63,13 +46,6 @@ export const EnvironmentTable = ({
                 onClick={() => onEdit(environment.environment_id)}
               >
                 <Edit size={16} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(environment.environment_id)}
-              >
-                <Trash2 size={16} />
               </Button>
             </TableCell>
           </TableRow>
