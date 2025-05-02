@@ -17,7 +17,6 @@ export const MatchTypeTable = ({
   sortColumn,
   sortOrder,
   onSort,
-  onStatusToggle,
   onEdit,
   onDelete,
 }) => {
@@ -37,7 +36,6 @@ export const MatchTypeTable = ({
           </TableHead>
           <TableHead>Code</TableHead>
           <TableHead>Duration (Hours)</TableHead>
-          <TableHead>Finish Type</TableHead>
           <TableHead>Player Number</TableHead>
           <TableHead>Team Number</TableHead>
           <TableHead>Status</TableHead>
@@ -52,19 +50,10 @@ export const MatchTypeTable = ({
             </TableCell>
             <TableCell>{matchType.match_type_code}</TableCell>
             <TableCell>{matchType.match_duration.toFixed(2)}</TableCell>
-            <TableCell>{matchType.finish_type}</TableCell>
             <TableCell>{matchType.player_number}</TableCell>
             <TableCell>{matchType.team_number}</TableCell>
             <TableCell>
-              <StatusIndicator
-                isEnabled={matchType.status === "ACTIVE"}
-                onChange={() =>
-                  onStatusToggle(
-                    matchType.match_type_id,
-                    matchType.status === "ACTIVE"
-                  )
-                }
-              />
+              <StatusIndicator isEnabled={matchType.status === "ACTIVE"} />
             </TableCell>
             <TableCell className="text-right">
               <Button

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 export const useMatchTypeManagement = () => {
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formMode, setFormMode] = useState("create");
   const [formData, setFormData] = useState(null);
@@ -20,7 +19,6 @@ export const useMatchTypeManagement = () => {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      setError(null);
 
       const response = await apiClient.get(
         `match-types?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=${sortColumn}&sortDirection=${sortOrder}`
@@ -34,7 +32,6 @@ export const useMatchTypeManagement = () => {
       }));
     } catch (err) {
       console.error("Error fetching match types:", err);
-      setError("Failed to load match types. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -47,15 +44,26 @@ export const useMatchTypeManagement = () => {
   const handleFormSubmit = async (formData) => {
     try {
       if (formMode === "create") {
-        await apiClient.post("match-types", formData);
+        await apiClient.post("match-types", {
+          match_type_name: formData.match_type_name,
+          player_number: formData.player_number,
+          team_number: formData.team_number,
+          match_duration: formData.match_duration,
+        });
       } else {
-        await apiClient.put(`match-types/${formData.match_type_id}`, formData);
+        // For edit mode, include the status from the existing record
+        await apiClient.put(`match-types/${formData.match_type_id}`, {
+          match_type_name: formData.match_type_name,
+          player_number: formData.player_number,
+          team_number: formData.team_number,
+          match_duration: formData.match_duration,
+          status: formData.status || "ACTIVE" // Use existing status or default to ACTIVE
+        });
       }
       setIsModalOpen(false);
       fetchData();
     } catch (err) {
       console.error("Error saving match type:", err);
-      setError("Failed to save match type. Please try again.");
     }
   };
 
@@ -74,7 +82,6 @@ export const useMatchTypeManagement = () => {
       );
     } catch (err) {
       console.error("Error updating status:", err);
-      setError("Failed to update status. Please try again.");
     }
   };
 
@@ -87,10 +94,20 @@ export const useMatchTypeManagement = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await apiClient.delete(`match-types/${id}`);
+      await fetchData(); // Refresh the data after deletion
+      return true; // Return success status
+    } catch (err) {
+      console.error("Error deleting match type:", err);
+      return false; // Return failure status
+    }
+  };
+
   return {
     tableData,
     isLoading,
-    error,
     isModalOpen,
     setIsModalOpen,
     formMode,
@@ -100,6 +117,7 @@ export const useMatchTypeManagement = () => {
     handleFormSubmit,
     handleStatusToggle,
     handleSort,
+    handleDelete, // Export the handleDelete function
     sortColumn,
     sortOrder,
     pagination,
