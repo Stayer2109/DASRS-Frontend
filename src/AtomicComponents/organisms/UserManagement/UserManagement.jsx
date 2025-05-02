@@ -618,18 +618,57 @@ export const UserManagement = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Phone</p>
-                    <p className="font-medium text-gray-800">
-                      {selectedUser.phone || "N/A"}
-                    </p>
+                    <p className="font-medium text-gray-800">{selectedUser.phone || "N/A"}</p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-sm text-gray-500 mb-1">Address</p>
-                    <p className="font-medium text-gray-800">
-                      {selectedUser.address || "N/A"}
-                    </p>
+                    <p className="font-medium text-gray-800">{selectedUser.address || "N/A"}</p>
                   </div>
                 </div>
               </div>
+              
+              {/* Team information section - only shown for players */}
+              {selectedUser.role_name === "PLAYER" && (
+                <div className="bg-blue-50 rounded-lg p-5 border border-blue-200">
+                  <h4 className="text-sm uppercase text-blue-700 font-semibold mb-4 border-b border-blue-200 pb-2">
+                    Team Information
+                  </h4>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-blue-700 mb-1">Team</p>
+                      <p className="font-medium text-gray-800">
+                        {selectedUser.team_name ? (
+                          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded text-sm">
+                            {selectedUser.team_name}
+                          </span>
+                        ) : (
+                          <span className="text-gray-500 italic">Not in a team</span>
+                        )}
+                      </p>
+                    </div>
+                    
+                    {selectedUser.team_name && (
+                      <div>
+                        <p className="text-sm text-blue-700 mb-1">Role</p>
+                        <p className="font-medium text-gray-800">
+                          {selectedUser.is_leader ? (
+                            <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-sm flex items-center w-fit">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 1L9 9H2L7 14.5L5 22L12 17.5L19 22L17 14.5L22 9H15L12 1Z" />
+                              </svg>
+                              Team Leader
+                            </span>
+                          ) : (
+                            <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded text-sm">
+                              Team Member
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-end mt-6 space-x-3">
                 <ShadcnButton
