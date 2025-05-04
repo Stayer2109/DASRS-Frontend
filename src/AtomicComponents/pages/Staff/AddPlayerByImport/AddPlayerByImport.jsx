@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, use, useEffect } from "react";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Spreadsheet from "react-spreadsheet";
 import * as XLSX from "xlsx";
@@ -13,6 +13,7 @@ const AddPlayerByImport = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorList, setErrorList] = useState(null);
   const [spreadsheetData, setSpreadsheetData] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -115,7 +116,14 @@ const AddPlayerByImport = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+
+      Toast({
+        type: "success",
+        message: "Players imported successfully.",
+        title: "Success",
+      });
     } catch (error) {
+      const errorList = error?.response?.data?.data || [];
       Toast({
         type: "error",
         message:
@@ -123,10 +131,18 @@ const AddPlayerByImport = () => {
           " Please check the file and try again.",
         title: "Error",
       });
+      setErrorList(errorList);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // HANDLE RESET FILE
+  useEffect(() => {
+    if (selectedFileName) {
+      setErrorMessage(null);
+    }
+  }, [selectedFileName]);
 
   return (
     <>
@@ -143,7 +159,7 @@ const AddPlayerByImport = () => {
                 } ${
                   !errorMessage && selectedFileName
                     ? "border-green-400"
-                    : "border-gray-300"
+                    : "border-gray-300 hover:border-gray-400"
                 }`
           }`}
           onDragOver={handleDragOver}
@@ -176,6 +192,17 @@ const AddPlayerByImport = () => {
 
         {spreadsheetData.length > 0 && (
           <>
+            {Array.isArray(errorList) && errorList.length > 0 && (
+              <div className="bg-red-100 mb-4 p-4 border border-red-400 rounded text-red-700">
+                <h3 className="mb-2 font-semibold">⚠ Import Errors:</h3>
+                <ul className="text-sm list-disc list-inside">
+                  {errorList.map((err, index) => (
+                    <li key={index}>{err}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <h1 className="text-h3 text-center italic">
               Preview your data below
             </h1>
