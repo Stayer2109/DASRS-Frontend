@@ -67,17 +67,14 @@ const PlayerProfile = () => {
     try {
       setIsUploadingAvatar(true);
 
-      // Generate unique path for the avatar
-      const path = FirebaseStorage.generateUniquePath(file.name, "avatars");
-
+      const path = FirebaseStorage.generateUniquePath(file.name, 'avatars');
+      
       // Upload image to Firebase
       const imageURL = await FirebaseStorage.uploadImage(file, path, 2); // 2MB limit
 
       // Update avatar URL in backend
       const response = await apiClient.put(
-        `accounts/update-profile-picture?id=${
-          auth?.id
-        }&imageURL=${encodeURIComponent(imageURL)}`,
+        `accounts/update-profile-picture?id=${auth?.id}&imageURL=${encodeURIComponent(imageURL)}`,
         null,
         {
           headers: {
@@ -89,7 +86,6 @@ const PlayerProfile = () => {
       if (response.data.http_status === 200) {
         // Refresh player data to show new avatar
         await fetchPlayerData();
-
         Toast({
           title: "Success",
           message: "Avatar updated successfully",
@@ -97,7 +93,7 @@ const PlayerProfile = () => {
         });
       }
     } catch (error) {
-      console.error("Error updating avatar:", error);
+      console.error('Error updating avatar:', error);
       Toast({
         title: "Error",
         message: error.message || "Failed to update avatar",
@@ -107,7 +103,7 @@ const PlayerProfile = () => {
       setIsUploadingAvatar(false);
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
     }
   };
