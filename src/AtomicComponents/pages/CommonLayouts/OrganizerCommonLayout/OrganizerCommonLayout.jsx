@@ -6,7 +6,6 @@ import {
   HomeIcon,
   LeaderboardIcon,
   ListIcon,
-  SettingIcon,
   SidebarIcon,
   TournamentIcon,
   UserInformationIcon,
@@ -78,12 +77,7 @@ const OrganizerCommonLayout = () => {
       item: "Leaderboard",
       icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
       link: "/leaderboard",
-    },
-    {
-      item: "Settings",
-      icon: <SettingIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/settings",
-    },
+    }
   ];
 
   const handleToggleSidebar = () => {

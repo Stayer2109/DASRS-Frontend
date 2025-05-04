@@ -35,4 +35,15 @@
   /* Padding and Margin */
   --spacing-standard-x: 14px;
   --spacing-standard-y: 10px;
+
+  /* Pumping animation */
+  --animate-pump: pump 1.5s ease-in-out infinite;
+  @keyframes pump {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
 }

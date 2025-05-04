@@ -82,9 +82,9 @@ export const TournamentList = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [tournamentExtendedEndDate, setTournamentExtendedEndDate] =
     useState(null);
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const [sortByKey, setSortByKey] = useState("tournament_id");
   const [sortDirection, setSortDirection] = useState("ASC");
   const [showByStatus, setShowByStatus] = useState("all");
