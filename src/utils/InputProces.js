@@ -1,8 +1,8 @@
 // Trim text
 export const trimText = (text) => {
-  return text.toString().trim();
+  if (typeof text !== "string") return "";
+  return text.trim();
 };
-// Get time difference
 
 export const NormalizeData = (data) => {
   const trimmed = {};

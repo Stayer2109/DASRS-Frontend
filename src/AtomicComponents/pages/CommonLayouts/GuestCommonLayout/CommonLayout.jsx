@@ -12,16 +12,33 @@ import Input from "../../../atoms/Input/Input";
 import Footer from "../../../organisms/Footer";
 import Header from "../../../organisms/Header/Header";
 import CircularButton from "../../../atoms/CircularButton/CircularButton";
+import * as XLSX from "xlsx";
 import { Button } from "../../../atoms/Button/Button";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient, { apiAuth } from "@/config/axios/axios";
 import { encryptToken } from "@/utils/CryptoUtils";
 import Spinner from "../../../atoms/Spinner/Spinner";
 import "./CommonLayout.scss";
 import Toast from "../../../molecules/Toaster/Toaster";
-import { trimText } from "@/utils/InputProces";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/AtomicComponents/molecules/Table/Table";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Tooltip } from "react-tooltip";
+import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+
+// KEY MAPPING FOR SORT
+const sortKeyMap = {
+  last_name: "SORT_BY_LASTNAME",
+  first_name: "SORT_BY_FIRSTNAME",
+  email: "SORT_BY_EMAIL",
+};
 
 const CommonLayout = () => {
   const { setAuth } = useAuth();
@@ -29,10 +46,27 @@ const CommonLayout = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [organizerList, setOrganizerList] = useState([]);
+  const [sortByKey, setSortByKey] = useState("tournament_id");
+  const [sortDirection, setSortDirection] = useState("ASC");
+  const [pageSize, setPageSize] = useState(10);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const from = location.state?.from?.pathname || "/";
   const [loginModalShow, setLoginModalShow] = useState(false);
   const [forgetPasswordModalShow, setForgetPasswordModalShow] = useState(false);
+  const [organizerListModalShow, setOrganizerListModalShow] = useState(false);
   const inputCommonClassname = "w-full mb-1";
+
+  // TABLE COLUMNS
+  const columns = [
+    { key: "first_name", label: "First Name", sortable: true },
+    { key: "last_name", label: "Last Name", sortable: true },
+    { key: "email", label: "Email", sortable: true },
+    { key: "phone", label: "Phone", sortable: false },
+  ];
 
   // INPUT ERRORS
   const [loginErrors, setLoginErrors] = useState({});
@@ -48,6 +82,8 @@ const CommonLayout = () => {
   // HANDLE SHOW LOGIN MODAL
   const handleLoginModalShow = () => {
     setLoginModalShow(true);
+    setLoginData({ email: "", password: "" });
+    setLoginErrors({});
   };
 
   // HANDLE HIDE LOGIN MODAL
@@ -68,6 +104,19 @@ const CommonLayout = () => {
   };
   //#endregion
 
+  //#region ORGANIZER LIST MODAL CONTROL
+  // HANDLE SHOW ORGANIZER LIST MODAL
+  const handleOrganizerListModalShow = () => {
+    setOrganizerListModalShow(true);
+  };
+
+  // HANDLE HIDE ORGANIZER LIST MODAL
+  const handleOrganizerListModalHide = () => {
+    setOrganizerListModalShow(false);
+    setSearchTerm("");
+  };
+  //#endregion
+
   //#region HANDLE FORM VALIDATION
   // HANDLE LOGIN FORM VALIDATION
   const handleLoginValidation = (data) => {
@@ -82,6 +131,73 @@ const CommonLayout = () => {
     setSuccessMessage("");
   };
   //#endregion
+
+  //#region PAGINATION
+  const handlePagination = (_pageSize, newPageIndex) => {
+    setPageIndex(newPageIndex);
+  };
+
+  const handleChangePageSize = (newSize) => {
+    setPageSize(newSize);
+    setPageIndex(1);
+  };
+  //#endregion
+
+  // HANDLE SORT
+  const handleSort = (columnKey) => {
+    const isSameColumn = sortByKey === columnKey;
+    let newDirection = "ASC";
+
+    // Check if the same column is clicked and change sort direction
+    if (isSameColumn && sortDirection === "ASC") {
+      newDirection = "DESC";
+    }
+
+    setSortByKey(columnKey);
+    setSortDirection(newDirection);
+    setPageIndex(1);
+  };
+
+  // GET SORT PARAMS
+  const getSortByParam = () => {
+    if (!sortByKey || !sortDirection) return null;
+    const baseKey = sortKeyMap[sortByKey];
+    return baseKey ? `${baseKey}_${sortDirection}` : null;
+  };
+
+  // GET ORGANIZER LIST
+  const haneldeFetchOrganizerList = async () => {
+    const sortByParam = getSortByParam();
+
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(
+        "accounts/landing/organizer-contacts",
+        {
+          params: {
+            pageNo: pageIndex - 1,
+            pageSize,
+            sortBy: sortByParam,
+            keyword: debouncedSearchTerm,
+          },
+        }
+      );
+
+      if (response.data.http_status === 200) {
+        const data = response.data.data.content;
+        setOrganizerList(data);
+        setTotalPages(data.total_pages || 1);
+      }
+    } catch (error) {
+      Toast({
+        message: error.response.data.message,
+        type: "error",
+        title: "Error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // SUBMIT LOGIN FORM
   const handleLoginsSubmit = async (e) => {
@@ -166,6 +282,50 @@ const CommonLayout = () => {
     }
   };
 
+  // HANDLE SIGNUP TEMPLATE DOWNLOAD
+  const handleSingupTemplateDownload = async () => {
+    try {
+      const response = await apiAuth.get("accounts/landing/player-template");
+
+      const sampleData = response.data.data;
+
+      // Convert object to array of one row
+      const worksheetData = [sampleData];
+
+      // Create worksheet
+      const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+
+      // Create workbook and append the worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Template");
+
+      // Create binary Excel file
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      // Create blob and download
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", "signup_template.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading Excel file:", error);
+      Toast({
+        message: "Failed to download Excel file",
+        type: "error",
+        title: "Error",
+      });
+    }
+  };
+
   // SHOW SUCCESS MESSAGE
   useEffect(() => {
     const successMessage = sessionStorage.getItem("successMessage");
@@ -174,6 +334,13 @@ const CommonLayout = () => {
       sessionStorage.removeItem("successMessage");
     }
   }, []);
+
+  // GET ORGANIZER LIST ON MOUNT
+  useEffect(() => {
+    haneldeFetchOrganizerList();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageIndex, pageSize, sortByKey, sortDirection, debouncedSearchTerm]);
 
   return (
     <>
@@ -197,24 +364,22 @@ const CommonLayout = () => {
             </h1>
             <div className="flex justify-center items-center h-full">
               <form className="w-full" onSubmit={handleLoginsSubmit}>
-                <div
-                  className="items-center gap-y-5 sm:grid grid-cols-[1fr_3fr] mb-3 sm:mb-5 inf-input-container"
-                >
+                <div className="items-center gap-y-5 sm:grid grid-cols-[1fr_3fr] mb-3 sm:mb-5 inf-input-container">
                   {/* Email */}
                   <label htmlFor="email">Email</label>
                   <div className="mb-3 sm:mb-0">
                     <Input
                       className={inputCommonClassname}
                       type="email"
+                      value={loginData.email || ""}
                       placeholder="Input your email here ..."
                       autoComplete=""
                       onChange={(e) => {
                         setLoginData({
                           ...loginData,
-                          email: trimText(e.target.value),
+                          email: e.target.value,
                         });
                       }}
-                      value={loginData.email}
                     />
 
                     {loginErrors.email && (
@@ -230,14 +395,14 @@ const CommonLayout = () => {
                     <Input
                       className={`${inputCommonClassname} pr-15`}
                       type={showPassword ? "text" : "password"}
+                      value={loginData.password || ""}
                       placeholder="Input your password here ..."
                       onChange={(e) => {
                         setLoginData({
                           ...loginData,
-                          password: trimText(e.target.value),
+                          password: e.target.value,
                         });
                       }}
-                      value={loginData.password}
                     />
                     <div
                       className="top-0 right-0 absolute active:scale-92 -translate-x-2 translate-y-[5px] active:translate-y-[6px] cursor-pointer"
@@ -270,12 +435,37 @@ const CommonLayout = () => {
                   </h3>
                 </div>
 
-                <div className="flex justify-center">
-                  <Button
-                    content="Login"
-                    onClick={() => handleLoginValidation(loginData)}
-                    type="submit"
-                  />
+                <div className="flex flex-col justify-center items-center gap-5">
+                  <div>
+                    <Button
+                      content="Login"
+                      onClick={() => handleLoginValidation(loginData)}
+                      type="submit"
+                    />
+                  </div>
+
+                  <span
+                    className="text-black hover:text-blue-600 italic cursor-pointer tsext-h5"
+                    onClick={handleSingupTemplateDownload}
+                  >
+                    → Want to sign up? Click here to download sign up template ←{" "}
+                  </span>
+
+                  <div className="flex flex-col items-center gap-2 bg-gray-100 shadow p-2 px-6 rounded-md italic">
+                    <span className="font-semibold text-muted-foreground">
+                      In order to sign up, you must download the template and
+                      contact organizers via email and send them the template
+                    </span>
+                    <span
+                      className="font-semibold text-h5 text-yellow-600 hover:underline animate-pump cursor-pointer"
+                      onClick={() => {
+                        handleOrganizerListModalShow();
+                        handleLoginModalHide();
+                      }}
+                    >
+                      Organizers to contact{" "}
+                    </span>
+                  </div>
                 </div>
               </form>
             </div>
@@ -317,9 +507,9 @@ const CommonLayout = () => {
                       placeholder="Email"
                       autoComplete="email"
                       className={inputCommonClassname}
-                      value={emailForForgetPassword}
+                      value={emailForForgetPassword || ""}
                       onChange={(e) =>
-                        setEmailForForgetPassword(trimText(e.target.value))
+                        setEmailForForgetPassword(e.target.value)
                       }
                     />
 
@@ -344,7 +534,90 @@ const CommonLayout = () => {
             </div>
           </Modal.Body>
         </Modal>
+
+        {/* ORGANIZER LIST MODAL */}
+        <Modal
+          show={organizerListModalShow}
+          size="2xl"
+          onHide={() => {
+            handleOrganizerListModalHide();
+            handleLoginModalShow();
+          }}
+        >
+          <Modal.Header content={"Organizer list"} icon={<CancelIcon />} />
+          <Modal.Body>
+            <div className="flex flex-wrap justify-between gap-2 mb-4">
+              <Input
+                type="text"
+                placeholder="Search players by last name or team name..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPageIndex(1); // Reset to page 1 on search
+                }}
+                className="px-4 py-2 border border-gray-300 rounded w-full sm:max-w-xl"
+              />
+            </div>
+
+            <div className="flex flex-col justify-center items-center h-full">
+              <Table title="List of organizers">
+                <TableHeader
+                  columns={columns}
+                  sortBy={sortByKey}
+                  sortDirection={sortDirection?.toLowerCase()}
+                  onSort={handleSort}
+                />
+                <TableBody>
+                  {organizerList.map((row, idx) => (
+                    <TableRow
+                      key={idx}
+                      pageIndex={pageIndex}
+                      pageSize={pageSize}
+                      index={idx}
+                    >
+                      {columns.map((col) => (
+                        <TableCell key={col.key}>
+                          {col.key === "email" ? (
+                            <a
+                              href={`mailto:${row[col.key]}`}
+                              className="text-blue-600 hover:text-blue-800 underline"
+                              data-tooltip-id="my-tooltip"
+                              data-tooltip-content={`Send email to ${
+                                row[col.key]
+                              }`}
+                              data-tooltip-place="top"
+                            >
+                              {row[col.key]}
+                              <Tooltip
+                                id="my-tooltip"
+                                style={{ borderRadius: "12px" }}
+                              />
+                            </a>
+                          ) : (
+                            row[col.key]
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="flex flex-wrap justify-between items-center gap-4 mt-4">
+              <DasrsPagination
+                pageSize={pageSize}
+                pageIndex={pageIndex}
+                page={pageIndex}
+                count={totalPages}
+                handlePagination={handlePagination}
+                handleChangePageSize={handleChangePageSize}
+              />
+            </div>
+          </Modal.Body>
+        </Modal>
       </div>
+
       <Footer />
     </>
   );

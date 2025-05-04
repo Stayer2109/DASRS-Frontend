@@ -22,6 +22,19 @@ export default defineConfig({
       content: {
         "": '""', // this helps with after:content-['']
       },
+      theme: {
+        extend: {
+          keyframes: {
+            pump: {
+              "0%, 100%": { transform: "scale(1)" },
+              "50%": { transform: "scale(1.1)" },
+            },
+          },
+          animation: {
+            pump: "pump 1s infinite ease-in-out",
+          },
+        },
+      },
     },
   },
 });

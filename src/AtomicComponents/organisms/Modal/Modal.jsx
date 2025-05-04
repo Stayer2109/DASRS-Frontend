@@ -7,7 +7,7 @@ import "./Modal.scss";
 import CircularButton from "@/AtomicComponents/atoms/CircularButton/CircularButton";
 
 /**
- * @typedef {"sm" | "md" | "lg" | "xl" | "auto"} ModalSize
+ * @typedef {"sm" | "md" | "lg" | "xl" | "2xl" | "auto"} ModalSize
  */
 
 /**
