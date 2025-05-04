@@ -110,18 +110,17 @@ const AddPlayerByImport = () => {
     try {
       setIsLoading(true);
 
-      const response = await apiClient.post("accounts/import", formData, {
+      await apiClient.post("accounts/import", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      console.log("✅ Upload success:", response.data);
     } catch (error) {
-      console.error("❌ Upload failed:", error);
       Toast({
         type: "error",
-        message: error.response.data.message,
+        message:
+          (error?.response?.data?.message ?? "Import failed.") +
+          " Please check the file and try again.",
         title: "Error",
       });
     } finally {
@@ -154,15 +153,15 @@ const AddPlayerByImport = () => {
         >
           <div className="text-center">
             {errorMessage && (
-              <p className="text-sm text-red-600">{errorMessage}</p>
+              <p className="text-red-600 text-sm">{errorMessage}</p>
             )}
             {selectedFileName && !errorMessage && (
-              <p className="text-sm text-green-600">
+              <p className="text-green-600 text-sm">
                 ✅ Selected:{" "}
                 <span className="font-medium">{selectedFileName}</span>
               </p>
             )}
-            <p className="text-sm text-gray-500">
+            <p className="text-gray-500 text-sm">
               Drag & drop or click to upload players file
             </p>
             <Input
@@ -177,18 +176,18 @@ const AddPlayerByImport = () => {
 
         {spreadsheetData.length > 0 && (
           <>
-            <h1 className="text-center text-h3 italic">
+            <h1 className="text-h3 text-center italic">
               Preview your data below
             </h1>
-            <div className="overflow-auto rounded max-w-dvw md:max-w-[100%] sm:max-w-[100%] w-auto m-auto">
-              <div className="w-auto max-h-[450px] flex justify-center items-center">
+            <div className="m-auto rounded w-auto max-w-dvw sm:max-w-[100%] md:max-w-[100%] overflow-auto">
+              <div className="flex justify-center items-center w-auto max-h-[450px]">
                 <Spreadsheet data={spreadsheetData} className="m-auto" />
               </div>
             </div>
           </>
         )}
 
-        <div className="text-center mt-6">
+        <div className="mt-6 text-center">
           <Button
             onClick={handleSubmitFile}
             type="submit"

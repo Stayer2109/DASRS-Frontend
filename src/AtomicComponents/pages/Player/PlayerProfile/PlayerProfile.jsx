@@ -67,7 +67,6 @@ const PlayerProfile = () => {
     try {
       setIsUploadingAvatar(true);
 
-      // Generate unique path for the avatar
       const path = FirebaseStorage.generateUniquePath(file.name, 'avatars');
       
       // Upload image to Firebase
@@ -87,7 +86,6 @@ const PlayerProfile = () => {
       if (response.data.http_status === 200) {
         // Refresh player data to show new avatar
         await fetchPlayerData();
-        
         Toast({
           title: "Success",
           message: "Avatar updated successfully",
@@ -207,12 +205,12 @@ const PlayerProfile = () => {
       <div className="flex justify-center items-center min-h-[80vh]">
         {player ? (
           <Card className="bg-white shadow-md p-6 rounded-xl w-full max-w-md">
-            <CardHeader className="flex flex-col items-center gap-4 pb-2">
+            <CardHeader className="flex flex-col items-center gap-4">
               <div
-                className="relative group cursor-pointer"
+                className="group relative cursor-pointer"
                 onClick={handleAvatarClick}
               >
-                <Avatar className="mb-2 ring-2 ring-blue-500 w-24 h-24 transition-all duration-300 group-hover:ring-blue-600 group-hover:opacity-75">
+                <Avatar className="group-hover:opacity-75 ring-2 ring-blue-500 group-hover:ring-blue-600 w-34 h-34 transition-all duration-300">
                   <AvatarImage src={player.avatar || ""} />
                   <AvatarFallback className="bg-gray-200 text-gray-600 text-4xl">
                     {player.last_name?.charAt(0)}
@@ -220,9 +218,19 @@ const PlayerProfile = () => {
                 </Avatar>
 
                 {/* Hidden overlay text */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-white text-sm font-medium bg-blue-600 bg-opacity-80 px-3 py-2 rounded-md shadow-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="z-10 absolute inset-0 flex justify-center items-center group-hover:bg-black/45 rounded-full transition-all duration-300">
+                  <span className="flex items-center gap-2 opacity-0 group-hover:opacity-100 font-medium text-white text-sm transition-opacity duration-300">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
                       <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
                     </svg>

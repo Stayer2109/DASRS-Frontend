@@ -12,11 +12,11 @@ export const LoginValidation = (data) => {
   // Set Errors object to empty
   errors = {};
 
-  if (data.email === "") {
+  if (data.email.trim() === "") {
     errors.email = "Email is required";
   }
 
-  if (data.password === "") {
+  if (data.password.trim() === "") {
     errors.password = "Password is required";
   }
 
