@@ -39,6 +39,7 @@ import RoundComplaints from "./AtomicComponents/pages/Organizer/RoundComplaints/
 import Leaderboard from "./AtomicComponents/pages/Organizer/Leaderboard/Leaderboard";
 import TeamComplaints from "./AtomicComponents/pages/Player/TeamComplaints/TeamComplaints";
 import NotFoundPage from "./AtomicComponents/pages/ErrorPage/NotFoundPage";
+import DownloadLauncher from "./AtomicComponents/pages/DownloadLauncher/DownloadLauncher";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -87,7 +88,6 @@ const AppRoutes = () => {
                 <Route path="tournaments" element={<TournamentList />} />
                 <Route path="player-management">
                   <Route path="player-list" element={<PlayerList />} />
-
                   <Route path="add-player" element={<AddPlayerByImport />} />
                 </Route>
                 <Route path="my-profile" element={<OrganizerProfile />} />
@@ -112,6 +112,7 @@ const AppRoutes = () => {
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
                 </Route>
                 <Route path="settings" element={<Settings />} />
+                <Route path="download-launcher" element={<DownloadLauncher />} />
               </Route>
             </Route>
           </Route>
@@ -122,6 +123,7 @@ const AppRoutes = () => {
           <Route element={<PersistLogin />}>
             <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
               <Route path="/" element={<PlayerCommonLayout />}>
+                <Route index element={<DownloadLauncher />} />
                 <Route path="my-profile" element={<PlayerProfile />} />
                 <Route path="rounds" element={<PlayerRounds />} />
                 <Route

@@ -19,6 +19,7 @@ import { Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useMediaQuery } from "react-responsive";
 import { Users } from "lucide-react";
+import { Download } from "lucide-react";
 
 const OrganizerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -36,6 +37,11 @@ const OrganizerCommonLayout = () => {
       item: "Home",
       icon: <HomeIcon color={navBarIconColor} width={iconWidth} />,
       link: "/",
+    },
+    {
+      item: "Download Launcher",
+      icon: <Download color={navBarIconColor} width={iconWidth} />,
+      link: "/download-launcher",
     },
     {
       item: "Profile",
