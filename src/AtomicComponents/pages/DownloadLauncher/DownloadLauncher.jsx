@@ -54,7 +54,7 @@ const DownloadLauncher = () => {
               <li><strong>OS:</strong> Windows Vista</li>
               <li><strong>Processor:</strong> 2.66 GHz Intel Core 2 Duo E6700</li>
               <li><strong>Memory:</strong> 2 GB RAM</li>
-              <li><strong>Graphics:</strong> nVidia GeForce 8800 GT</li>
+              <li><strong>Graphics:</strong> Nvidia GeForce 8800 GT</li>
               <li><strong>DirectX:</strong> Version 9.0c</li>
               <li><strong>Storage:</strong> 1 GB available space</li>
               <li><strong>Sound card:</strong> Sound card compatible with DirectX® 9.0с</li>
@@ -67,7 +67,7 @@ const DownloadLauncher = () => {
               <li><strong>OS:</strong> Windows 10 and above</li>
               <li><strong>Processor:</strong> 3.5 GHz Intel i7 3770K</li>
               <li><strong>Memory:</strong> 4 GB RAM</li>
-              <li><strong>Graphics:</strong> nVidia GTX 1060</li>
+              <li><strong>Graphics:</strong> Nvidia GTX 1060</li>
               <li><strong>DirectX:</strong> Latest stable version</li>
               <li><strong>Storage:</strong> 2 GB available space</li>
               <li><strong>Sound card:</strong> Sound card compatible with DirectX® 9.0с</li>
