@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const id = decodeAccessToken ? decodeAccessToken.id : null;
     const isLeader = decodeAccessToken ? decodeAccessToken.isLeader : null;
     const teamId = decodeAccessToken ? decodeAccessToken.teamId : null;
-
+    
     if (decodeAccessToken) {
       setAuth({
         role: decodeAccessToken.role,
