@@ -11,10 +11,8 @@ import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import {
   Calendar,
   Clock,
-  Users,
   ArrowLeft,
   ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import apiClient from "@/config/axios/axios";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
@@ -112,18 +110,18 @@ export const RoundMatches = () => {
   };
 
   // Format date strings
-  const formatDateString = (dateString) => {
-    if (!dateString) return "";
-    try {
-      // Parse the MM/DD/YYYY format
-      const [date, time] = dateString.split(" ");
-      const [month, day, year] = date.split("/");
-      return `${day}/${month}/${year}`;
-    } catch (err) {
-      console.error("Date parsing error:", err);
-      return dateString;
-    }
-  };
+  // const formatDateString = (dateString) => {
+  //   if (!dateString) return "";
+  //   try {
+  //     // Parse the MM/DD/YYYY format
+  //     const [date, time] = dateString.split(" ");
+  //     const [month, day, year] = date.split("/");
+  //     return `${day}/${month}/${year}`;
+  //   } catch (err) {
+  //     console.error("Date parsing error:", err);
+  //     return dateString;
+  //   }
+  // };
 
   // Format time strings
   const formatTimeString = (timeString) => {
