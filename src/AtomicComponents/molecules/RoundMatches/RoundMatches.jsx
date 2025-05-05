@@ -16,7 +16,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient from "@/config/axios/axios";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { toast } from "sonner";
@@ -59,17 +59,17 @@ export const RoundMatches = () => {
         setIsLoading(true);
         setError(null);
         // Fetch tournament information
-        const tournamentResponse = await apiAuth.get(
+        const tournamentResponse = await apiClient.get(
           `tournaments/${tournamentId}`
         );
         setTournament(tournamentResponse.data.data);
 
         // Fetch round information
-        const roundResponse = await apiAuth.get(`rounds/${roundId}`);
+        const roundResponse = await apiClient.get(`rounds/${roundId}`);
         setRound(roundResponse.data.data);
 
         // Update matches fetch to include pagination
-        const matchesResponse = await apiAuth.get(`matches/round/${roundId}`, {
+        const matchesResponse = await apiClient.get(`matches/round/${roundId}`, {
           params: {
             pageNo: pageIndex - 1, // Adjust for 0-based indexing if your API uses it
             pageSize: pageSize,
@@ -134,7 +134,7 @@ export const RoundMatches = () => {
   const fetchScoreDetails = async (matchId, teamId) => {
     setLoadingScores((prev) => ({ ...prev, [`${matchId}-${teamId}`]: true }));
     try {
-      const response = await apiAuth.get(
+      const response = await apiClient.get(
         `matches/score-details/${matchId}/${teamId}`
       );
       setScoreDetails((prev) => ({
