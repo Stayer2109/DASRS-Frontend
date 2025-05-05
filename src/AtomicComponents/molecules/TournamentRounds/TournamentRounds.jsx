@@ -7,7 +7,7 @@
  * Some date validations to consider:
  * start date and end date should not less than tournament start start date or greater than tournament end date.
  * start date and end date can be equal
- * 
+ *
  */
 
 import { Calendar, Flag, Plus, Users } from "lucide-react";
@@ -309,6 +309,28 @@ export const TournamentRounds = () => {
     return FormatToISODate(nextDay);
   };
 
+  // CALCULATE NEXT AVAILABLE START DATE FOR ROUND EDITING
+  const getNextAvailableStartDateForEdit = () => {
+    if (rounds.length === 0) return calculateMinStartDate(); // fallback
+
+    // Filter out the currently edited round
+    const roundsExcludingEdited = rounds.filter(
+      (round) => round.round_id !== selectedRound?.round_id
+    );
+
+    // Find the latest round (the one with the maximum end date) from the remaining rounds
+    const latestEnd = new Date(
+      Math.max(
+        ...roundsExcludingEdited.map((r) => new Date(r.end_date).getTime())
+      )
+    );
+
+    // Add 1 day (86400000 milliseconds) to the latest round's end date
+    const nextDay = new Date(latestEnd.getTime() + 86400000);
+
+    return FormatToISODate(nextDay);
+  };
+
   // CALCULATE DATE CONSTRAINTS FOR ROUND EXTENDING
   const getExtendedDateConstraints = (round, allRounds) => {
     if (!round || !Array.isArray(allRounds)) return {};
@@ -362,14 +384,15 @@ export const TournamentRounds = () => {
    * Opens the round modal in create or edit mode.
    * @param {object|null} round - The round to edit. If null, creates a new one. Default value is NULL.
    */
-  const handleOpenTournamentManagementModal = (round = null) => {
+  const handleOpenRoundManagementModal = (round = null) => {
     setRoundManagementModalShow(true);
     setSelectedRound(round);
     setFormMode(round ? "edit" : "create");
 
     // If Round Is Not Null Then Form Is Edit
     if (round) {
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         round_id: round?.round_id || 0,
         description: round?.description || "",
         round_name: round?.round_name || "",
@@ -377,7 +400,7 @@ export const TournamentRounds = () => {
         lap_number: round?.lap_number || 1,
         finish_type: MatchFinishTypeOptions[0].value,
         team_limit: round?.team_limit || 0,
-        is_last: round?.is_last || false,
+        is_last: round?.is_last,
         start_date:
           FormatDateInput(round?.start_date) ||
           FormatToISODate(new Date().getTime() + 1 * 86400000),
@@ -392,7 +415,7 @@ export const TournamentRounds = () => {
         assist_usage: round?.assist_usage || -350,
         average_speed: round?.average_speed || 30,
         total_distance: round?.total_distance || 100,
-      });
+      }));
 
       // Else Form Is Create
     } else {
@@ -588,10 +611,11 @@ export const TournamentRounds = () => {
 
   // CHECK IF END DATE EQUALS TO TOURNAMENT END DATE THEN SET LAST ROUND TRUE
   useEffect(() => {
+    // For create mode, if end date is equal to tournament end date then set last round true
     if (
       formMode === "create" &&
       FormatToISODate(formData.end_date) ===
-      FormatToISODate(tournament?.end_date)
+        FormatToISODate(tournament?.end_date)
     ) {
       setFormData((prev) => ({
         ...prev,
@@ -599,6 +623,35 @@ export const TournamentRounds = () => {
           FormatDateInput(formData.end_date) ===
           FormatDateInput(new Date(tournament?.end_date)),
         team_limit: 0,
+      }));
+    } else {
+      // Otherwise set last round false
+      setFormData((prev) => ({
+        ...prev,
+        is_last: false,
+        team_limit: 2,
+      }));
+    }
+
+    // For edit mode, if end date is equal to tournament end date then set last round true
+    if (
+      formMode === "edit" &&
+      FormatToISODate(formData.end_date) ===
+        FormatToISODate(tournament?.end_date)
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        is_last:
+          FormatDateInput(formData.end_date) ===
+          FormatDateInput(new Date(tournament?.end_date)),
+        team_limit: 0,
+      }));
+    } else {
+      // Otherwise set last round false
+      setFormData((prev) => ({
+        ...prev,
+        is_last: false,
+        team_limit: 2,
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -640,7 +693,7 @@ export const TournamentRounds = () => {
               disabled={hasFinalRound}
               toolTipPos="bottom"
               tooltipData="Cannot create new round after final round."
-              onClick={() => handleOpenTournamentManagementModal(null)}
+              onClick={() => handleOpenRoundManagementModal(null)}
             >
               <Plus className="mr-2 w-4 h-4" /> Create Round
             </Button>
@@ -662,15 +715,16 @@ export const TournamentRounds = () => {
           <Card className="col-span-full">
             <CardContent className="flex flex-col justify-center items-center p-6">
               <p
-                className={`text-muted-foreground ${auth?.role === "ORGANIZER" ? "mb-4" : ""
-                  }`}
+                className={`text-muted-foreground ${
+                  auth?.role === "ORGANIZER" ? "mb-4" : ""
+                }`}
               >
                 No rounds found for this tournament.
               </p>
               {auth?.role === "ORGANIZER" && (
                 <Button
                   variant="outline"
-                  onClick={() => handleOpenTournamentManagementModal(null)}
+                  onClick={() => handleOpenRoundManagementModal(null)}
                   className="cursor-pointer"
                 >
                   <Plus className="mr-2 w-4 h-4" /> Create First Round
@@ -723,7 +777,7 @@ export const TournamentRounds = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleOpenTournamentManagementModal(round)}
+                      onClick={() => handleOpenRoundManagementModal(round)}
                       className="cursor-pointer"
                     >
                       Edit
@@ -874,8 +928,8 @@ export const TournamentRounds = () => {
             className="flex flex-col h-full"
           >
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
-              {/* Warning Message About Final Rounds */}
-              {isLastRoundWarning && !selectedRound?.is_last && (
+              {/* Warning Message About Final Rounds If Selected Round Is Last Is False*/}
+              {isLastRoundWarning && selectedRound?.is_last && (
                 <div className="bg-yellow-50 mb-4 p-4 border-yellow-400 border-l-4 rounded-md text-yellow-700">
                   <p className="text-md">{isLastRoundWarning}</p>
                 </div>
@@ -945,7 +999,11 @@ export const TournamentRounds = () => {
                       type="date"
                       placeholder="Choose start date"
                       value={FormatDateInput(formData.start_date) || ""}
-                      min={formMode === "create" ? getNextAvailableStartDate() : calculateMinStartDate()}
+                      min={
+                        formMode === "create"
+                          ? getNextAvailableStartDate()
+                          : getNextAvailableStartDateForEdit()
+                      }
                       max={FormatDateInput(new Date(tournament?.end_date))}
                       onChange={(e) => {
                         setFormData({
@@ -969,7 +1027,11 @@ export const TournamentRounds = () => {
                     <Input
                       type="date"
                       value={FormatDateInput(formData.end_date) || ""}
-                      min={formMode === "create" ? getNextAvailableStartDate() : FormatToISODate(formData.start_date)}
+                      min={
+                        formMode === "create"
+                          ? getNextAvailableStartDate()
+                          : FormatToISODate(formData.start_date)
+                      }
                       max={FormatDateInput(new Date(tournament?.end_date))}
                       placeholder="Choose end date"
                       onChange={(e) => {
@@ -1118,7 +1180,7 @@ export const TournamentRounds = () => {
                           name="total_distance"
                           type="number"
                           min={0}
-                          max={1000}
+                          max={100}
                           value={formData?.total_distance}
                           onChange={(e) => {
                             setFormData((prev) => ({
@@ -1237,10 +1299,11 @@ export const TournamentRounds = () => {
                     {resources?.map((resource) => (
                       <div
                         key={resource.resource_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.resource_id === resource.resource_id
-                          ? "border-primary bg-primary/10"
-                          : "hover:border-primary/50"
-                          }`}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.resource_id === resource.resource_id
+                            ? "border-primary bg-primary/10"
+                            : "hover:border-primary/50"
+                        }`}
                         onClick={() =>
                           onResourceSelectChange(
                             "resource_id",
@@ -1273,10 +1336,11 @@ export const TournamentRounds = () => {
                         env.status.toString().toLowerCase() !== "inactive" && (
                           <div
                             key={env.environment_id}
-                            className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.environment_id === env.environment_id
-                              ? "border-primary bg-primary/10"
-                              : "hover:border-primary/50"
-                              }`}
+                            className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                              formData.environment_id === env.environment_id
+                                ? "border-primary bg-primary/10"
+                                : "hover:border-primary/50"
+                            }`}
                             onClick={() =>
                               onResourceSelectChange(
                                 "environment_id",
@@ -1307,10 +1371,11 @@ export const TournamentRounds = () => {
                         type.status.toString().toLowerCase() !== "inactive" && (
                           <div
                             key={type.match_type_id}
-                            className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.match_type_id === type.match_type_id
-                              ? "border-primary bg-primary/10"
-                              : "hover:border-primary/50"
-                              }`}
+                            className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                              formData.match_type_id === type.match_type_id
+                                ? "border-primary bg-primary/10"
+                                : "hover:border-primary/50"
+                            }`}
                             onClick={() =>
                               onResourceSelectChange(
                                 "match_type_id",
