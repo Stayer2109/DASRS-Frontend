@@ -1621,15 +1621,10 @@ export const TournamentRounds = () => {
         <Modal.Body>
           {roundLeaderboard ? (
             <div className="space-y-4">
-              {/* Display Leaderboard */}
-              <h3 className="mb-4 font-semibold text-lg">
-                Leaderboard for {selectedRound?.round_name || "Round"}
-              </h3>
-
+              {/* Leaderboard Entries */}
               <div className="space-y-2">
-                {/* Sort the leaderboard based on ranking */}
                 {roundLeaderboard
-                  .sort((a, b) => a.ranking - b.ranking) // Sort by ranking (ascending)
+                  .sort((a, b) => a.ranking - b.ranking)
                   .map((entry) => (
                     <div
                       key={entry.leaderboard_id}
@@ -1644,7 +1639,7 @@ export const TournamentRounds = () => {
                           #{entry?.ranking}
                         </div>
                         <div className="font-semibold text-lg truncate">
-                          {entry?.team_name}
+                          {entry?.team_name || "N/A"}
                           {entry?.team_tag && (
                             <span className="ml-2 text-gray-500">
                               ({entry?.team_tag})
@@ -1653,13 +1648,15 @@ export const TournamentRounds = () => {
                         </div>
                       </div>
                       <div className="font-semibold text-blue-600">
-                        {entry?.team_score || "N/A"} pts
+                        {entry?.team_score != null
+                          ? `${entry.team_score} pts`
+                          : "N/A"}
                       </div>
                     </div>
                   ))}
               </div>
 
-              {/* MVP Sections */}
+              {/* MVP - Fastest Lap (always render) */}
               <div className="bg-gray-100 mt-6 p-4 rounded-lg">
                 <h4 className="font-semibold text-md">MVP - Fastest Lap</h4>
                 <div className="flex justify-between items-center">
@@ -1669,17 +1666,21 @@ export const TournamentRounds = () => {
                       {roundLeaderboard.fastest_lap_time?.team_name || "N/A"}
                     </p>
                     {roundLeaderboard.fastest_lap_time?.team_tag && (
-                      <span className="text-xs">
-                        ({roundLeaderboard.fastest_lap_time?.team_tag})
+                      <span className="text-gray-500 text-xs">
+                        ({roundLeaderboard.fastest_lap_time.team_tag})
                       </span>
                     )}
                   </div>
                   <p className="text-blue-600">
-                    Time: {roundLeaderboard.fastest_lap_time?.lap_time || "N/A"}
+                    Time:{" "}
+                    {roundLeaderboard.fastest_lap_time?.lap_time != null
+                      ? roundLeaderboard.fastest_lap_time.lap_time.toFixed(3)
+                      : "N/A"}
                   </p>
                 </div>
               </div>
 
+              {/* MVP - Top Speed (always render) */}
               <div className="bg-gray-100 mt-4 p-4 rounded-lg">
                 <h4 className="font-semibold text-md">MVP - Top Speed</h4>
                 <div className="flex justify-between items-center">
@@ -1688,13 +1689,16 @@ export const TournamentRounds = () => {
                       Team: {roundLeaderboard.top_speed?.team_name || "N/A"}
                     </p>
                     {roundLeaderboard.top_speed?.team_tag && (
-                      <span className="text-xs">
-                        ({roundLeaderboard.top_speed?.team_tag})
+                      <span className="text-gray-500 text-xs">
+                        ({roundLeaderboard.top_speed.team_tag})
                       </span>
                     )}
                   </div>
                   <p className="text-blue-600">
-                    Speed: {roundLeaderboard.top_speed?.speed || "N/A"} km/h
+                    Speed:{" "}
+                    {roundLeaderboard.top_speed?.speed != null
+                      ? `${roundLeaderboard.top_speed.speed.toFixed(2)} km/h`
+                      : "N/A"}
                   </p>
                 </div>
               </div>

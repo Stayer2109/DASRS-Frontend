@@ -7,19 +7,21 @@ import apiClient from "@/config/axios/axios";
 import Toast from "../../Toaster/Toaster";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
-import { Collapsible, CollapsibleTrigger } from "@/AtomicComponents/atoms/shadcn/collapsible";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+} from "@/AtomicComponents/atoms/shadcn/collapsible";
 
 const RoundLeaderboardCard = ({ roundData }) => {
   //#region VARIABLE DECLARATIONS
   const round = roundData;
-  const roundContent = round?.content || [];
+  const leaderboardEntries = round?.content || [];
   const [openMatch, setOpenMatch] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teamLeaderboard, setTeamLeaderboard] = useState(null);
 
   console.log(round);
-  
 
   // MODAL CONTROLLERS
   const [teamLeaderboardShow, setTeamLeaderboardShow] = useState(false);
@@ -128,151 +130,144 @@ const RoundLeaderboardCard = ({ roundData }) => {
 
         <div className="flex flex-col gap-2">
           <>
-            {roundContent.length === 0 ? (
+            {leaderboardEntries.length === 0 ? (
               <div className="flex flex-col mb-2">
                 <h4 className="font-semibold text-md">
                   No rounds available for this round.
                 </h4>
               </div>
             ) : (
-              roundContent.map((round, index) => {
-                const isOpen = openMatch === index; // Check if round is opened
+              <Collapsible
+                open={openMatch === 0}
+                onOpenChange={() => handleToggle(0)}
+                className="mb-2"
+              >
+                <div
+                  className="flex justify-between items-center bg-gray-100 p-2 rounded-t-md"
+                  onClick={() => handleToggle(0)}
+                >
+                  <CollapsibleTrigger className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm cursor-pointer">
+                    <h4 className="font-semibold text-md">
+                      {round?.round_name || "Round"}
+                    </h4>
+                    {openMatch === 0 ? (
+                      <ChevronUp size={16} />
+                    ) : (
+                      <ChevronDown size={16} />
+                    )}
+                  </CollapsibleTrigger>
+                </div>
 
-                // Sort the leaderboard entries by ranking ascly
-                const sortedLeaderboard = round?.content?.sort(
-                  (a, b) => a.ranking - b.ranking
-                );
+                <AnimatePresence initial={false}>
+                  <AutoHeightMotionDiv isOpen={openMatch === 0}>
+                    <div className="text-gray-600 text-sm">
+                      <p className="mt-2">
+                        <strong>Description:</strong>{" "}
+                        {round?.description || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Finish Type:</strong>{" "}
+                        {round?.finish_type || "N/A"}
+                      </p>
 
-                return (
-                  <Collapsible
-                    key={index}
-                    open={isOpen}
-                    onOpenChange={() => handleToggle(index)}
-                    className="mb-2"
-                  >
-                    <div
-                      className="flex justify-between items-center bg-gray-100 p-2 rounded-t-md"
-                      onClick={() => handleToggle(index)}
-                    >
-                      <CollapsibleTrigger className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm cursor-pointer">
-                        <h4 className="font-semibold text-md">
-                          {round?.round_name}
-                        </h4>
-                        {/* Display the appropriate icon */}
-                        {isOpen ? (
-                          <ChevronUp size={16} />
+                      <h5 className="mt-3 font-semibold text-md">
+                        Leaderboard:
+                      </h5>
+                      <div className="space-y-4">
+                        {leaderboardEntries.length === 0 ? (
+                          <div className="font-semibold text-gray-400 italic">
+                            No leaderboard entries available.
+                          </div>
                         ) : (
-                          <ChevronDown size={16} />
-                        )}
-                      </CollapsibleTrigger>
-                    </div>
-
-                    {/* Motion */}
-                    <AnimatePresence initial={false}>
-                      <AutoHeightMotionDiv isOpen={isOpen}>
-                        <div className="text-gray-600 text-sm">
-                          <p className="mt-2">
-                            <strong>Description:</strong>{" "}
-                            {round?.description || "N/A"}
-                          </p>
-                          <p>
-                            <strong>Finish Type:</strong>{" "}
-                            {round?.finish_type || "N/A"}
-                          </p>
-
-                          <h5 className="mt-3 font-semibold text-md">
-                            Leaderboard:
-                          </h5>
-                          <div className="space-y-4">
-                            {/* Render each team as a card */}
-                            {sortedLeaderboard?.length === 0 ? (
-                              <div className="font-semibold text-gray-400 italic">
-                                No leaderboard entries available.
-                              </div>
-                            ) : (
-                              sortedLeaderboard?.map((entry) => (
-                                <div
-                                  key={entry?.leaderboard_id}
-                                  className="flex justify-between items-center bg-white shadow-sm mt-1 p-4 border rounded-lg"
-                                >
-                                  <div className="flex items-center">
-                                    <div
-                                      className={`mr-2 font-medium ${getRankingStyle(
-                                        entry?.ranking
-                                      )}`}
-                                    >
-                                      #{entry?.ranking}
-                                    </div>
-                                    <div
-                                      className="font-semibold hover:text-blue-500 text-lg cursor-pointer"
-                                      onClick={() => handleSelectTeam(entry)}
-                                    >
-                                      {entry?.team_name}
-                                      {entry?.team_tag && (
-                                        <span className="ml-2 text-gray-500">
-                                          ({entry?.team_tag})
-                                        </span>
-                                      )}
-                                    </div>
+                          leaderboardEntries
+                            .sort((a, b) => a.ranking - b.ranking)
+                            .map((entry) => (
+                              <div
+                                key={entry.leaderboard_id}
+                                className="flex justify-between items-center bg-white shadow-sm mt-1 p-4 border rounded-lg"
+                              >
+                                <div className="flex items-center">
+                                  <div
+                                    className={`mr-2 font-medium ${getRankingStyle(
+                                      entry?.ranking
+                                    )}`}
+                                  >
+                                    #{entry?.ranking}
                                   </div>
-                                  <div className="font-semibold text-blue-600">
-                                    {entry?.team_score || "N/A"} pts
+                                  <div
+                                    className="font-semibold hover:text-blue-500 text-lg cursor-pointer"
+                                    onClick={() => handleSelectTeam(entry)}
+                                  >
+                                    {entry?.team_name}
+                                    {entry?.team_tag && (
+                                      <span className="ml-2 text-gray-500">
+                                        ({entry?.team_tag})
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
-                              ))
+                                <div className="font-semibold text-blue-600">
+                                  {entry?.team_score ?? "N/A"} pts
+                                </div>
+                              </div>
+                            ))
+                        )}
+                      </div>
+
+                      {/* MVP - Fastest Lap */}
+                      <div className="bg-gray-100 mt-4 p-4 rounded-lg">
+                        <h5 className="font-semibold text-md">
+                          MVP - Fastest Lap
+                        </h5>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-1">
+                            <p className="text-gray-800">
+                              Team:{" "}
+                              {round?.fastest_lap_time?.team_name || "N/A"}
+                            </p>
+                            {round?.fastest_lap_time?.team_tag && (
+                              <span className="text-gray-500 text-xs">
+                                ({round.fastest_lap_time.team_tag})
+                              </span>
                             )}
                           </div>
-
-                          {/* Display MVP and additional stats (Fastest Lap Time and Top Speed) */}
-                          {/* <div className="bg-gray-100 mt-4 p-4 rounded-lg">
-                            <h5 className="font-semibold text-md">
-                              MVP - Fastest Lap
-                            </h5>
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-1">
-                                <p className="text-gray-800">
-                                  Team:{" "}
-                                  {round?.fastest_lap_time.team_name || "N/A"}
-                                </p>
-                                {round?.fastest_lap_time.team_tag && (
-                                  <span className="text-xs">
-                                    ({round?.fastest_lap_time.team_tag})
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-blue-600">
-                                Time:{" "}
-                                {round?.fastest_lap_time.lap_time || "N/A"}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="bg-gray-100 mt-2 p-4 rounded-lg">
-                            <h5 className="font-semibold text-md">
-                              MVP - Top Speed
-                            </h5>
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-1">
-                                <p className="text-gray-800">
-                                  Team: {round?.top_speed.team_name || "N/A"}
-                                </p>
-                                {round?.top_speed.team_tag && (
-                                  <span className="text-xs">
-                                    ({round?.top_speed.team_tag || "N/A"})
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-blue-600">
-                                Speed: {round?.top_speed.speed || "N/A"}
-                              </p>
-                            </div>
-                          </div> */}
+                          <p className="text-blue-600">
+                            Time:{" "}
+                            {round?.fastest_lap_time?.lap_time != null
+                              ? round.fastest_lap_time.lap_time.toFixed(3)
+                              : "N/A"}
+                          </p>
                         </div>
-                      </AutoHeightMotionDiv>
-                    </AnimatePresence>
-                  </Collapsible>
-                );
-              })
+                      </div>
+
+                      {/* MVP - Top Speed */}
+                      <div className="bg-gray-100 mt-2 p-4 rounded-lg">
+                        <h5 className="font-semibold text-md">
+                          MVP - Top Speed
+                        </h5>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-1">
+                            <p className="text-gray-800">
+                              Team: {round?.top_speed?.team_name || "N/A"}
+                            </p>
+                            {round?.top_speed?.team_tag && (
+                              <span className="text-gray-500 text-xs">
+                                ({round.top_speed.team_tag})
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-blue-600">
+                            Speed:{" "}
+                            {round?.top_speed?.speed != null
+                              ? `${round.top_speed.speed.toFixed(2)} km/h`
+                              : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </AutoHeightMotionDiv>
+                </AnimatePresence>
+              </Collapsible>
             )}
           </>
         </div>
