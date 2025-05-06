@@ -1,38 +1,36 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import PropTypes from "prop-types";
 import apiClient from "@/config/axios/axios";
 import Toast from "../../Toaster/Toaster";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import { Collapsible, CollapsibleTrigger } from "@/AtomicComponents/atoms/shadcn/collapsible";
 
 const RoundLeaderboardCard = ({ roundData }) => {
   //#region VARIABLE DECLARATIONS
-  const matchList = roundData?.match_list || [];
+  const round = roundData;
+  const roundContent = round?.content || [];
   const [openMatch, setOpenMatch] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [teamLeaderboard, setTeamLeaderboard] = useState(null);
 
+  console.log(round);
+  
+
   // MODAL CONTROLLERS
   const [teamLeaderboardShow, setTeamLeaderboardShow] = useState(false);
   //#endregion
 
-  // GET STATUS STYLE
-  const getStatusStyle = (status) => {
-    const normalized = (status || "").toString().toUpperCase();
-    switch (normalized) {
-      case "PENDING":
-        return "text-yellow-500 font-semibold";
-      case "FINISHED":
-        return "text-green-500 font-semibold";
-      case "TERMINATED":
-        return "text-red-500 font-semibold";
-      default:
-        return "text-gray-500 font-medium"; // fallback style
-    }
+  // HELPER FUNCTION TO GET RANKING COLOR
+  const getRankingStyle = (ranking) => {
+    if (ranking === 1) return "text-yellow-500 font-bold text-2xl";
+    if (ranking === 2) return "text-gray-400 font-bold text-xl";
+    if (ranking === 3) return "text-amber-600 font-bold text-lg";
+    return "text-gray-800"; // Default color for other rankings
   };
 
   // GET RANKING STYLE FOR MODAL
@@ -56,18 +54,17 @@ const RoundLeaderboardCard = ({ roundData }) => {
 
   // HANDLE SELECT TEAM
   const handleSelectTeam = (team) => {
-    // Set the selected team ID
-    setSelectedTeam(team);
+    setSelectedTeam(team); // Set the selected team
   };
 
   // FETCH TEAM LEADERBOARD
   const fetchTeamLeaderboard = async (teamId) => {
     try {
       setIsLoading(true); // Set loading state to true
-      const respone = await apiClient.get(`leaderboards/team/${teamId}`);
+      const response = await apiClient.get(`leaderboards/team/${teamId}`);
 
-      if (respone.data.http_status === 200) {
-        const data = respone.data.data;
+      if (response.data.http_status === 200) {
+        const data = response.data.data;
         setTeamLeaderboard(data); // Set the team leaderboard data
       }
     } catch (err) {
@@ -98,25 +95,24 @@ const RoundLeaderboardCard = ({ roundData }) => {
   const handleCloseTeamLeaderboard = () => {
     setTeamLeaderboardShow(false); // Close the team leaderboard modal
     setTimeout(() => {
-      setSelectedTeam(null); // Reset selected team ID
+      setSelectedTeam(null); // Reset selected team
       setTeamLeaderboard(null); // Reset team leaderboard data
     }, 350);
   };
   //#endregion
 
   //#region USEEFFECTS
-  // RESET STATE ON ROUND DATA CHANGE
   useEffect(() => {
-    setOpenMatch(null);
+    setOpenMatch(null); // Reset open match state when round data changes
   }, [roundData]);
 
   useEffect(() => {
-    if (selectedTeam) fetchTeamLeaderboard(selectedTeam?.team_id); // Fetch leaderboard for the selected team
+    if (selectedTeam) fetchTeamLeaderboard(selectedTeam?.team_id); // Fetch leaderboard data for the selected team
   }, [selectedTeam]);
 
   useEffect(() => {
     if (teamLeaderboard) {
-      handleShowTeamLeaderboard(); // Show the modal when team leaderboard data is available
+      handleShowTeamLeaderboard(); // Show the modal when leaderboard data is available
     }
   }, [teamLeaderboard]);
   //#endregion
@@ -127,109 +123,159 @@ const RoundLeaderboardCard = ({ roundData }) => {
       <div className="bg-white shadow-md mb-6 p-4 rounded-lg">
         <div className="flex flex-col mb-2">
           <h2 className="font-bold text-xl">Round Leaderboard</h2>
-          <h4 className="font-semibold text-md">{roundData?.round_name}</h4>
-          <p className="text-gray-600 text-sm">{roundData?.description}</p>
+          <h4 className="font-semibold text-md">{round?.round_name}</h4>
         </div>
 
-        {matchList.length === 0 ? (
-          <div className="flex flex-col mb-2">
-            <h4 className="font-semibold text-md">
-              No matches available for this round.
-            </h4>
-          </div>
-        ) : (
-          matchList.map((match, index) => {
-            const isOpen = openMatch === index;
-
-            return (
-              <div key={match?.match_id} className="mb-2">
-                <div
-                  className="flex justify-between items-center bg-gray-100 p-2 rounded-t-md cursor-pointer"
-                  onClick={() => handleToggle(index)}
-                >
-                  <div className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm">
-                    <h4 className="font-semibold text-md">
-                      {match?.match_name}
-                    </h4>
-                    <motion.div
-                      animate={{ rotate: isOpen ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ChevronDown size={16} />
-                    </motion.div>
-                  </div>
-                </div>
-
-                {/* Motion */}
-                <AnimatePresence initial={false}>
-                  <AutoHeightMotionDiv isOpen={isOpen}>
-                    <div className="flex flex-col gap-1.5 bg-gray-50 px-4 pt-2 pb-2 border-gray-200 border-t-2 rounded-b-md text-gray-600 text-sm">
-                      <p>
-                        <strong>Match Code:</strong>{" "}
-                        {match?.match_code || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Start Time:</strong>{" "}
-                        {match?.time_start || "N/A"}
-                      </p>
-                      <p>
-                        <strong>End Time:</strong> {match?.time_end || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Match Form:</strong>{" "}
-                        {match?.match_form || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Status:</strong>{" "}
-                        <span className={getStatusStyle(match?.status)}>
-                          {match?.status
-                            ? match.status.toString().toUpperCase()
-                            : "N/A"}
-                        </span>
-                      </p>
-
-                      {/* Render teams if available */}
-                      <div className="mt-2">
-                        <h5 className="mb-2 font-semibold text-md">Teams:</h5>
-
-                        {match?.teams &&
-                        Array.isArray(match?.teams) &&
-                        match?.teams.length > 0 ? (
-                          <div className="space-y-2">
-                            {match.teams.map((team) => (
-                              <div
-                                key={team.team_id}
-                                className="flex justify-between items-center bg-white shadow-sm p-3 border rounded-lg"
-                              >
-                                <div
-                                  className="flex items-center gap-2 hover:text-blue-500 cursor-pointer"
-                                  onClick={() => handleSelectTeam(team)}
-                                >
-                                  <p className="font-semibold">
-                                    {team?.team_name}
-                                  </p>
-                                  {team?.team_tag && (
-                                    <span className="text-gray-500 text-xs">
-                                      ({team?.team_tag})
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="font-semibold text-gray-400 italic">
-                            There are no teams in this match.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </AutoHeightMotionDiv>
-                </AnimatePresence>
+        <div className="flex flex-col gap-2">
+          <>
+            {roundContent.length === 0 ? (
+              <div className="flex flex-col mb-2">
+                <h4 className="font-semibold text-md">
+                  No rounds available for this round.
+                </h4>
               </div>
-            );
-          })
-        )}
+            ) : (
+              roundContent.map((round, index) => {
+                const isOpen = openMatch === index; // Check if round is opened
+
+                // Sort the leaderboard entries by ranking ascly
+                const sortedLeaderboard = round?.content?.sort(
+                  (a, b) => a.ranking - b.ranking
+                );
+
+                return (
+                  <Collapsible
+                    key={index}
+                    open={isOpen}
+                    onOpenChange={() => handleToggle(index)}
+                    className="mb-2"
+                  >
+                    <div
+                      className="flex justify-between items-center bg-gray-100 p-2 rounded-t-md"
+                      onClick={() => handleToggle(index)}
+                    >
+                      <CollapsibleTrigger className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm cursor-pointer">
+                        <h4 className="font-semibold text-md">
+                          {round?.round_name}
+                        </h4>
+                        {/* Display the appropriate icon */}
+                        {isOpen ? (
+                          <ChevronUp size={16} />
+                        ) : (
+                          <ChevronDown size={16} />
+                        )}
+                      </CollapsibleTrigger>
+                    </div>
+
+                    {/* Motion */}
+                    <AnimatePresence initial={false}>
+                      <AutoHeightMotionDiv isOpen={isOpen}>
+                        <div className="text-gray-600 text-sm">
+                          <p className="mt-2">
+                            <strong>Description:</strong>{" "}
+                            {round?.description || "N/A"}
+                          </p>
+                          <p>
+                            <strong>Finish Type:</strong>{" "}
+                            {round?.finish_type || "N/A"}
+                          </p>
+
+                          <h5 className="mt-3 font-semibold text-md">
+                            Leaderboard:
+                          </h5>
+                          <div className="space-y-4">
+                            {/* Render each team as a card */}
+                            {sortedLeaderboard?.length === 0 ? (
+                              <div className="font-semibold text-gray-400 italic">
+                                No leaderboard entries available.
+                              </div>
+                            ) : (
+                              sortedLeaderboard?.map((entry) => (
+                                <div
+                                  key={entry?.leaderboard_id}
+                                  className="flex justify-between items-center bg-white shadow-sm mt-1 p-4 border rounded-lg"
+                                >
+                                  <div className="flex items-center">
+                                    <div
+                                      className={`mr-2 font-medium ${getRankingStyle(
+                                        entry?.ranking
+                                      )}`}
+                                    >
+                                      #{entry?.ranking}
+                                    </div>
+                                    <div
+                                      className="font-semibold hover:text-blue-500 text-lg cursor-pointer"
+                                      onClick={() => handleSelectTeam(entry)}
+                                    >
+                                      {entry?.team_name}
+                                      {entry?.team_tag && (
+                                        <span className="ml-2 text-gray-500">
+                                          ({entry?.team_tag})
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="font-semibold text-blue-600">
+                                    {entry?.team_score || "N/A"} pts
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+
+                          {/* Display MVP and additional stats (Fastest Lap Time and Top Speed) */}
+                          {/* <div className="bg-gray-100 mt-4 p-4 rounded-lg">
+                            <h5 className="font-semibold text-md">
+                              MVP - Fastest Lap
+                            </h5>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-1">
+                                <p className="text-gray-800">
+                                  Team:{" "}
+                                  {round?.fastest_lap_time.team_name || "N/A"}
+                                </p>
+                                {round?.fastest_lap_time.team_tag && (
+                                  <span className="text-xs">
+                                    ({round?.fastest_lap_time.team_tag})
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-blue-600">
+                                Time:{" "}
+                                {round?.fastest_lap_time.lap_time || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="bg-gray-100 mt-2 p-4 rounded-lg">
+                            <h5 className="font-semibold text-md">
+                              MVP - Top Speed
+                            </h5>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-1">
+                                <p className="text-gray-800">
+                                  Team: {round?.top_speed.team_name || "N/A"}
+                                </p>
+                                {round?.top_speed.team_tag && (
+                                  <span className="text-xs">
+                                    ({round?.top_speed.team_tag || "N/A"})
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-blue-600">
+                                Speed: {round?.top_speed.speed || "N/A"}
+                              </p>
+                            </div>
+                          </div> */}
+                        </div>
+                      </AutoHeightMotionDiv>
+                    </AnimatePresence>
+                  </Collapsible>
+                );
+              })
+            )}
+          </>
+        </div>
       </div>
 
       {/* Team Leaderboard Modal */}
@@ -239,7 +285,6 @@ const RoundLeaderboardCard = ({ roundData }) => {
         onHide={handleCloseTeamLeaderboard}
       >
         <Modal.Header content={"Team Leaderboard"} />
-
         <Modal.Body>
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
