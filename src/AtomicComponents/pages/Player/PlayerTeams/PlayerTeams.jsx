@@ -54,7 +54,7 @@ export const PlayerTeams = () => {
 
       <div className="mx-auto p-4 container">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="font-bold text-2xl">My Teams</h1>
+          <h1 className="font-bold text-2xl">List Teams</h1>
           <Button
             onClick={() => setIsModalOpen(true)}
             className="px-4 py-2 h-10"
