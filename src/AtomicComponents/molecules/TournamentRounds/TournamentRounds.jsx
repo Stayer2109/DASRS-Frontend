@@ -516,6 +516,7 @@ export const TournamentRounds = () => {
 
   const handleCloseRoundLeaderboardModal = () => {
     setRoundLeaderboardModalShow(false);
+    setSelectedRound(null);
 
     setTimeout(() => {
       setSelectedRound(null);
