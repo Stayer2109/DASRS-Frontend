@@ -16,7 +16,6 @@ const Leaderboard = () => {
   // #region VARIABLES DECLARATION
   const [completedTournaments, setCompletedTournaments] = useState([]);
   const [completedRounds, setCompletedRounds] = useState([]);
-  const [team, setTeam] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("tournaments");
@@ -173,7 +172,17 @@ const Leaderboard = () => {
   const fetchRoundLeaderboard = async (roundId) => {
     try {
       setIsLoading(true);
-      const response = await apiClient.get(`rounds/${roundId}`);
+      const response = await apiClient.get(
+        `leaderboards/round/v3/${roundId}`,
+        {
+          params: {
+            pageNo: 0,
+            pageSize: 100,
+            sortBy: "id",
+            sortDirection: "asc",
+          },
+        }
+      );
 
       if (response.data.http_status === 200) {
         const data = response.data.data;

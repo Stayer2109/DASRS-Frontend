@@ -510,6 +510,12 @@ const PlayerMatches = () => {
                       className="font-semibold"
                       content="Submit Complaint"
                       onClick={() => handleComplaintModalShow(match)}
+                      disabled={match?.match_form === "REMATCH"}
+                      tooltipData={
+                        match?.match_form.toLowerCase() === "rematch"
+                          ? "Cannot submit complaint for a rematch"
+                          : ""
+                      }
                     />
                   </div>
                 </div>

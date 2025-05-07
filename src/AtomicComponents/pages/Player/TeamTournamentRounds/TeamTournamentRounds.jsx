@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { apiClient, apiAuth } from "@/config/axios/axios";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { apiClient } from "@/config/axios/axios";
 import {
   Card,
   CardContent,
@@ -21,6 +21,10 @@ import { EnvironmentDetails } from "@/AtomicComponents/molecules/CollapsibleDeta
 import { MapDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/MapDetails";
 import { ScoreMethodDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/ScoreMethodDetails";
 import { Trophy } from "lucide-react";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import RoundLeaderboardCard from "@/AtomicComponents/molecules/LeaderboardCard/RoundLeaderboardCard/RoundLeaderboardCard";
+import { Button as ButtonIcon } from "./../../../atoms/Button/Button";
 
 export const TeamTournamentRounds = () => {
   const { tournamentId } = useParams();
@@ -29,6 +33,10 @@ export const TeamTournamentRounds = () => {
   const [rounds, setRounds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tournament, setTournament] = useState(null);
+  const [roundLeaderboardModalShow, setRoundLeaderboardModalShow] =
+    useState(false);
+  const [roundLeaderboard, setRoundLeaderboard] = useState(null);
+  const [_selectedRound, setSelectedRound] = useState(null);
 
   // Pagination states
   const [pageIndex, setPageIndex] = useState(1);
@@ -70,6 +78,8 @@ export const TeamTournamentRounds = () => {
 
   useEffect(() => {
     fetchRounds();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tournamentId, pageIndex, pageSize]);
 
   const handleViewMatches = (roundId, roundName) => {
@@ -78,8 +88,21 @@ export const TeamTournamentRounds = () => {
     });
   };
 
-  const handleViewLeaderboard = (roundId) => {
-    navigate(`/rounds/${roundId}/leaderboard`);
+  // ROUND LEADERBOARD MODAL
+  const handleOpenRoundLeaderboardModal = (round = null) => {
+    setRoundLeaderboardModalShow(true);
+    setSelectedRound(round);
+
+    fetchRoundLeaderboard(round?.round_id);
+  };
+
+  const handleCloseRoundLeaderboardModal = () => {
+    setRoundLeaderboardModalShow(false);
+
+    setTimeout(() => {
+      setSelectedRound(null);
+      setRoundLeaderboard(null);
+    }, 300);
   };
 
   const handleBack = () => {
@@ -96,138 +119,213 @@ export const TeamTournamentRounds = () => {
     setPageIndex(1); // Reset to first page when changing page size
   };
 
-  if (isLoading) return <Spinner />;
+  // FETCH ROUND LEADERBOARD INFORMATION
+  const fetchRoundLeaderboard = async (roundId) => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(`leaderboards/round/v3/${roundId}`, {
+        params: {
+          pageNo: 0,
+          pageSize: 100,
+          sortBy: "id",
+          sortDirection: "asc",
+        },
+      });
+
+      if (response.data.http_status === 200) {
+        setRoundLeaderboard(response.data.data || []);
+      }
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="container mx-auto p-4">
-      <Button variant="outline" onClick={handleBack} className="mb-4">
-        Back to Tournaments
-      </Button>
+    <>
+      {isLoading && <Spinner />}
+      <div className="mx-auto p-4 container">
+        <Button variant="outline" onClick={handleBack} className="mb-4">
+          Back to Tournaments
+        </Button>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">
-          {tournament?.tournament_name || "Tournament Rounds"}
-        </h1>
-        <p className="text-gray-500 mt-2">
-          View all rounds for this tournament
-        </p>
-      </div>
+        <div className="mb-6">
+          <h1 className="font-bold text-2xl">
+            {tournament?.tournament_name || "Tournament Rounds"}
+          </h1>
+          <p className="mt-2 text-gray-500">
+            View all rounds for this tournament
+          </p>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 mb-4">
-        {rounds.map((round) => (
-          <Card key={round.round_id} className="flex flex-col">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span
-                  className="truncate max-w-[200px]"
-                  title={round.round_name}
-                >
-                  {round.round_name}
-                </span>
-                <Badge
-                  variant={round.status === "ACTIVE" ? "success" : "secondary"}
-                >
-                  {round.status}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm">
-                  <span>
-                    Start: {new Date(round.start_date).toLocaleDateString()}
+        <div className="gap-4 grid md:grid-cols-2 mb-4">
+          {rounds.map((round) => (
+            <Card key={round.round_id} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="flex justify-between items-center">
+                  <span
+                    className="max-w-[200px] truncate"
+                    title={round.round_name}
+                  >
+                    {round.round_name}
                   </span>
-                  <span>
-                    End: {new Date(round.end_date).toLocaleDateString()}
-                  </span>
-                </div>
-                {round.description && (
-                  <p className="text-sm text-gray-500">{round.description}</p>
-                )}
+                  <Badge
+                    variant={
+                      round.status === "ACTIVE" ? "success" : "secondary"
+                    }
+                  >
+                    {round.status}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
 
-                <div className="grid grid-cols-2 gap-x-4 text-sm">
-                  <div className="flex items-center">
-                    <Map className="h-4 w-4 mr-2 text-gray-500" />
-                    <span className="text-muted-foreground">Match Type:</span>
-                  </div>
-                  <span className="text-right font-medium truncate">
-                    {round.match_type_name}
-                  </span>
-
-                  <div className="flex items-center">
-                    <Flag className="h-4 w-4 mr-2 text-gray-500" />
-                    <span className="text-muted-foreground">Finish Type:</span>
-                  </div>
-                  <span className="text-right font-medium truncate">
-                    {round.finish_type}
-                  </span>
-
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-2 text-gray-500" />
-                    <span className="text-muted-foreground">
-                      Qualification Spots:
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span>
+                      Start: {new Date(round.start_date).toLocaleDateString()}
+                    </span>
+                    <span>
+                      End: {new Date(round.end_date).toLocaleDateString()}
                     </span>
                   </div>
-                  <span className="text-right">{round.team_limit}</span>
+                  {round.description && (
+                    <p className="text-gray-500 text-sm">{round.description}</p>
+                  )}
+
+                  <div className="gap-x-4 grid grid-cols-2 text-sm">
+                    <div className="flex items-center">
+                      <Map className="mr-2 w-4 h-4 text-gray-500" />
+                      <span className="text-muted-foreground">Match Type:</span>
+                    </div>
+                    <span className="font-medium text-right truncate">
+                      {round.match_type_name}
+                    </span>
+
+                    <div className="flex items-center">
+                      <Flag className="mr-2 w-4 h-4 text-gray-500" />
+                      <span className="text-muted-foreground">
+                        Finish Type:
+                      </span>
+                    </div>
+                    <span className="font-medium text-right truncate">
+                      {round.finish_type}
+                    </span>
+
+                    <div className="flex items-center">
+                      <Users className="mr-2 w-4 h-4 text-gray-500" />
+                      <span className="text-muted-foreground">
+                        Qualification Spots:
+                      </span>
+                    </div>
+                    <span className="text-right">{round.team_limit}</span>
+                  </div>
+                </div>
+                <div className="space-y-2 pt-2 border-t">
+                  <EnvironmentDetails environmentId={round.environment_id} />
+                </div>
+                <div className="space-y-2 pt-2 border-t">
+                  <MapDetails resourceId={round.map_id} />
+                </div>
+                <div className="pt-2 border-t">
+                  <ScoreMethodDetails scoredMethodId={round.scored_method_id} />
+                </div>
+              </CardContent>
+
+              <div className="mt-auto">
+                <CardFooter className="flex flex-col gap-2 p-4">
+                  <Button
+                    variant="default"
+                    className="w-full"
+                    onClick={() =>
+                      handleViewMatches(round.round_id, round.round_name)
+                    }
+                  >
+                    <Users className="mr-2 w-4 h-4" />
+                    View Matches
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => handleOpenRoundLeaderboardModal(round)}
+                  >
+                    <Trophy className="mr-2 w-4 h-4" />
+                    View Leaderboard
+                  </Button>
+                </CardFooter>
+              </div>
+            </Card>
+          ))}
+
+          {rounds.length === 0 && (
+            <div className="col-span-2 py-8 text-gray-500 text-center">
+              No rounds found for this tournament
+            </div>
+          )}
+        </div>
+
+        {rounds.length > 0 && (
+          <DasrsPagination
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            handlePagination={handlePagination}
+            handleChangePageSize={handleChangePageSize}
+            page={pageIndex}
+            count={totalPages}
+            displayedValues={displayedValues}
+          />
+        )}
+
+        {/* Round Leaderboard */}
+        <Modal
+          size="md"
+          show={roundLeaderboardModalShow}
+          onHide={handleCloseRoundLeaderboardModal}
+        >
+          <Modal.Header content="Round Leaderboard" />
+          <Modal.Body>
+            {roundLeaderboard ? (
+              <div className="space-y-4">
+                {/* Leaderboard Entries */}
+                <div className="space-y-2">
+                  {/* {
+                        roundLeaderboard?.leaderboard_list
+                      } */}
+                  <RoundLeaderboardCard
+                    roundData={roundLeaderboard}
+                    isForEachRound
+                  />
                 </div>
               </div>
-              <div className="space-y-2 pt-2 border-t">
-                <EnvironmentDetails environmentId={round.environment_id} />
+            ) : (
+              <div className="py-4 text-gray-400 text-center">
+                <p>No leaderboard data available for this round.</p>
               </div>
-              <div className="space-y-2 pt-2 border-t">
-                <MapDetails resourceId={round.map_id} />
-              </div>
-              <div className="pt-2 border-t">
-                <ScoreMethodDetails scoredMethodId={round.scored_method_id} />
-              </div>
-            </CardContent>
-
-            <div className="mt-auto">
-              <CardFooter className="p-4 flex flex-col gap-2">
-                <Button
-                  variant="default"
-                  className="w-full"
-                  onClick={() =>
-                    handleViewMatches(round.round_id, round.round_name)
-                  }
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  View Matches
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleViewLeaderboard(round.round_id)}
-                >
-                  <Trophy className="mr-2 h-4 w-4" />
-                  View Leaderboard
-                </Button>
-              </CardFooter>
-            </div>
-          </Card>
-        ))}
-
-        {rounds.length === 0 && (
-          <div className="col-span-2 text-center text-gray-500 py-8">
-            No rounds found for this tournament
-          </div>
-        )}
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <ButtonIcon
+              type="button"
+              onClick={handleCloseRoundLeaderboardModal}
+              content="Close"
+            />
+          </Modal.Footer>
+        </Modal>
       </div>
-
-      {rounds.length > 0 && (
-        <DasrsPagination
-          pageSize={pageSize}
-          pageIndex={pageIndex}
-          handlePagination={handlePagination}
-          handleChangePageSize={handleChangePageSize}
-          page={pageIndex}
-          count={totalPages}
-          displayedValues={displayedValues}
-        />
-      )}
-    </div>
+    </>
   );
 };
-
-

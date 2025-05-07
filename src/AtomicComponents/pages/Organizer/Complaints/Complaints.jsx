@@ -186,7 +186,7 @@ const Complaints = () => {
                   >
                     {group.round_name}
                   </h2>
-                  <p className="mb-3 text-gray-500 text-sm italic">
+                  <p className="mb-3 font-semibold text-yellow-600 text-sm underline italic">
                     Click the round title to view all complaints
                   </p>
 
