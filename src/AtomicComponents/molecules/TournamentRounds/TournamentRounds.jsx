@@ -37,6 +37,7 @@ import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { MapDetails } from "../CollapsibleDetails/MapDetails";
 import { Map as MapIcon } from "lucide-react";
+import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
 import { ParticipatingTeams } from "../CollapsibleDetails/ParticipatingTeams";
@@ -51,7 +52,7 @@ import { apiClient } from "@/config/axios/axios";
 import { formatDateString } from "@/utils/dateUtils";
 import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
-import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import RoundLeaderboardCard from "../LeaderboardCard/RoundLeaderboardCard/RoundLeaderboardCard";
 
 const initialFormData = {
   description: "",
@@ -103,6 +104,9 @@ export const TournamentRounds = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [isLastRoundWarning, setIsLastRoundWarning] = useState("");
   const [formMode, setFormMode] = useState("create"); // 'create' or 'edit'
+  const [roundLeaderboardModalShow, setRoundLeaderboardModalShow] =
+    useState(false);
+  const [roundLeaderboard, setRoundLeaderboard] = useState(null);
 
   // BREADCRUMB ITEMS
   const breadcrumbItems = [
@@ -134,11 +138,6 @@ export const TournamentRounds = () => {
   // HANDLE VIEW MATCHES OF ROUND
   const handleViewMatches = (roundId) => {
     navigate(`/tournaments/${tournamentId}/rounds/${roundId}/matches`);
-  };
-
-  // HANDLE VIEW LEADERBOARD OF ROUND
-  const handleViewLeaderboard = (roundId) => {
-    navigate(`${roundId}/matches`);
   };
 
   // HANDLE TOURNAMENT MANAGEMENT DATA VALIDATION
@@ -277,6 +276,42 @@ export const TournamentRounds = () => {
         });
       } else {
         setError("Failed to load rounds. Please try again.");
+        Toast({
+          title: "Error",
+          type: "error",
+          message: err.response?.data?.message || "Error processing request.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // FETCH ROUND LEADERBOARD INFORMATION
+  const fetchRoundLeaderboard = async (roundId) => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(`leaderboards/round/v3/${roundId}`, {
+        params: {
+          pageNo: 0,
+          pageSize: 100,
+          sortBy: "id",
+          sortDirection: "asc",
+        },
+      });
+
+      if (response.data.http_status === 200) {
+        setRoundLeaderboard(response.data.data || []);
+      }
+    } catch (err) {
+      if (err.code === "ECONNABORTED") {
+        Toast({
+          title: "Timeout",
+          type: "error",
+          message:
+            "The server is taking too long to respond. Please try again.",
+        });
+      } else {
         Toast({
           title: "Error",
           type: "error",
@@ -469,6 +504,24 @@ export const TournamentRounds = () => {
   const handleCloseExtendedRoundEndDateModal = () => {
     setExtendedRoundModalShow(false);
     setSelectedRound(null);
+  };
+
+  // ROUND LEADERBOARD MODAL
+  const handleOpenRoundLeaderboardModal = (round = null) => {
+    setRoundLeaderboardModalShow(true);
+    setSelectedRound(round);
+
+    fetchRoundLeaderboard(round?.round_id);
+  };
+
+  const handleCloseRoundLeaderboardModal = () => {
+    setRoundLeaderboardModalShow(false);
+    setSelectedRound(null);
+
+    setTimeout(() => {
+      setSelectedRound(null);
+      setRoundLeaderboard(null);
+    }, 300);
   };
   //#endregion
 
@@ -665,13 +718,10 @@ export const TournamentRounds = () => {
   }, [formData?.is_last, tournament?.end_date]);
   //#endregion
 
-  // RENDER SPINNER IF LOADING
-  if (isLoading) {
-    return <Spinner />;
-  }
-
   return (
     <div className="space-y-6">
+      {isLoading && <Spinner />}
+
       <Breadcrumb items={breadcrumbItems} />
 
       {/* Title Of Page */}
@@ -899,7 +949,7 @@ export const TournamentRounds = () => {
                   <Button
                     variant="outline"
                     className="w-full cursor-pointer"
-                    onClick={() => handleViewLeaderboard(round.round_id)}
+                    onClick={() => handleOpenRoundLeaderboardModal(round)}
                   >
                     View Leaderboard
                   </Button>
@@ -1551,6 +1601,42 @@ export const TournamentRounds = () => {
                 "Save Changes"
               )
             }
+          />
+        </Modal.Footer>
+      </Modal>
+
+      {/* Round Leaderboard */}
+      <Modal
+        size="md"
+        show={roundLeaderboardModalShow}
+        onHide={handleCloseRoundLeaderboardModal}
+      >
+        <Modal.Header content="Round Leaderboard" />
+        <Modal.Body>
+          {roundLeaderboard ? (
+            <div className="space-y-4">
+              {/* Leaderboard Entries */}
+              <div className="space-y-2">
+                {/* {
+                  roundLeaderboard?.leaderboard_list
+                } */}
+                <RoundLeaderboardCard
+                  roundData={roundLeaderboard}
+                  isForEachRound
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="py-4 text-gray-400 text-center">
+              <p>No leaderboard data available for this round.</p>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <ButtonIcon
+            type="button"
+            onClick={handleCloseRoundLeaderboardModal}
+            content="Close"
           />
         </Modal.Footer>
       </Modal>
