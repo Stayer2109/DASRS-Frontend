@@ -1,391 +1,327 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import PropTypes from "prop-types";
-import apiClient from "@/config/axios/axios";
-import Toast from "../../Toaster/Toaster";
-import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import Modal from "@/AtomicComponents/organisms/Modal/Modal";
-import {
-  Collapsible,
-  CollapsibleTrigger,
-} from "@/AtomicComponents/atoms/shadcn/collapsible";
 
-const RoundLeaderboardCard = ({ roundData }) => {
-  //#region VARIABLE DECLARATIONS
+const RoundLeaderboardCard = ({ roundData, isForEachRound = false }) => {
   const round = roundData;
-  const leaderboardEntries = round?.content || [];
-  const [openMatch, setOpenMatch] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState(null);
-  const [teamLeaderboard, setTeamLeaderboard] = useState(null);
+  const [expandedTeamId, setExpandedTeamId] = useState(null);
 
-  console.log(round);
-
-  // MODAL CONTROLLERS
-  const [teamLeaderboardShow, setTeamLeaderboardShow] = useState(false);
-  //#endregion
-
-  // HELPER FUNCTION TO GET RANKING COLOR
   const getRankingStyle = (ranking) => {
-    if (ranking === 1) return "text-yellow-500 font-bold text-2xl";
+    if (ranking === 1) return "text-yellow-500 font-extrabold text-2xl";
     if (ranking === 2) return "text-gray-400 font-bold text-xl";
-    if (ranking === 3) return "text-amber-600 font-bold text-lg";
-    return "text-gray-800"; // Default color for other rankings
+    if (ranking === 3) return "text-amber-600 font-semibold text-lg";
+    return "text-slate-800 font-medium";
   };
 
-  // GET RANKING STYLE FOR MODAL
-  const getRankingStyleModal = (ranking) => {
-    switch (ranking) {
-      case 1:
-        return "text-yellow-600 font-bold"; // 1st place
-      case 2:
-        return "text-slate-600 font-bold"; // 2nd place
-      case 3:
-        return "text-amber-600 font-bold"; // 3rd place
-      default:
-        return "text-gray-700 font-semibold"; // others
-    }
+  const toggleTeamExpand = (teamId) => {
+    setExpandedTeamId(expandedTeamId === teamId ? null : teamId);
   };
 
-  // HANDLE TOGGLE OPENN STATE OF MATCH
-  const handleToggle = (index) => {
-    setOpenMatch(openMatch === index ? null : index);
-  };
+  return isForEachRound ? (
+    // For each round - Display for each round in tournament
+    <div className="space-y-6">
+      {round?.leaderboard_list?.length === 0 ? (
+        <div className="text-gray-400 italic">
+          No leaderboard entries available.
+        </div>
+      ) : (
+        round?.leaderboard_list
+          .slice()
+          .sort((a, b) => a.ranking - b.ranking)
+          .map((entry) => (
+            <div
+              key={entry.leaderboard_id}
+              className="bg-white shadow-md p-4 border border-gray-200 rounded-xl"
+            >
+              <div
+                className="flex justify-between items-center cursor-pointer"
+                onClick={() => toggleTeamExpand(entry.team_id)}
+              >
+                <h3 className="font-semibold text-gray-700 text-lg">
+                  <span className={`${getRankingStyle(entry.ranking)} mr-2`}>
+                    #{entry.ranking}
+                  </span>
+                  {entry.team_name || "N/A"}{" "}
+                  <span className="text-gray-400">
+                    ({entry.team_tag || "N/A"})
+                  </span>
+                </h3>
+                {expandedTeamId === entry.team_id ? (
+                  <ChevronUp />
+                ) : (
+                  <ChevronDown />
+                )}
+              </div>
+              <p className="mt-1 text-gray-500 text-sm">
+                Score:{" "}
+                <span className="font-medium text-blue-600">
+                  {entry.team_score?.toFixed(2) ?? "N/A"} pts
+                </span>
+              </p>
 
-  // HANDLE SELECT TEAM
-  const handleSelectTeam = (team) => {
-    setSelectedTeam(team); // Set the selected team
-  };
+              <AnimatePresence>
+                {expandedTeamId === entry.team_id && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-3 mt-4"
+                  >
+                    {entry.match_list?.length > 0 ? (
+                      entry.match_list.map((match) => (
+                        <div
+                          key={match.match_id}
+                          className="bg-gray-50 p-4 border border-gray-400 rounded-lg"
+                        >
+                          <div className="mb-1 font-semibold text-gray-700">
+                            {match.match_name}
+                          </div>
+                          <div className="text-gray-500 text-sm">
+                            Type: {match.match_type}
+                          </div>
+                          <div className="text-gray-500 text-sm">
+                            Form: {match.match_form}
+                          </div>
+                          <div className="text-gray-500 text-sm">
+                            Score: {match.match_score ?? "N/A"}
+                          </div>
+                          {match.player_list?.length > 0 ? (
+                            <ul className="mt-2 pl-5 text-gray-600 text-sm list-disc">
+                              {match.player_list.map((player, idx) => (
+                                <li key={idx}>
+                                  {player.player_name || "N/A"} – Score:{" "}
+                                  {player.score ?? "N/A"}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="mt-2 text-gray-400 text-sm italic">
+                              No player data available
+                            </p>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-sm italic">
+                        No matches available
+                      </p>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))
+      )}
 
-  // FETCH TEAM LEADERBOARD
-  const fetchTeamLeaderboard = async (teamId) => {
-    try {
-      setIsLoading(true); // Set loading state to true
-      const response = await apiClient.get(`leaderboards/team/${teamId}`);
-
-      if (response.data.http_status === 200) {
-        const data = response.data.data;
-        setTeamLeaderboard(data); // Set the team leaderboard data
-      }
-    } catch (err) {
-      if (err.code === "ECONNABORTED") {
-        Toast({
-          title: "Timeout",
-          type: "error",
-          message:
-            "The server is taking too long to respond. Please try again.",
-        });
-      } else {
-        Toast({
-          title: "Error",
-          type: "error",
-          message: err.response?.data?.message || "Error processing request.",
-        });
-      }
-    } finally {
-      setIsLoading(false); // Reset loading state
-    }
-  };
-
-  //#region MODAL CONTROLLERS
-  const handleShowTeamLeaderboard = () => {
-    setTeamLeaderboardShow(true); // Show the team leaderboard modal
-  };
-
-  const handleCloseTeamLeaderboard = () => {
-    setTeamLeaderboardShow(false); // Close the team leaderboard modal
-    setTimeout(() => {
-      setSelectedTeam(null); // Reset selected team
-      setTeamLeaderboard(null); // Reset team leaderboard data
-    }, 350);
-  };
-  //#endregion
-
-  //#region USEEFFECTS
-  useEffect(() => {
-    setOpenMatch(null); // Reset open match state when round data changes
-  }, [roundData]);
-
-  useEffect(() => {
-    if (selectedTeam) fetchTeamLeaderboard(selectedTeam?.team_id); // Fetch leaderboard data for the selected team
-  }, [selectedTeam]);
-
-  useEffect(() => {
-    if (teamLeaderboard) {
-      handleShowTeamLeaderboard(); // Show the modal when leaderboard data is available
-    }
-  }, [teamLeaderboard]);
-  //#endregion
-
-  return (
-    <>
-      {isLoading && <Spinner />}
-      <div className="bg-white shadow-md mb-6 p-4 rounded-lg">
-        <div className="flex flex-col mb-2">
-          <h2 className="font-bold text-xl">Round Leaderboard</h2>
-          <h4 className="font-semibold text-md">{round?.round_name}</h4>
+      <div className="gap-4 grid md:grid-cols-2 mt-6">
+        {/* Fastest Lap */}
+        <div className="bg-blue-50 p-4 border border-blue-200 rounded-lg">
+          <h4 className="mb-1 font-semibold text-blue-800">
+            🏁 MVP - Fastest Lap
+          </h4>
+          <p className="text-gray-700 text-sm">
+            Team: {round?.fastest_lap_time?.team_name || "N/A"} (
+            {round?.fastest_lap_time?.team_tag || "N/A"})
+          </p>
+          <p className="text-blue-600 text-sm">
+            Lap Time: {round?.fastest_lap_time?.lap_time?.toFixed(3) || "N/A"}s
+          </p>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <>
-            {leaderboardEntries.length === 0 ? (
-              <div className="flex flex-col mb-2">
-                <h4 className="font-semibold text-md">
-                  No rounds available for this round.
-                </h4>
-              </div>
-            ) : (
-              <Collapsible
-                open={openMatch === 0}
-                onOpenChange={() => handleToggle(0)}
-                className="mb-2"
-              >
-                <div
-                  className="flex justify-between items-center bg-gray-100 p-2 rounded-t-md"
-                  onClick={() => handleToggle(0)}
-                >
-                  <CollapsibleTrigger className="flex justify-between items-center w-full text-gray-600 hover:text-gray-800 text-sm cursor-pointer">
-                    <h4 className="font-semibold text-md">
-                      {round?.round_name || "Round"}
-                    </h4>
-                    {openMatch === 0 ? (
-                      <ChevronUp size={16} />
-                    ) : (
-                      <ChevronDown size={16} />
-                    )}
-                  </CollapsibleTrigger>
-                </div>
-
-                <AnimatePresence initial={false}>
-                  <AutoHeightMotionDiv isOpen={openMatch === 0}>
-                    <div className="text-gray-600 text-sm">
-                      <p className="mt-2">
-                        <strong>Description:</strong>{" "}
-                        {round?.description || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Finish Type:</strong>{" "}
-                        {round?.finish_type || "N/A"}
-                      </p>
-
-                      <h5 className="mt-3 font-semibold text-md">
-                        Leaderboard:
-                      </h5>
-                      <div className="space-y-4">
-                        {leaderboardEntries.length === 0 ? (
-                          <div className="font-semibold text-gray-400 italic">
-                            No leaderboard entries available.
-                          </div>
-                        ) : (
-                          leaderboardEntries
-                            .sort((a, b) => a.ranking - b.ranking)
-                            .map((entry) => (
-                              <div
-                                key={entry.leaderboard_id}
-                                className="flex justify-between items-center bg-white shadow-sm mt-1 p-4 border rounded-lg"
-                              >
-                                <div className="flex items-center">
-                                  <div
-                                    className={`mr-2 font-medium ${getRankingStyle(
-                                      entry?.ranking
-                                    )}`}
-                                  >
-                                    #{entry?.ranking}
-                                  </div>
-                                  <div
-                                    className="font-semibold hover:text-blue-500 text-lg cursor-pointer"
-                                    onClick={() => handleSelectTeam(entry)}
-                                  >
-                                    {entry?.team_name}
-                                    {entry?.team_tag && (
-                                      <span className="ml-2 text-gray-500">
-                                        ({entry?.team_tag})
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="font-semibold text-blue-600">
-                                  {entry?.team_score ?? "N/A"} pts
-                                </div>
-                              </div>
-                            ))
-                        )}
-                      </div>
-
-                      {/* MVP - Fastest Lap */}
-                      <div className="bg-gray-100 mt-4 p-4 rounded-lg">
-                        <h5 className="font-semibold text-md">
-                          MVP - Fastest Lap
-                        </h5>
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-1">
-                            <p className="text-gray-800">
-                              Team:{" "}
-                              {round?.fastest_lap_time?.team_name || "N/A"}
-                            </p>
-                            {round?.fastest_lap_time?.team_tag && (
-                              <span className="text-gray-500 text-xs">
-                                ({round.fastest_lap_time.team_tag})
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-blue-600">
-                            Time:{" "}
-                            {round?.fastest_lap_time?.lap_time != null
-                              ? round.fastest_lap_time.lap_time.toFixed(3)
-                              : "N/A"}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* MVP - Top Speed */}
-                      <div className="bg-gray-100 mt-2 p-4 rounded-lg">
-                        <h5 className="font-semibold text-md">
-                          MVP - Top Speed
-                        </h5>
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-1">
-                            <p className="text-gray-800">
-                              Team: {round?.top_speed?.team_name || "N/A"}
-                            </p>
-                            {round?.top_speed?.team_tag && (
-                              <span className="text-gray-500 text-xs">
-                                ({round.top_speed.team_tag})
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-blue-600">
-                            Speed:{" "}
-                            {round?.top_speed?.speed != null
-                              ? `${round.top_speed.speed.toFixed(2)} km/h`
-                              : "N/A"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </AutoHeightMotionDiv>
-                </AnimatePresence>
-              </Collapsible>
-            )}
-          </>
+        {/* Top Speed */}
+        <div className="bg-green-50 p-4 border border-green-200 rounded-lg">
+          <h4 className="mb-1 font-semibold text-green-800">
+            🚀 MVP - Top Speed
+          </h4>
+          <p className="text-gray-700 text-sm">
+            Team: {round?.top_speed?.team_name || "N/A"} (
+            {round?.top_speed?.team_tag || "N/A"})
+          </p>
+          <p className="text-green-600 text-sm">
+            Speed: {round?.top_speed?.speed?.toFixed(2) || "N/A"} km/h
+          </p>
         </div>
       </div>
+    </div>
+  ) : (
+    // Is Not For Each Round - Display for leaderboards
+    <div className="bg-white shadow-lg mb-8 p-6 border border-gray-100 rounded-2xl">
+      <div className="mb-6">
+        <h2 className="mb-1 font-bold text-gray-800 text-2xl">
+          🏆 Round Leaderboard
+        </h2>
+        <p className="text-gray-600 text-sm">
+          {round?.round_name || "Unnamed Round"}
+        </p>
+      </div>
 
-      {/* Team Leaderboard Modal */}
-      <Modal
-        size="sm"
-        show={teamLeaderboardShow}
-        onHide={handleCloseTeamLeaderboard}
-      >
-        <Modal.Header content={"Team Leaderboard"} />
-        <Modal.Body>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <Spinner />
-            </div>
-          ) : teamLeaderboard?.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              <h1 className="mb-2 font-semibold text-gray-800 text-2xl text-center">
-                {selectedTeam?.team_name} detailed leaderboard
-              </h1>
-              {[...teamLeaderboard]
-                .sort((a, b) => a.ranking - b.ranking)
-                .map((entry) => (
-                  <motion.div
-                    key={entry.leaderboard_id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex flex-col gap-1 bg-gray-50 shadow-sm p-4 border rounded-lg text-sm"
-                  >
-                    <p>
-                      <strong>Tournament:</strong>{" "}
-                      {entry.tournament_name || "N/A"}
-                    </p>
-                    <p>
-                      <strong>Round:</strong> {entry.round_name || "N/A"}
-                    </p>
-                    <p>
-                      <strong>Ranking: </strong>
-                      <span
-                        className={`${getRankingStyleModal(entry?.ranking)}`}
-                      >
-                        #{entry.ranking ?? "N/A"}
-                      </span>
-                    </p>
+      <div className="space-y-6">
+        {round?.leaderboard_list?.length === 0 ? (
+          <div className="text-gray-400 italic">
+            No leaderboard entries available.
+          </div>
+        ) : (
+          round.leaderboard_list
+            .slice()
+            .sort((a, b) => a.ranking - b.ranking)
+            .map((entry) => (
+              <div
+                key={entry.leaderboard_id}
+                className="bg-white shadow-md p-4 border border-gray-200 rounded-xl"
+              >
+                <div
+                  className="flex justify-between items-center cursor-pointer"
+                  onClick={() => toggleTeamExpand(entry.team_id)}
+                >
+                  <h3 className="font-semibold text-gray-700 text-lg">
+                    <span className={`${getRankingStyle(entry.ranking)} mr-2`}>
+                      #{entry.ranking}
+                    </span>
+                    {entry.team_name || "N/A"}{" "}
+                    <span className="text-gray-400">
+                      ({entry.team_tag || "N/A"})
+                    </span>
+                  </h3>
+                  {expandedTeamId === entry.team_id ? (
+                    <ChevronUp />
+                  ) : (
+                    <ChevronDown />
+                  )}
+                </div>
+                <p className="mt-1 text-gray-500 text-sm">
+                  Score:{" "}
+                  <span className="font-medium text-blue-600">
+                    {entry.team_score?.toFixed(2) ?? "N/A"} pts
+                  </span>
+                </p>
 
-                    <p>
-                      <strong>Score:</strong> {entry.team_score ?? "N/A"} pts
-                    </p>
-                  </motion.div>
-                ))}
-            </div>
-          ) : (
-            <div className="py-6 text-gray-400 text-center italic">
-              No leaderboard data available for this team.
-            </div>
-          )}
-        </Modal.Body>
-      </Modal>
-    </>
+                <AnimatePresence>
+                  {expandedTeamId === entry.team_id && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-3 mt-4"
+                    >
+                      {entry.match_list?.length > 0 ? (
+                        entry.match_list.map((match) => (
+                          <div
+                            key={match.match_id}
+                            className="bg-gray-50 p-4 border border-gray-400 rounded-lg"
+                          >
+                            <div className="mb-1 font-semibold text-gray-700">
+                              {match.match_name}
+                            </div>
+                            <div className="text-gray-500 text-sm">
+                              Type: {match.match_type}
+                            </div>
+                            <div className="text-gray-500 text-sm">
+                              Form: {match.match_form}
+                            </div>
+                            <div className="text-gray-500 text-sm">
+                              Score: {match.match_score ?? "N/A"}
+                            </div>
+                            {match.player_list?.length > 0 ? (
+                              <ul className="mt-2 pl-5 text-gray-600 text-sm list-disc">
+                                {match.player_list.map((player, idx) => (
+                                  <li key={idx}>
+                                    {player.player_name || "N/A"} – Score:{" "}
+                                    {player.score ?? "N/A"}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="mt-2 text-gray-400 text-sm italic">
+                                No player data available
+                              </p>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-400 text-sm italic">
+                          No matches available
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))
+        )}
+
+        <div className="gap-4 grid md:grid-cols-2 mt-6">
+          {/* Fastest Lap */}
+          <div className="bg-blue-50 p-4 border border-blue-200 rounded-lg">
+            <h4 className="mb-1 font-semibold text-blue-800">
+              🏁 MVP - Fastest Lap
+            </h4>
+            <p className="text-gray-700 text-sm">
+              Team: {round?.fastest_lap_time?.team_name || "N/A"} (
+              {round?.fastest_lap_time?.team_tag || "N/A"})
+            </p>
+            <p className="text-blue-600 text-sm">
+              Lap Time: {round?.fastest_lap_time?.lap_time?.toFixed(3) || "N/A"}
+              s
+            </p>
+          </div>
+
+          {/* Top Speed */}
+          <div className="bg-green-50 p-4 border border-green-200 rounded-lg">
+            <h4 className="mb-1 font-semibold text-green-800">
+              🚀 MVP - Top Speed
+            </h4>
+            <p className="text-gray-700 text-sm">
+              Team: {round?.top_speed?.team_name || "N/A"} (
+              {round?.top_speed?.team_tag || "N/A"})
+            </p>
+            <p className="text-green-600 text-sm">
+              Speed: {round?.top_speed?.speed?.toFixed(2) || "N/A"} km/h
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
 export default RoundLeaderboardCard;
 
-// AutoHeightMotionDiv - for smooth expand/collapse
-const AutoHeightMotionDiv = ({ isOpen, children }) => {
-  const ref = useRef(null);
-  const [height, setHeight] = useState(0);
-
-  useEffect(() => {
-    if (ref.current) {
-      setHeight(ref.current.scrollHeight);
-    }
-  }, [isOpen, children]);
-
-  return (
-    <motion.div
-      initial={{ height: 0, opacity: 0 }}
-      animate={{ height: isOpen ? height : 0, opacity: isOpen ? 1 : 0 }}
-      exit={{ height: 0, opacity: 0 }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      style={{ overflow: "hidden" }}
-    >
-      <div ref={ref}>{children}</div>
-    </motion.div>
-  );
-};
-
-AutoHeightMotionDiv.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  children: PropTypes.node.isRequired,
-};
-
 RoundLeaderboardCard.propTypes = {
   roundData: PropTypes.shape({
     round_name: PropTypes.string,
-    description: PropTypes.string,
-    match_list: PropTypes.arrayOf(
+    finish_type: PropTypes.string,
+    fastest_lap_time: PropTypes.object,
+    top_speed: PropTypes.object,
+    leaderboard_list: PropTypes.arrayOf(
       PropTypes.shape({
-        match_id: PropTypes.number,
-        match_name: PropTypes.string,
-        match_code: PropTypes.string,
-        match_form: PropTypes.string,
-        time_start: PropTypes.string,
-        time_end: PropTypes.string,
-        status: PropTypes.string,
-        teams: PropTypes.arrayOf(
+        leaderboard_id: PropTypes.number,
+        ranking: PropTypes.number,
+        team_score: PropTypes.number,
+        team_id: PropTypes.number,
+        team_name: PropTypes.string,
+        team_tag: PropTypes.string,
+        match_list: PropTypes.arrayOf(
           PropTypes.shape({
-            team_id: PropTypes.number,
-            team_name: PropTypes.string,
-            team_tag: PropTypes.string,
-            account_id: PropTypes.number,
+            match_id: PropTypes.number,
+            match_name: PropTypes.string,
+            match_type: PropTypes.string,
+            match_score: PropTypes.number,
+            match_form: PropTypes.string,
+            player_list: PropTypes.arrayOf(
+              PropTypes.shape({
+                player_id: PropTypes.string,
+                player_name: PropTypes.string,
+                score: PropTypes.number,
+              })
+            ),
           })
         ),
       })
     ),
   }).isRequired,
+  isForEachRound: PropTypes.bool,
 };

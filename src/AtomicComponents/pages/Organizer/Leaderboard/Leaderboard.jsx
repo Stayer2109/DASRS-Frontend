@@ -173,7 +173,7 @@ const Leaderboard = () => {
     try {
       setIsLoading(true);
       const response = await apiClient.get(
-        `leaderboards/rounds/${roundId}`,
+        `leaderboards/round/v3/${roundId}`,
         {
           params: {
             pageNo: 0,

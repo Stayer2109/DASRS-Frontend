@@ -52,6 +52,7 @@ import { apiClient } from "@/config/axios/axios";
 import { formatDateString } from "@/utils/dateUtils";
 import { toast } from "sonner";
 import useAuth from "@/hooks/useAuth";
+import RoundLeaderboardCard from "../LeaderboardCard/RoundLeaderboardCard/RoundLeaderboardCard";
 
 const initialFormData = {
   description: "",
@@ -106,14 +107,6 @@ export const TournamentRounds = () => {
   const [roundLeaderboardModalShow, setRoundLeaderboardModalShow] =
     useState(false);
   const [roundLeaderboard, setRoundLeaderboard] = useState(null);
-
-  // HELPER FUNCTION TO GET RANKING COLOR
-  const getRankingStyle = (ranking) => {
-    if (ranking === 1) return "text-yellow-500 font-bold text-2xl";
-    if (ranking === 2) return "text-gray-400 font-bold text-xl";
-    if (ranking === 3) return "text-amber-600 font-bold text-lg";
-    return "text-gray-800"; // Default color for other rankings
-  };
 
   // BREADCRUMB ITEMS
   const breadcrumbItems = [
@@ -298,7 +291,7 @@ export const TournamentRounds = () => {
   const fetchRoundLeaderboard = async (roundId) => {
     try {
       setIsLoading(true);
-      const response = await apiClient.get(`leaderboards/round/${roundId}`, {
+      const response = await apiClient.get(`leaderboards/round/v3/${roundId}`, {
         params: {
           pageNo: 0,
           pageSize: 100,
@@ -308,7 +301,7 @@ export const TournamentRounds = () => {
       });
 
       if (response.data.http_status === 200) {
-        setRoundLeaderboard(response.data.data.content || []);
+        setRoundLeaderboard(response.data.data || []);
       }
     } catch (err) {
       if (err.code === "ECONNABORTED") {
@@ -1623,84 +1616,13 @@ export const TournamentRounds = () => {
             <div className="space-y-4">
               {/* Leaderboard Entries */}
               <div className="space-y-2">
-                {roundLeaderboard
-                  .sort((a, b) => a.ranking - b.ranking)
-                  .map((entry) => (
-                    <div
-                      key={entry.leaderboard_id}
-                      className="flex justify-between items-center bg-gray-50 p-4 border border-gray-200 rounded-md"
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className={`mr-2 font-medium ${getRankingStyle(
-                            entry?.ranking
-                          )}`}
-                        >
-                          #{entry?.ranking}
-                        </div>
-                        <div className="font-semibold text-lg truncate">
-                          {entry?.team_name || "N/A"}
-                          {entry?.team_tag && (
-                            <span className="ml-2 text-gray-500">
-                              ({entry?.team_tag})
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="font-semibold text-blue-600">
-                        {entry?.team_score != null
-                          ? `${entry.team_score} pts`
-                          : "N/A"}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-
-              {/* MVP - Fastest Lap (always render) */}
-              <div className="bg-gray-100 mt-6 p-4 rounded-lg">
-                <h4 className="font-semibold text-md">MVP - Fastest Lap</h4>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-1">
-                    <p className="text-gray-800">
-                      Team:{" "}
-                      {roundLeaderboard.fastest_lap_time?.team_name || "N/A"}
-                    </p>
-                    {roundLeaderboard.fastest_lap_time?.team_tag && (
-                      <span className="text-gray-500 text-xs">
-                        ({roundLeaderboard.fastest_lap_time.team_tag})
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-blue-600">
-                    Time:{" "}
-                    {roundLeaderboard.fastest_lap_time?.lap_time != null
-                      ? roundLeaderboard.fastest_lap_time.lap_time.toFixed(3)
-                      : "N/A"}
-                  </p>
-                </div>
-              </div>
-
-              {/* MVP - Top Speed (always render) */}
-              <div className="bg-gray-100 mt-4 p-4 rounded-lg">
-                <h4 className="font-semibold text-md">MVP - Top Speed</h4>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-1">
-                    <p className="text-gray-800">
-                      Team: {roundLeaderboard.top_speed?.team_name || "N/A"}
-                    </p>
-                    {roundLeaderboard.top_speed?.team_tag && (
-                      <span className="text-gray-500 text-xs">
-                        ({roundLeaderboard.top_speed.team_tag})
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-blue-600">
-                    Speed:{" "}
-                    {roundLeaderboard.top_speed?.speed != null
-                      ? `${roundLeaderboard.top_speed.speed.toFixed(2)} km/h`
-                      : "N/A"}
-                  </p>
-                </div>
+                {/* {
+                  roundLeaderboard?.leaderboard_list
+                } */}
+                <RoundLeaderboardCard
+                  roundData={roundLeaderboard}
+                  isForEachRound
+                />
               </div>
             </div>
           ) : (
