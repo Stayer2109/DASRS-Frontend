@@ -153,7 +153,7 @@ const RoundLeaderboardCard = ({ roundData, isForEachRound = false }) => {
         <h2 className="mb-1 font-bold text-gray-800 text-2xl">
           🏆 Round Leaderboard
         </h2>
-        <p className="text-gray-600 text-sm">
+        <p className="font-semibold text-gray-600 text-lg">
           {round?.round_name || "Unnamed Round"}
         </p>
       </div>

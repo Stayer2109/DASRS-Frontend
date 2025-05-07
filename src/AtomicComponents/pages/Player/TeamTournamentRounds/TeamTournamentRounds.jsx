@@ -99,27 +99,27 @@ export const TeamTournamentRounds = () => {
   if (isLoading) return <Spinner />;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="mx-auto p-4 container">
       <Button variant="outline" onClick={handleBack} className="mb-4">
         Back to Tournaments
       </Button>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">
+        <h1 className="font-bold text-2xl">
           {tournament?.tournament_name || "Tournament Rounds"}
         </h1>
-        <p className="text-gray-500 mt-2">
+        <p className="mt-2 text-gray-500">
           View all rounds for this tournament
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 mb-4">
+      <div className="gap-4 grid md:grid-cols-2 mb-4">
         {rounds.map((round) => (
           <Card key={round.round_id} className="flex flex-col">
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 <span
-                  className="truncate max-w-[200px]"
+                  className="max-w-[200px] truncate"
                   title={round.round_name}
                 >
                   {round.round_name}
@@ -143,28 +143,28 @@ export const TeamTournamentRounds = () => {
                   </span>
                 </div>
                 {round.description && (
-                  <p className="text-sm text-gray-500">{round.description}</p>
+                  <p className="text-gray-500 text-sm">{round.description}</p>
                 )}
 
-                <div className="grid grid-cols-2 gap-x-4 text-sm">
+                <div className="gap-x-4 grid grid-cols-2 text-sm">
                   <div className="flex items-center">
-                    <Map className="h-4 w-4 mr-2 text-gray-500" />
+                    <Map className="mr-2 w-4 h-4 text-gray-500" />
                     <span className="text-muted-foreground">Match Type:</span>
                   </div>
-                  <span className="text-right font-medium truncate">
+                  <span className="font-medium text-right truncate">
                     {round.match_type_name}
                   </span>
 
                   <div className="flex items-center">
-                    <Flag className="h-4 w-4 mr-2 text-gray-500" />
+                    <Flag className="mr-2 w-4 h-4 text-gray-500" />
                     <span className="text-muted-foreground">Finish Type:</span>
                   </div>
-                  <span className="text-right font-medium truncate">
+                  <span className="font-medium text-right truncate">
                     {round.finish_type}
                   </span>
 
                   <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-2 text-gray-500" />
+                    <Users className="mr-2 w-4 h-4 text-gray-500" />
                     <span className="text-muted-foreground">
                       Qualification Spots:
                     </span>
@@ -184,7 +184,7 @@ export const TeamTournamentRounds = () => {
             </CardContent>
 
             <div className="mt-auto">
-              <CardFooter className="p-4 flex flex-col gap-2">
+              <CardFooter className="flex flex-col gap-2 p-4">
                 <Button
                   variant="default"
                   className="w-full"
@@ -192,7 +192,7 @@ export const TeamTournamentRounds = () => {
                     handleViewMatches(round.round_id, round.round_name)
                   }
                 >
-                  <Users className="mr-2 h-4 w-4" />
+                  <Users className="mr-2 w-4 h-4" />
                   View Matches
                 </Button>
                 <Button
@@ -200,7 +200,7 @@ export const TeamTournamentRounds = () => {
                   className="w-full"
                   onClick={() => handleViewLeaderboard(round.round_id)}
                 >
-                  <Trophy className="mr-2 h-4 w-4" />
+                  <Trophy className="mr-2 w-4 h-4" />
                   View Leaderboard
                 </Button>
               </CardFooter>
@@ -209,7 +209,7 @@ export const TeamTournamentRounds = () => {
         ))}
 
         {rounds.length === 0 && (
-          <div className="col-span-2 text-center text-gray-500 py-8">
+          <div className="col-span-2 py-8 text-gray-500 text-center">
             No rounds found for this tournament
           </div>
         )}
