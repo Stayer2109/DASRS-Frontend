@@ -16,14 +16,19 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/card";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
-import { apiClient } from "@/config/axios/axios";
+import { apiAuth, apiClient } from "@/config/axios/axios";
 import { ConvertDate } from "@/utils/DateConvert";
 import { NormalizeData } from "@/utils/InputProces";
 import { NormalizeServerErrors } from "@/utils/NormalizeError";
-import { UpdateProfileValidation } from "@/utils/Validation";
+import {
+  ChangePasswordValidation,
+  UpdateProfileValidation,
+} from "@/utils/Validation";
 import { useEffect, useState, useRef } from "react";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { FirebaseStorage } from "@/utils/FirebaseStorage";
+import PropTypes from "prop-types";
+import { EyeCloseIcon, EyeOpenIcon } from "@/assets/icon-svg";
 const inputCommonClassname = "w-full mb-1";
 
 const OrganizerProfile = () => {
@@ -47,6 +52,47 @@ const OrganizerProfile = () => {
     first_name: "",
     last_name: "",
   });
+  const [changePasswordShow, setChangePasswordShow] = useState(false);
+  const [changePasswordData, setChangePasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [changePasswordErrors, setChangePasswordErrors] = useState({});
+  const passwordCriteria = {
+    minLength: 8,
+    hasNumber: /[0-9]/,
+    hasUpperCase: /[A-Z]/,
+    hasLowerCase: /[a-z]/,
+  };
+  const [passwordValid, setPasswordValid] = useState({
+    minLength: false,
+    hasNumber: false,
+    hasUpperCase: false,
+    hasLowerCase: false,
+  });
+  const [showPassword, setShowPassword] = useState({
+    old: false,
+    new: false,
+    confirm: false,
+  });
+
+  // VALIDATE PASSWORD
+  const validatePassword = (password) => {
+    setPasswordValid({
+      minLength: password?.length >= passwordCriteria.minLength,
+      hasNumber: passwordCriteria.hasNumber.test(password),
+      hasUpperCase: passwordCriteria.hasUpperCase.test(password),
+      hasLowerCase: passwordCriteria.hasLowerCase.test(password),
+    });
+  };
+
+  // All conditions must be satisfied before enabling the button
+  const isEnabled =
+    passwordValid.minLength &&
+    passwordValid.hasNumber &&
+    passwordValid.hasUpperCase &&
+    passwordValid.hasLowerCase;
 
   // Handle avatar click to trigger file input
   const handleAvatarClick = () => {
@@ -62,14 +108,16 @@ const OrganizerProfile = () => {
       setIsUploadingAvatar(true);
 
       // Generate unique path for the avatar
-      const path = FirebaseStorage.generateUniquePath(file.name, 'avatars');
-      
+      const path = FirebaseStorage.generateUniquePath(file.name, "avatars");
+
       // Upload image to Firebase
       const imageURL = await FirebaseStorage.uploadImage(file, path, 2); // 2MB limit
 
       // Update avatar URL in backend
       const response = await apiClient.put(
-        `accounts/update-profile-picture?id=${auth?.id}&imageURL=${encodeURIComponent(imageURL)}`,
+        `accounts/update-profile-picture?id=${
+          auth?.id
+        }&imageURL=${encodeURIComponent(imageURL)}`,
         null,
         {
           headers: {
@@ -81,7 +129,7 @@ const OrganizerProfile = () => {
       if (response.data.http_status === 200) {
         // Refresh user data to show new avatar
         await fetchPlayerData();
-        
+
         Toast({
           title: "Success",
           message: "Avatar updated successfully",
@@ -89,7 +137,7 @@ const OrganizerProfile = () => {
         });
       }
     } catch (error) {
-      console.error('Error updating avatar:', error);
+      console.error("Error updating avatar:", error);
       Toast({
         title: "Error",
         message: error.message || "Failed to update avatar",
@@ -99,7 +147,7 @@ const OrganizerProfile = () => {
       setIsUploadingAvatar(false);
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -110,8 +158,13 @@ const OrganizerProfile = () => {
     setUpdateProfileErrors(errors);
   };
 
-  //#region MODAL CONTROL
+  // HANDLE CHANGE PASSWORD VALIDATION
+  const handleChangePasswordValidation = (data) => {
+    const errors = ChangePasswordValidation(data);
+    setChangePasswordErrors(errors);
+  };
 
+  //#region MODAL CONTROL
   const updateProfileModalShow = () => {
     if (!user) return;
 
@@ -130,6 +183,20 @@ const OrganizerProfile = () => {
 
   const updateProfileModalClose = () => {
     setUpdateProfileShow(false);
+  };
+
+  const changePasswordModalShow = () => {
+    setChangePasswordData({
+      old_password: "",
+      new_password: "",
+      confirm_password: "",
+    });
+    setChangePasswordErrors({});
+    setChangePasswordShow(true);
+  };
+
+  const changePasswordModalClose = () => {
+    setChangePasswordShow(false);
   };
   //#endregion
 
@@ -192,6 +259,52 @@ const OrganizerProfile = () => {
     }
   };
 
+  // HANDLE CHANGE PASSWORD SUBMIT
+  const handleChangePasswordSubmit = async (e) => {
+    e.preventDefault();
+
+    const normalizedData = NormalizeData(changePasswordData);
+    if (Object.keys(changePasswordErrors).length > 0) return;
+
+    try {
+      setIsLoading(true);
+      const response = await apiAuth.post(
+        "accounts/change-password",
+        {
+          oldPassword: normalizedData.oldPassword,
+          newPassword: normalizedData.newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${auth?.accessToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        Toast({
+          title: "Success",
+          message: response.data,
+          type: "success",
+        });
+        setChangePasswordShow(false);
+        setShowPassword({
+          old: false,
+          new: false,
+          confirm: false,
+        });
+      }
+    } catch (error) {
+      Toast({
+        title: "Error",
+        message: error.response?.data?.message || "Password update failed",
+        type: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // GET PLAYER DATA FROM API
   useEffect(() => {
     if (!auth?.id) return;
@@ -199,6 +312,21 @@ const OrganizerProfile = () => {
     fetchPlayerData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (changePasswordData.newPassword?.length > 0) {
+      validatePassword(changePasswordData.newPassword);
+    } else {
+      setPasswordValid({
+        minLength: false,
+        hasNumber: false,
+        hasUpperCase: false,
+        hasLowerCase: false,
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changePasswordData.newPassword]);
 
   return (
     <>
@@ -210,10 +338,10 @@ const OrganizerProfile = () => {
           <Card className="bg-white shadow-md p-6 rounded-xl w-full max-w-md">
             <CardHeader className="flex flex-col items-center gap-4 pb-2">
               <div
-                className="relative group cursor-pointer"
+                className="group relative cursor-pointer"
                 onClick={handleAvatarClick}
               >
-                <Avatar className="mb-2 ring-2 ring-blue-500 w-24 h-24 transition-all duration-300 group-hover:ring-blue-600 group-hover:opacity-75">
+                <Avatar className="group-hover:opacity-75 mb-2 ring-2 ring-blue-500 group-hover:ring-blue-600 w-24 h-24 transition-all duration-300">
                   <AvatarImage src={user.avatar || ""} />
                   <AvatarFallback className="bg-gray-200 text-gray-600 text-4xl">
                     {user.last_name?.charAt(0)}
@@ -221,9 +349,19 @@ const OrganizerProfile = () => {
                 </Avatar>
 
                 {/* Hidden overlay text */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="text-white text-sm font-medium bg-blue-600 bg-opacity-80 px-3 py-2 rounded-md shadow-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span className="flex items-center gap-2 bg-blue-600 bg-opacity-80 shadow-sm px-3 py-2 rounded-md font-medium text-white text-sm">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
                       <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
                     </svg>
@@ -289,13 +427,23 @@ const OrganizerProfile = () => {
               </div>
             </CardContent>
 
-            <div className="text-center">
-              <Button
-                className="mt-6 !px-6 w-auto"
-                bgColor="#000"
-                content="Update Profile"
-                onClick={updateProfileModalShow}
-              />
+            <div className="flex flex-col text-center">
+              <div className="m-auto w-[50%]">
+                <Button
+                  className="mt-6 !px-6 w-full"
+                  bgColor="#000"
+                  content="Update Profile"
+                  onClick={updateProfileModalShow}
+                />
+              </div>
+
+              <div className="m-auto w-[50%]">
+                <Button
+                  className="bg-red-600 mt-2 !px-6 w-full text-white"
+                  content="Change Password"
+                  onClick={changePasswordModalShow}
+                />
+              </div>
             </div>
           </Card>
         ) : null}
@@ -352,7 +500,7 @@ const OrganizerProfile = () => {
                   <Select
                     options={genderOptions}
                     placeHolder={"Select gender"}
-                    value={updateProfileData.gender}
+                    value={updateProfileData?.gender}
                     onChange={(e) =>
                       setUpdateProfileData({
                         ...updateProfileData,
@@ -490,8 +638,165 @@ const OrganizerProfile = () => {
             </form>
           </Modal.Body>
         </Modal>
+
+        {/* Change Password Modal */}
+        <Modal
+          show={changePasswordShow}
+          onHide={changePasswordModalClose}
+          size="sm"
+        >
+          <Modal.Header content={"Change Password"} />
+          <Modal.Body>
+            <form onSubmit={handleChangePasswordSubmit} className="space-y-6">
+              <div className="space-y-4">
+                {/* Old Password */}
+                <div className="relative">
+                  <Input
+                    id="old_password"
+                    type={showPassword.old ? "text" : "password"}
+                    placeholder="Enter your old password"
+                    value={changePasswordData.oldPassword}
+                    onChange={(e) =>
+                      setChangePasswordData((prev) => ({
+                        ...prev,
+                        oldPassword: e.target.value,
+                      }))
+                    }
+                  />
+                  <PasswordToggleIcon
+                    visible={showPassword.old}
+                    onClick={() =>
+                      setShowPassword((prev) => ({ ...prev, old: !prev.old }))
+                    }
+                  />
+                  {changePasswordErrors.oldPassword && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {changePasswordErrors.oldPassword}
+                    </p>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <Input
+                    id="new_password"
+                    type={showPassword.new ? "text" : "password"}
+                    placeholder="Enter your new password"
+                    value={changePasswordData.newPassword}
+                    onChange={(e) =>
+                      setChangePasswordData((prev) => ({
+                        ...prev,
+                        newPassword: e.target.value,
+                      }))
+                    }
+                  />
+                  <PasswordToggleIcon
+                    visible={showPassword.new}
+                    onClick={() =>
+                      setShowPassword((prev) => ({ ...prev, new: !prev.new }))
+                    }
+                  />
+                  {changePasswordErrors.newPassword && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {changePasswordErrors.newPassword}
+                    </p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <Input
+                    id="confirm_password"
+                    type={showPassword.confirm ? "text" : "password"}
+                    placeholder="Confirm your new password"
+                    value={changePasswordData.confirmPassword}
+                    onChange={(e) =>
+                      setChangePasswordData((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                  />
+                  <PasswordToggleIcon
+                    visible={showPassword.confirm}
+                    onClick={() =>
+                      setShowPassword((prev) => ({
+                        ...prev,
+                        confirm: !prev.confirm,
+                      }))
+                    }
+                  />
+                  {changePasswordErrors.confirmPassword && (
+                    <p className="mt-1 text-red-500 text-xs">
+                      {changePasswordErrors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1 mt-4">
+                  <ConditionText
+                    isValid={passwordValid.minLength}
+                    text="At least 8 characters"
+                  />
+                  <ConditionText
+                    isValid={passwordValid.hasNumber}
+                    text="Contains a number"
+                  />
+                  <ConditionText
+                    isValid={passwordValid.hasUpperCase}
+                    text="Contains an uppercase letter"
+                  />
+                  <ConditionText
+                    isValid={passwordValid.hasLowerCase}
+                    text="Contains a lowercase letter"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 text-center">
+                <Button
+                  type="submit"
+                  content="Change Password"
+                  className="w-full text-white"
+                  onClick={() =>
+                    handleChangePasswordValidation(changePasswordData)
+                  }
+                  disabled={!isEnabled}
+                  tooltipData={
+                    !isEnabled ? "You must follow password criteria." : ""
+                  }
+                  bgColor="#000"
+                />
+              </div>
+            </form>
+          </Modal.Body>
+        </Modal>
       </div>
     </>
   );
 };
 export default OrganizerProfile;
+
+const ConditionText = ({ isValid, text }) => (
+  <div className={`text-sm ${isValid ? "text-green-600" : "text-gray-500"}`}>
+    {isValid ? "✔" : "✖"} {text}
+  </div>
+);
+
+ConditionText.propTypes = {
+  isValid: PropTypes.bool.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+const PasswordToggleIcon = ({ visible, onClick }) => (
+  <div
+    onClick={onClick}
+    className="top-0 right-0 absolute active:scale-92 -translate-x-2 translate-y-[5px] active:translate-y-[5px] cursor-pointer"
+  >
+    {visible ? <EyeCloseIcon width={18} /> : <EyeOpenIcon width={18} />}
+  </div>
+);
+
+PasswordToggleIcon.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};

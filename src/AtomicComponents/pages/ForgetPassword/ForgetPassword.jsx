@@ -10,7 +10,6 @@ import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Input from "@/AtomicComponents/atoms/Input/Input";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import { apiAuth } from "@/config/axios/axios";
-import { trimText } from "@/utils/InputProces";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -120,13 +119,13 @@ const ForgetPassword = () => {
               />
 
               <div
-                className="top-0 right-0 absolute active:scale-92 -translate-x-2 translate-y-[3px] active:translate-y-[4px] cursor-pointer"
+                className="top-0 right-0 absolute active:scale-92 -translate-x-2 translate-y-[5px] active:translate-y-[5px] cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOpenIcon width={24} />
+                  <EyeCloseIcon width={18} />
                 ) : (
-                  <EyeCloseIcon width={24} />
+                  <EyeOpenIcon width={18} />
                 )}
               </div>
 
@@ -157,7 +156,9 @@ const ForgetPassword = () => {
                 type="submit"
                 content="Reset"
                 disabled={!isEnabled}
-                tooltipData={!isEnabled ? "You must follow password criteria." : ""}
+                tooltipData={
+                  !isEnabled ? "You must follow password criteria." : ""
+                }
               />
             </div>
           </div>
@@ -171,8 +172,9 @@ const ForgetPassword = () => {
 const ConditionText = ({ isValid, text }) => {
   return (
     <div
-      className={`password-condition ${isValid ? "text-green-600" : "text-gray-500"
-        }`}
+      className={`password-condition ${
+        isValid ? "text-green-600" : "text-gray-500"
+      }`}
     >
       {isValid ? (
         <span>

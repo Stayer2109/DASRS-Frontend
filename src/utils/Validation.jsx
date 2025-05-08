@@ -179,3 +179,23 @@ export const ComplaintReplyValidation = (data) => {
 
   return errors;
 };
+
+export const ChangePasswordValidation = (data) => {
+  const errors = {};
+
+  if (data.oldPassword.trim() === "") {
+    errors.oldPassword = "Old password is required";
+  }
+
+  if (data.newPassword.trim() === "") {
+    errors.newPassword = "New password is required";
+  }
+
+  if (data.confirmPassword.trim() === "") {
+    errors.confirmPassword = "Confirm password is required";
+  } else if (data.newPassword.trim() !== data.confirmPassword.trim()) {
+    errors.confirmPassword = "Passwords do not match";
+  }
+
+  return errors;
+};
