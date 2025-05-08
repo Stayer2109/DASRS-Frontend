@@ -1,6 +1,6 @@
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import { Calendar, Users } from "lucide-react";
+import { Calendar } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -12,15 +12,11 @@ import { formatDateString } from "@/utils/dateUtils";
 import { Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { Switch } from "@/AtomicComponents/atoms/shadcn/switch";
-import { Label } from "@/AtomicComponents/atoms/shadcn/label";
-// import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
 import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import { GetDateFromDate, GetTimeFromDate } from "@/utils/DateConvert";
 import Select from "@/AtomicComponents/atoms/Select/Select";
-import { number } from "prop-types";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import {
   Collapsible,
@@ -31,13 +27,11 @@ import { ChevronDown } from "lucide-react";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Button as ButtonShadcn } from "@/AtomicComponents/atoms/shadcn/button";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
-import { NormalizeServerErrors } from "@/utils/NormalizeError";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
   const { auth } = useAuth();
   const [matchesList, setMatchesList] = useState([]);
-  const [assignedModeToggle, setAssignedModeToggle] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [assignModalShow, setAssignModalShow] = useState(false);
@@ -117,13 +111,9 @@ const PlayerMatches = () => {
         if (roundId && playerId) {
           const fetchMatches = async () => {
             try {
-              const response = assignedModeToggle
-                ? await apiClient.get(
-                    `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
-                  )
-                : await apiClient.get(
-                    `matches/round/${roundId}/team/${auth?.teamId}`
-                  );
+              const response = await apiClient.get(
+                `matches/round/${roundId}/team/${auth?.teamId}`
+              );
 
               if (response.data.http_status === 200) {
                 const data = response.data.data;
@@ -133,10 +123,10 @@ const PlayerMatches = () => {
                 );
               }
             } catch (error) {
-              console.error("Error fetching matches:", error);
               Toast({
                 title: "Error",
-                message: "Failed to refresh matches data",
+                message:
+                  error.response?.data?.message || "Failed to fetch matches",
                 type: "error",
               });
             }
@@ -146,78 +136,15 @@ const PlayerMatches = () => {
         }
       }
     } catch (error) {
-      console.log("Error:", error);
+      Toast({
+        title: "Error",
+        message: error.response?.data?.message || "Failed to fetch matches",
+        type: "error",
+      });
     } finally {
       setIsLoading(false);
     }
   };
-
-  // GET MATCHES BY ROUND ID AND PLAYER ID
-  useEffect(() => {
-    if (!roundId || !playerId) return;
-
-    const fetchMatches = async () => {
-      try {
-        setIsLoading(true);
-
-        const response = assignedModeToggle
-          ? /*await apiClient.get(
-              `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
-            )*/ await apiClient.get(
-              `matches/by-round-and-player?roundId=${roundId}&accountId=${auth.id}`
-            )
-          : await apiClient.get(
-              `matches/round/${roundId}/team/${auth?.teamId}`
-            );
-
-        if (response.data.http_status === 200) {
-          const data = response.data.data;
-
-          // Handle data format for each API
-          const formattedData = data;
-          setMatchesList(Array.isArray(formattedData) ? formattedData : []);
-        }
-      } catch (error) {
-        console.error("Error fetching matches:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMatches();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assignedModeToggle, roundId, playerId]);
-
-  // GET TEAM MEMBER BY MATCH ID
-  useEffect(() => {
-    if (!auth?.teamId) return;
-
-    const fetchTeamMembers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await apiClient.get(`teams/members/${auth?.teamId}`);
-
-        if (response.status === 200) {
-          setTeamMember(response.data.data);
-          setPlayerOptions(
-            response.data.data.map((member) => ({
-              value: member.id,
-              label: member.full_name,
-            }))
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching team members:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTeamMembers();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const fetchScoreDetails = async (matchId, teamId) => {
     setLoadingScores((prev) => ({ ...prev, [`${matchId}-${teamId}`]: true }));
@@ -291,13 +218,74 @@ const PlayerMatches = () => {
     }
   };
 
+  // GET MATCHES BY ROUND ID AND PLAYER ID
+  useEffect(() => {
+    if (!roundId) return;
+
+    const fetchMatches = async () => {
+      try {
+        setIsLoading(true);
+
+        const response = await apiClient.get(
+          `matches/round/${roundId}/team/${auth?.teamId}`
+        );
+
+        if (response.data.http_status === 200) {
+          const data = response.data.data;
+
+          // Handle data format for each API
+          const formattedData = data;
+          setMatchesList(Array.isArray(formattedData) ? formattedData : []);
+        }
+      } catch (error) {
+        console.error("Error fetching matches:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMatches();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundId]);
+
+  // GET TEAM MEMBER BY MATCH ID
+  useEffect(() => {
+    if (!auth?.teamId) return;
+
+    const fetchTeamMembers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.get(`teams/members/${auth?.teamId}`);
+
+        if (response.status === 200) {
+          setTeamMember(response.data.data);
+          setPlayerOptions(
+            response.data.data.map((member) => ({
+              value: member.id,
+              label: member.full_name,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching team members:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTeamMembers();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       {isLoading && <Spinner />}
       <Breadcrumb items={breadcrumbItems} />
 
       {/* Switch button for different render mode */}
-      <div className="mb-5 w-full">
+      {/* <div className="mb-5 w-full">
         <div className="inline-flex items-center gap-4 p-4 border border-gray-600 rounded-md">
           <Switch
             id="assigned-toggle"
@@ -311,7 +299,7 @@ const PlayerMatches = () => {
             Assigned Mode
           </Label>
         </div>
-      </div>
+      </div> */}
 
       {/* Match card render */}
       <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3 mb-4">
