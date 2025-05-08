@@ -1338,7 +1338,7 @@ export const TournamentRounds = () => {
                 </div>
 
                 {/* Maps */}
-                <div className="space-y-4 col-span-2">
+                <div className="space-y-4 col-span-2 ml-4">
                   <Label>Resource</Label>
                   {roundManagementErrors?.resource_id && (
                     <p className="text-red-500 text-xs">
@@ -1346,29 +1346,56 @@ export const TournamentRounds = () => {
                     </p>
                   )}
                   <div className="gap-4 grid grid-cols-3">
-                    {resources?.map((resource) => (
-                      <div
-                        key={resource.resource_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                          formData.resource_id === resource.resource_id
-                            ? "border-primary bg-primary/10"
-                            : "hover:border-primary/50"
-                        }`}
-                        onClick={() =>
-                          onResourceSelectChange(
-                            "resource_id",
-                            resource.resource_id
-                          )
-                        }
-                      >
-                        <h4 className="font-medium">
-                          {resource.resource_name}
-                        </h4>
-                        <p className="text-muted-foreground text-sm">
-                          {resource.resource_type}
-                        </p>
-                      </div>
-                    ))}
+                    {resources?.map((resource) => {
+                      const isSelected =
+                        formData.resource_id === resource.resource_id;
+                      return (
+                        <div
+                          key={resource.resource_id}
+                          className={`relative h-40 rounded-lg cursor-pointer bg-cover bg-center transition-all duration-200 transform group
+            ${
+              isSelected
+                ? "border-2 border-primary scale-105 shadow-lg"
+                : "border border-gray-300 hover:scale-105 hover:shadow-md hover:border-primary/60"
+            }
+          `}
+                          style={{
+                            backgroundImage: `url(${resource.resource_image})`,
+                          }}
+                          onClick={() =>
+                            onResourceSelectChange(
+                              "resource_id",
+                              resource.resource_id
+                            )
+                          }
+                        >
+                          {/* Overlay (transparent when selected or hovered) */}
+                          <div
+                            className={`absolute inset-0 rounded-lg transition-colors duration-200 
+              ${
+                isSelected
+                  ? "bg-white/60"
+                  : "bg-black/40 group-hover:bg-white/60"
+              }
+            `}
+                          ></div>
+
+                          {/* Text content */}
+                          <div
+                            className={`relative z-10 p-4 transition-colors duration-200
+              ${isSelected ? "text-black" : "text-white group-hover:text-black"}
+            `}
+                          >
+                            <h4 className="font-semibold">
+                              {resource.resource_name}
+                            </h4>
+                            <p className="text-sm opacity-90">
+                              {resource.resource_type}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1437,10 +1464,7 @@ export const TournamentRounds = () => {
                               {type.match_type_name}
                             </h4>
                             <p className="text-muted-foreground text-sm">
-                              Duration: {type.match_duration}
-                            </p>
-                            <p className="text-muted-foreground text-sm">
-                              Type: {type.finish_type}
+                              Duration: {type.match_duration * 60} minutes.
                             </p>
                           </div>
                         )
