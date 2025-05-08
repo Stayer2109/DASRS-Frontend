@@ -341,7 +341,7 @@ const OrganizerProfile = () => {
                 className="group relative cursor-pointer"
                 onClick={handleAvatarClick}
               >
-                <Avatar className="group-hover:opacity-75 mb-2 ring-2 ring-blue-500 group-hover:ring-blue-600 w-24 h-24 transition-all duration-300">
+                <Avatar className="group-hover:opacity-75 ring-2 ring-blue-500 group-hover:ring-blue-600 w-34 h-34 transition-all duration-300">
                   <AvatarImage src={user.avatar || ""} />
                   <AvatarFallback className="bg-gray-200 text-gray-600 text-4xl">
                     {user.last_name?.charAt(0)}
@@ -349,8 +349,8 @@ const OrganizerProfile = () => {
                 </Avatar>
 
                 {/* Hidden overlay text */}
-                <div className="absolute inset-0 flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="flex items-center gap-2 bg-blue-600 bg-opacity-80 shadow-sm px-3 py-2 rounded-md font-medium text-white text-sm">
+                <div className="z-10 absolute inset-0 flex justify-center items-center group-hover:bg-black/45 rounded-full transition-all duration-300">
+                  <span className="flex items-center gap-2 opacity-0 group-hover:opacity-100 font-medium text-white text-sm transition-opacity duration-300">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
