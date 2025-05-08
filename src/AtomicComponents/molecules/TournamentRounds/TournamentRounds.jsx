@@ -664,51 +664,19 @@ export const TournamentRounds = () => {
 
   // CHECK IF END DATE EQUALS TO TOURNAMENT END DATE THEN SET LAST ROUND TRUE
   useEffect(() => {
-    // For create mode, if end date is equal to tournament end date then set last round true
-    if (
-      formMode === "create" &&
-      FormatToISODate(formData.end_date) ===
-        FormatToISODate(tournament?.end_date)
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        is_last:
-          FormatDateInput(formData.end_date) ===
-          FormatDateInput(new Date(tournament?.end_date)),
-        team_limit: 0,
-      }));
-    } else {
-      // Otherwise set last round false
-      setFormData((prev) => ({
-        ...prev,
-        is_last: false,
-        team_limit: 2,
-      }));
-    }
+    if (!tournament?.end_date || !formData?.end_date) return;
 
-    // For edit mode, if end date is equal to tournament end date then set last round true
-    if (
-      formMode === "edit" &&
-      FormatToISODate(formData.end_date) ===
-        FormatToISODate(tournament?.end_date)
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        is_last:
-          FormatDateInput(formData.end_date) ===
-          FormatDateInput(new Date(tournament?.end_date)),
-        team_limit: 0,
-      }));
-    } else {
-      // Otherwise set last round false
-      setFormData((prev) => ({
-        ...prev,
-        is_last: false,
-        team_limit: 2,
-      }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.end_date]);
+    const endDateFormatted = FormatToISODate(formData.end_date);
+    const tournamentEndFormatted = FormatToISODate(tournament.end_date);
+
+    const shouldBeFinal = endDateFormatted === tournamentEndFormatted;
+
+    setFormData((prev) => ({
+      ...prev,
+      is_last: shouldBeFinal,
+      team_limit: shouldBeFinal ? 0 : 2,
+    }));
+  }, [formData?.end_date, tournament?.end_date]);
 
   // CHANGE END DATE TO THE DAY BEFORE THE TOURNAMENT END DATE
   useEffect(() => {
@@ -776,6 +744,12 @@ export const TournamentRounds = () => {
                   variant="outline"
                   onClick={() => handleOpenRoundManagementModal(null)}
                   className="cursor-pointer"
+                  disabled={
+                    tournament?.status.toString().toLowerCase() ===
+                      "completed" ||
+                    tournament?.status.toString().toLowerCase() === "terminated"
+                  }
+                  tooltipData="Cannot create rounds for completed or terminated tournament."
                 >
                   <Plus className="mr-2 w-4 h-4" /> Create First Round
                 </Button>
@@ -979,7 +953,7 @@ export const TournamentRounds = () => {
           >
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
               {/* Warning Message About Final Rounds If Selected Round Is Last Is False*/}
-              {isLastRoundWarning && selectedRound?.is_last && (
+              {isLastRoundWarning && (
                 <div className="bg-yellow-50 mb-4 p-4 border-yellow-400 border-l-4 rounded-md text-yellow-700">
                   <p className="text-md">{isLastRoundWarning}</p>
                 </div>
@@ -1389,7 +1363,7 @@ export const TournamentRounds = () => {
                             <h4 className="font-semibold">
                               {resource.resource_name}
                             </h4>
-                            <p className="text-sm opacity-90">
+                            <p className="opacity-90 text-sm">
                               {resource.resource_type}
                             </p>
                           </div>
