@@ -16,10 +16,17 @@ import { Outlet } from "react-router-dom";
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import useAuth from "@/hooks/useAuth";
 import { Users, ListIcon } from "lucide-react"; // Import ListIcon
+import Cookies from "js-cookie";
+import { decryptToken } from "@/utils/CryptoUtils";
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const { auth } = useAuth(); // Changed _auth to auth since that's what's used in other components
+  const tokenFromCookies = Cookies.get("refreshToken");
+  const refreshToken = decryptToken(tokenFromCookies);
+  console.log(refreshToken);
+  
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navBarIconColor = "#FAF9F6";
@@ -79,13 +86,15 @@ const PlayerCommonLayout = () => {
       ],
     },
     // Only show Tournaments menu if there are submenu items
-    ...(getTournamentSubMenu().length > 0 ? [
-      {
-        item: "Tournaments",
-        icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
-        subMenu: getTournamentSubMenu(),
-      },
-    ] : []),
+    ...(getTournamentSubMenu().length > 0
+      ? [
+          {
+            item: "Tournaments",
+            icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
+            subMenu: getTournamentSubMenu(),
+          },
+        ]
+      : []),
     {
       item: "Team Complaints",
       icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,
