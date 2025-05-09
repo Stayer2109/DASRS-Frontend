@@ -1,7 +1,7 @@
-import AdminTemplate from "../../../templates/Admin/AdminTemplate";
+import AdminCommonLayout from "../../CommonLayouts/AdminCommonLayout/AdminCommonLayout";
 
 const AdminPage = () => {
-  return <AdminTemplate />;
+  return <AdminCommonLayout />;
 };
 
 export default AdminPage;
