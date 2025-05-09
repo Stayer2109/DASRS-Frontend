@@ -4,7 +4,6 @@ import { apiClient } from "@/config/axios/axios";
 import useAuth from "@/hooks/useAuth";
 import useRefreshToken from "@/hooks/useRefreshToken";
 import { Crown, Trash2, UserCog } from "lucide-react";
-import { toast } from "react-hot-toast";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import {
   Card,
@@ -21,6 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/AtomicComponents/atoms/shadcn/dialog";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const MyTeam = () => {
   const navigate = useNavigate();
@@ -64,7 +64,11 @@ export const MyTeam = () => {
       setIsLeader(currentUserMember?.is_leader || false);
     } catch (error) {
       console.error("Error fetching team data:", error);
-      toast.error("Failed to fetch team data");
+      Toast({
+        title: "Error",
+        description: "Failed to fetch team data.",
+        status: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -98,13 +102,21 @@ export const MyTeam = () => {
         },
       });
 
-      toast.success("Member removed successfully");
+      Toast({
+        title: "Success",
+        description: `${memberToRemove.full_name} has been removed from the team.`,
+        status: "success",
+      });
       setConfirmDialogOpen(false);
       setMemberToRemove(null);
       fetchTeamData(); // Refresh the team data
     } catch (error) {
       console.error("Error removing member:", error);
-      toast.error("Failed to remove member");
+      Toast({
+        title: "Error",
+        description: "Failed to remove team member.",
+        status: "error",
+      });
     }
   };
 
@@ -119,13 +131,21 @@ export const MyTeam = () => {
     try {
       await apiClient.put(`teams/leadership/${auth.teamId}/${newLeader.id}`);
 
-      toast.success("Team leadership transferred successfully");
+      Toast({
+        title: "Success",
+        description: `Team leadership transferred to ${newLeader.full_name}`,
+        status: "success",
+      });
       setLeadershipDialogOpen(false);
       setNewLeader(null);
       fetchTeamData(); // Refresh the team data
     } catch (error) {
       console.error("Error changing team leader:", error);
-      toast.error("Failed to transfer team leadership");
+      Toast({
+        title: "Error",
+        description: "Failed to change team leader.",
+        status: "error",
+      });
     }
   };
 
@@ -141,7 +161,11 @@ export const MyTeam = () => {
       // Then refresh the tokens to get updated user data
       await refresh();
 
-      toast.success("Successfully left the team");
+      Toast({
+        title: "Success",
+        description: "You have successfully left the team.",
+        status: "success",
+      });
       setLeaveTeamDialogOpen(false);
 
       // Reset local team-related states
@@ -160,10 +184,18 @@ export const MyTeam = () => {
       navigate("/teams", { replace: true });
     } catch (error) {
       console.error("Error leaving team:", error);
-      toast.error("Failed to leave team");
+      Toast({
+        title: "Error",
+        description: "Failed to leave the team.",
+        status: "error",
+      });
 
       if (error.response?.status === 401) {
-        toast.error("Session expired. Please log in again.");
+        Toast({
+          title: "Session Expired",
+          description: "Please log in again.",
+          status: "error",
+        });
       }
     }
   };
@@ -179,7 +211,11 @@ export const MyTeam = () => {
       // Refresh token to get updated user data
       await refresh();
 
-      toast.success("Team deleted successfully");
+      Toast({
+        title: "Success",
+        description: "Team deleted successfully.",
+        status: "success",
+      });
 
       // Reset local team-related states
       setTeam(null);
@@ -197,7 +233,11 @@ export const MyTeam = () => {
       navigate("/teams", { replace: true });
     } catch (error) {
       console.error("Error deleting team:", error);
-      toast.error("Failed to delete team");
+      Toast({
+        title: "Error",
+        description: "Failed to delete the team.",
+        status: "error",
+      });
     }
   };
 
@@ -218,20 +258,20 @@ export const MyTeam = () => {
   if (isLoading) return <Spinner />;
   if (!auth?.teamId)
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex justify-center items-center h-64">
         <p className="text-gray-500">You are not part of any team</p>
       </div>
     );
   if (!team)
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex justify-center items-center h-64">
         <p className="text-gray-500">You are not part of any team</p>
       </div>
     );
 
   return (
     <>
-      <div className="container mx-auto p-4">
+      <div className="mx-auto p-4 container">
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -239,7 +279,7 @@ export const MyTeam = () => {
                 <CardTitle className="text-2xl">{team.name}</CardTitle>
                 <span className="text-gray-500">Tag: {team.tag}</span>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 {renderTeamStatusBadge(team.member_count)}
                 {team.status && (
                   <Badge
@@ -274,7 +314,7 @@ export const MyTeam = () => {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg mb-2">
+                <h3 className="mb-2 font-semibold text-lg">
                   Team Members ({team.member_count}/5)
                 </h3>
                 <div className="space-y-2">
@@ -289,11 +329,11 @@ export const MyTeam = () => {
                     >
                       <div className="flex items-center gap-2">
                         {member.is_leader && (
-                          <Crown className="h-5 w-5 text-yellow-500" />
+                          <Crown className="w-5 h-5 text-yellow-500" />
                         )}
                         <div>
                           <p className="font-medium">{member.full_name}</p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-gray-500 text-sm">
                             {member.email}
                           </p>
                         </div>
@@ -307,20 +347,20 @@ export const MyTeam = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-blue-500 hover:text-blue-700 hover:bg-blue-100"
+                              className="hover:bg-blue-100 w-8 h-8 text-blue-500 hover:text-blue-700"
                               onClick={() => handleChangeLeaderClick(member)}
                               title="Transfer Leadership"
                             >
-                              <UserCog className="h-4 w-4" />
+                              <UserCog className="w-4 h-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
+                              className="hover:bg-red-100 w-8 h-8 text-red-500 hover:text-red-700"
                               onClick={() => handleRemoveMemberClick(member)}
                               title="Remove Member"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         )}
@@ -372,7 +412,7 @@ export const MyTeam = () => {
             Are you sure you want to transfer team leadership to{" "}
             <span className="font-medium">{newLeader?.full_name}</span>?
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-gray-500 text-sm">
             You will become a regular team member after this action.
           </p>
           <DialogFooter>
@@ -399,7 +439,7 @@ export const MyTeam = () => {
             Are you sure you want to leave team{" "}
             <span className="font-medium">{team?.name}</span>?
           </p>
-          <p className="text-sm text-red-500">
+          <p className="text-red-500 text-sm">
             This action cannot be undone. You will need to be invited back to
             rejoin the team.
           </p>

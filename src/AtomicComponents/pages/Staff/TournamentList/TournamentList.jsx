@@ -636,9 +636,10 @@ export const TournamentList = () => {
                             <DasrsTournamentActions
                               status={row.status}
                               preventEdit={
-                                row.is_started ||
                                 row.status.toString().toLowerCase() ===
-                                  "terminated"
+                                  "terminated" ||
+                                row.status.toString().toLowerCase() ===
+                                  "completed"
                               }
                               onExtend={() =>
                                 handleOpenTournamentExtendedEndDateModal(row)
