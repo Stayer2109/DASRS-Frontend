@@ -18,23 +18,11 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/dialog";
 import PropTypes from "prop-types";
 
-export const TournamentActions = ({
-  tournamentId,
-  onEdit,
-  onDelete,
-  onChangeStatus,
-}) => {
+export const TournamentActions = ({ tournamentId, onEdit, onChangeStatus }) => {
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     status: null,
   });
-
-  const handleStatusClick = (status) => {
-    setConfirmDialog({
-      isOpen: true,
-      status,
-    });
-  };
 
   const handleConfirm = () => {
     onChangeStatus(tournamentId, confirmDialog.status);
@@ -78,40 +66,6 @@ export const TournamentActions = ({
             <PencilIcon className="h-4 w-4 mr-2" />
             Edit Tournament
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => handleStatusClick("PENDING")}
-          >
-            Set to Pending
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => handleStatusClick("ACTIVE")}
-          >
-            Set to Active
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => handleStatusClick("COMPLETED")}
-          >
-            Set to Completed
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => handleStatusClick("TERMINATED")}
-          >
-            Set to Terminated
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {/* <DropdownMenuItem
-            className="hover:text-red-600 cursor-pointer"
-            onClick={() => onDelete(tournamentId)}
-          >
-            <TrashIcon className="h-4 w-4 mr-1" />
-            Delete Tournament
-          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -131,17 +85,10 @@ export const TournamentActions = ({
             </p>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={handleCancel}
-            >
+            <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button
-              onClick={handleConfirm}
-            >
-              Confirm
-            </Button>
+            <Button onClick={handleConfirm}>Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

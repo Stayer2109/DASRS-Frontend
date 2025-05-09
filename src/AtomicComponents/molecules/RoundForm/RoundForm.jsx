@@ -11,7 +11,11 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { Label } from "@/AtomicComponents/atoms/shadcn/label";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
-import { Modal, ModalBody, ModalHeader } from "@/AtomicComponents/organisms/Modal/Modal";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
 import useAuth from "@/hooks/useAuth";
 import { formatDateString } from "@/utils/dateUtils";
@@ -55,12 +59,12 @@ export const TournamentRounds = () => {
   const { tournamentId } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [resources, setResources] = useState([
-  ]);
+  const [resources, setResources] = useState([]);
   const [isLoadingResources, setIsLoadingResources] = useState(true);
   const [rounds, setRounds] = useState([]);
   const [tournament, setTournament] = useState(null);
-  const [roundsManagementModalShow, setRoundManagementModalShow] = useState(false);
+  const [roundsManagementModalShow, setRoundManagementModalShow] =
+    useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [formMode, setFormMode] = useState("create"); // 'create' or 'edit'
 
@@ -90,8 +94,7 @@ export const TournamentRounds = () => {
   };
 
   // HANDLE ROUND MANAGEMENT FORM SUBMIT
-  const handleRoundManagementFormSubmit = async (e) => {
-  }
+  const handleRoundManagementFormSubmit = async (e) => {};
 
   //#region MODAL CONTROL
   // DATA MANIPULATION FOR TOURNAMENT MANAGEMENT MODAL WHEN OPENED
@@ -148,8 +151,12 @@ export const TournamentRounds = () => {
         const [resourcesRes, environmentsRes, matchTypesRes] =
           await Promise.all([
             apiClient.get("resources/map?pageSize=100"),
-            apiClient.get("environments"),
-            apiClient.get("match-types"),
+            apiClient.get(
+              "environments?pageNo=0&pageSize=100&sortBy=id&sortDirection=asc"
+            ),
+            apiClient.get(
+              "match-types?pageNo=0&pageSize=100&sortBy=id&sortDirection=asc"
+            ),
           ]);
 
         setResources(resourcesRes.data.data.content || []);
@@ -210,8 +217,9 @@ export const TournamentRounds = () => {
           <Card className="col-span-full">
             <CardContent className="flex flex-col justify-center items-center p-6">
               <p
-                className={`text-muted-foreground ${auth?.role === "ORGANIZER" ? "mb-4" : ""
-                  }`}
+                className={`text-muted-foreground ${
+                  auth?.role === "ORGANIZER" ? "mb-4" : ""
+                }`}
               >
                 No rounds found for this tournament.
               </p>
@@ -356,12 +364,20 @@ export const TournamentRounds = () => {
       </div>
 
       {/* Round Management Modal */}
-      <Modal size="xl"
+      <Modal
+        size="xl"
         onHide={handleCloseRoundManagementModal}
-        show={roundsManagementModalShow}>
-        <ModalHeader content={formMode === "create" ? "Create Round" : "Edit Round"} />
+        show={roundsManagementModalShow}
+      >
+        <ModalHeader
+          content={formMode === "create" ? "Create Round" : "Edit Round"}
+        />
         <ModalBody>
-          <form id="roundManagementForm" onSubmit={handleRoundManagementFormSubmit} className="flex flex-col h-full">
+          <form
+            id="roundManagementForm"
+            onSubmit={handleRoundManagementFormSubmit}
+            className="flex flex-col h-full"
+          >
             <div className="flex-1 -mr-4 py-2 pr-4 overflow-y-auto">
               <div className="gap-4 grid grid-cols-2 px-1">
                 <div className="space-y-2">
@@ -372,7 +388,10 @@ export const TournamentRounds = () => {
                     name="round_name"
                     value={formData?.round_name}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, round_name: e.target.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        round_name: e.target.value,
+                      }));
                     }}
                     required
                   />
@@ -387,7 +406,10 @@ export const TournamentRounds = () => {
                     type="number"
                     value={formData?.team_limit}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, team_limit: e.target.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        team_limit: e.target.value,
+                      }));
                     }}
                     required
                   />
@@ -397,9 +419,7 @@ export const TournamentRounds = () => {
                 <div className="space-y-2">
                   <Label>Start Date</Label>
                   <div className="relative calendar-dropdown">
-                    <Input
-                      type="date"
-                      placeholder="Choose start date" />
+                    <Input type="date" placeholder="Choose start date" />
                   </div>
                 </div>
 
@@ -407,9 +427,7 @@ export const TournamentRounds = () => {
                 <div className="space-y-2">
                   <Label>End Date</Label>
                   <div className="relative calendar-dropdown">
-                    <Input
-                      type="date"
-                      placeholder="Choose end date" />
+                    <Input type="date" placeholder="Choose end date" />
                   </div>
                 </div>
 
@@ -432,7 +450,9 @@ export const TournamentRounds = () => {
 
                     {/* Assist Usage Points */}
                     <div className="space-y-2">
-                      <Label htmlFor="assistUsageCount">Assist Usage Points</Label>
+                      <Label htmlFor="assistUsageCount">
+                        Assist Usage Points
+                      </Label>
                       <Input
                         id="assistUsageCount"
                         name="assistUsageCount"
@@ -484,7 +504,9 @@ export const TournamentRounds = () => {
 
                     {/* Average Speed Points */}
                     <div className="space-y-2">
-                      <Label htmlFor="average_speed">Average Speed Points</Label>
+                      <Label htmlFor="average_speed">
+                        Average Speed Points
+                      </Label>
                       <Input
                         id="average_speed"
                         name="average_speed"
@@ -513,7 +535,6 @@ export const TournamentRounds = () => {
                       <Label>Match Finish Type</Label>
                       <Select />
                     </div>
-
                   </div>
                 </div>
 
@@ -524,15 +545,18 @@ export const TournamentRounds = () => {
                     {resources?.map((resource) => (
                       <div
                         key={resource.resource_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.resource_id === resource.resource_id
-                          ? "border-primary bg-primary/10"
-                          : "hover:border-primary/50"
-                          }`}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.resource_id === resource.resource_id
+                            ? "border-primary bg-primary/10"
+                            : "hover:border-primary/50"
+                        }`}
                         onClick={() =>
                           onSelectChange("resource_id", resource.resource_id)
                         }
                       >
-                        <h4 className="font-medium">{resource.resource_name}</h4>
+                        <h4 className="font-medium">
+                          {resource.resource_name}
+                        </h4>
                         <p className="text-muted-foreground text-sm">
                           {resource.resource_type}
                         </p>
@@ -547,10 +571,11 @@ export const TournamentRounds = () => {
                     {environments?.map((env) => (
                       <div
                         key={env.environment_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.environment_id === env.environment_id
-                          ? "border-primary bg-primary/10"
-                          : "hover:border-primary/50"
-                          }`}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.environment_id === env.environment_id
+                            ? "border-primary bg-primary/10"
+                            : "hover:border-primary/50"
+                        }`}
                         onClick={() =>
                           onSelectChange("environment_id", env.environment_id)
                         }
@@ -567,10 +592,11 @@ export const TournamentRounds = () => {
                     {matchTypes?.map((type) => (
                       <div
                         key={type.match_type_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-all ${formData.match_type_id === type.match_type_id
-                          ? "border-primary bg-primary/10"
-                          : "hover:border-primary/50"
-                          }`}
+                        className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                          formData.match_type_id === type.match_type_id
+                            ? "border-primary bg-primary/10"
+                            : "hover:border-primary/50"
+                        }`}
                         onClick={() =>
                           onSelectChange("match_type_id", type.match_type_id)
                         }
@@ -594,7 +620,10 @@ export const TournamentRounds = () => {
                     name="description"
                     value={formData?.description}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, description: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                   />
                 </div>

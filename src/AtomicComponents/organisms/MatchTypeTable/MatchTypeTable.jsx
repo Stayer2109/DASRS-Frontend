@@ -63,13 +63,6 @@ export const MatchTypeTable = ({
               >
                 <Edit size={16} />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(matchType.match_type_id)}
-              >
-                <Trash2 size={16} />
-              </Button>
             </TableCell>
           </TableRow>
         ))}

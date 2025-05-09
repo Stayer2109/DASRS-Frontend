@@ -19,7 +19,7 @@ export const MatchTypeModal = ({
   onSubmit,
 }) => {
   const [localStatus, setLocalStatus] = useState(formData?.status === "ACTIVE");
-  
+
   // Update local status when formData changes
   useEffect(() => {
     setLocalStatus(formData?.status === "ACTIVE");
@@ -28,7 +28,7 @@ export const MatchTypeModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     const formValues = new FormData(e.target);
-    
+
     // Create the payload object
     const payload = {
       match_type_name: formValues.get("match_type_name"),
@@ -36,7 +36,7 @@ export const MatchTypeModal = ({
       player_number: parseInt(formValues.get("player_number")),
       team_number: parseInt(formValues.get("team_number")),
     };
-    
+
     // If editing, include the match_type_id and status
     if (formMode === "edit" && formData) {
       payload.match_type_id = formData.match_type_id;
@@ -45,7 +45,7 @@ export const MatchTypeModal = ({
       // For new match types, default to ACTIVE
       payload.status = "ACTIVE";
     }
-    
+
     onSubmit(payload);
   };
 
@@ -81,9 +81,9 @@ export const MatchTypeModal = ({
               id="match_duration"
               name="match_duration"
               type="number"
-              step="0.25"
-              min="0.25"
-              max="24"
+              step="0.1"
+              min="0.5"
+              max="1"
               defaultValue={formData?.match_duration || 0.5}
               required
             />
@@ -114,17 +114,21 @@ export const MatchTypeModal = ({
               required
             />
           </div>
-          
+
           {formMode === "edit" && (
             <div className="flex items-center space-x-2">
-              <Switch 
+              <Switch
                 id="status"
                 checked={localStatus}
                 onCheckedChange={setLocalStatus}
               />
               <Label htmlFor="status" className="flex items-center">
-                <div className={`ml-2 text-sm font-medium ${localStatus ? 'text-green-600' : 'text-red-600'}`}>
-                  {localStatus ? 'Active' : 'Inactive'}
+                <div
+                  className={`ml-2 text-sm font-medium ${
+                    localStatus ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {localStatus ? "Active" : "Inactive"}
                 </div>
               </Label>
             </div>
@@ -143,4 +147,3 @@ export const MatchTypeModal = ({
     </Dialog>
   );
 };
-

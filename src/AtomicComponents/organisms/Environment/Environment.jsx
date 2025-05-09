@@ -26,6 +26,8 @@ export const Environment = () => {
 
   return (
     <>
+      <h1 className="text-2xl font-bold pb-4">Environment List</h1>
+
       <Card className="w-full">
         <CardContent className="pt-6">
           <EnvironmentHeader

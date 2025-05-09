@@ -542,8 +542,12 @@ export const TournamentRounds = () => {
         const [resourcesRes, environmentsRes, matchTypesRes] =
           await Promise.all([
             apiClient.get("resources/map?pageSize=100"),
-            apiClient.get("environments"),
-            apiClient.get("match-types"),
+            apiClient.get(
+              "environments?pageNo=0&pageSize=100&sortBy=id&sortDirection=asc"
+            ),
+            apiClient.get(
+              "match-types?pageNo=0&pageSize=100&sortBy=id&sortDirection=asc"
+            ),
           ]);
 
         setResources(resourcesRes.data.data.content || []);

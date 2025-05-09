@@ -81,6 +81,7 @@ export const Tournament = () => {
           {error}
         </div>
       )}
+      <h1 className="text-2xl font-bold">Tournament List</h1>
 
       <div className="rounded-md border">
         <TournamentTable

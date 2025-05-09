@@ -61,6 +61,8 @@ export const Scene = () => {
 
   return (
     <>
+      <h1 className="text-2xl font-bold pb-4">Scene List</h1>
+
       <Card className="w-full">
         <CardContent className="pt-6">
           <SceneHeader
@@ -109,7 +111,8 @@ export const Scene = () => {
             <DialogTitle>Confirm Status Change</DialogTitle>
           </DialogHeader>
           <p>
-            Are you sure you want to {sceneToToggle?.currentStatus ? 'disable' : 'enable'} this scene?
+            Are you sure you want to{" "}
+            {sceneToToggle?.currentStatus ? "disable" : "enable"} this scene?
           </p>
           <DialogFooter>
             <Button
@@ -118,14 +121,10 @@ export const Scene = () => {
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleStatusConfirm}
-            >
-              Confirm
-            </Button>
+            <Button onClick={handleStatusConfirm}>Confirm</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
-}
+};
