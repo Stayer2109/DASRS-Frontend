@@ -10,7 +10,9 @@ const HomepageTemplate = () => {
       <CurrentRaces />
       <RaceCalendar />
       <div className="bg-slate-200 mt-10 rounded-md">
-        <h1></h1>
+        <h1 className="pt-2 font-semibold text-2xl text-center uppercase">
+          Leaderboards
+        </h1>
         <Leaderboard />
       </div>
     </>
