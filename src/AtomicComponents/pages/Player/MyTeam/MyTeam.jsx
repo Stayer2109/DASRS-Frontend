@@ -66,8 +66,8 @@ export const MyTeam = () => {
       console.error("Error fetching team data:", error);
       Toast({
         title: "Error",
-        description: "Failed to fetch team data.",
-        status: "error",
+        message: "Failed to fetch team data.",
+        type: "error",
       });
     } finally {
       setIsLoading(false);
@@ -77,6 +77,8 @@ export const MyTeam = () => {
   useEffect(() => {
     // Always fetch team data when component mounts
     fetchTeamData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array to run only on mount
 
   useEffect(() => {
@@ -104,8 +106,8 @@ export const MyTeam = () => {
 
       Toast({
         title: "Success",
-        description: `${memberToRemove.full_name} has been removed from the team.`,
-        status: "success",
+        message: `${memberToRemove.full_name} has been removed from the team.`,
+        type: "success",
       });
       setConfirmDialogOpen(false);
       setMemberToRemove(null);
@@ -114,8 +116,8 @@ export const MyTeam = () => {
       console.error("Error removing member:", error);
       Toast({
         title: "Error",
-        description: "Failed to remove team member.",
-        status: "error",
+        message: "Failed to remove team member.",
+        type: "error",
       });
     }
   };
@@ -133,8 +135,8 @@ export const MyTeam = () => {
 
       Toast({
         title: "Success",
-        description: `Team leadership transferred to ${newLeader.full_name}`,
-        status: "success",
+        message: `Leadership transferred to ${newLeader.full_name}.`,
+        type: "success",
       });
       setLeadershipDialogOpen(false);
       setNewLeader(null);
@@ -143,8 +145,8 @@ export const MyTeam = () => {
       console.error("Error changing team leader:", error);
       Toast({
         title: "Error",
-        description: "Failed to change team leader.",
-        status: "error",
+        message: "Failed to transfer team leadership.",
+        type: "error",
       });
     }
   };
@@ -163,8 +165,8 @@ export const MyTeam = () => {
 
       Toast({
         title: "Success",
-        description: "You have successfully left the team.",
-        status: "success",
+        message: "You have left the team successfully.",
+        type: "success",
       });
       setLeaveTeamDialogOpen(false);
 
@@ -186,15 +188,15 @@ export const MyTeam = () => {
       console.error("Error leaving team:", error);
       Toast({
         title: "Error",
-        description: "Failed to leave the team.",
-        status: "error",
+        message: "Failed to leave the team.",
+        type: "error",
       });
 
       if (error.response?.status === 401) {
         Toast({
           title: "Session Expired",
-          description: "Please log in again.",
-          status: "error",
+          message: "Please log in again.",
+          type: "error",
         });
       }
     }
@@ -213,8 +215,8 @@ export const MyTeam = () => {
 
       Toast({
         title: "Success",
-        description: "Team deleted successfully.",
-        status: "success",
+        message: "Team deleted successfully.",
+        type: "success",
       });
 
       // Reset local team-related states
@@ -235,8 +237,8 @@ export const MyTeam = () => {
       console.error("Error deleting team:", error);
       Toast({
         title: "Error",
-        description: "Failed to delete the team.",
-        status: "error",
+        message: "Failed to delete the team.",
+        type: "error",
       });
     }
   };

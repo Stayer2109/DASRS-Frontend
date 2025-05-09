@@ -6,11 +6,12 @@ import { jwtDecode } from "jwt-decode";
 
 const useRefreshToken = () => {
   const { setAuth } = useAuth();
-  const tokenFromCookies = Cookies.get("refreshToken");
-  const refreshToken = decryptToken(tokenFromCookies);
 
   const refresh = async () => {
     try {
+      const tokenFromCookies = Cookies.get("refreshToken");
+      const refreshToken = decryptToken(tokenFromCookies);
+
       const response = await apiAuth.post(
         "auth/refresh-token",
         {},
@@ -22,9 +23,9 @@ const useRefreshToken = () => {
 
       const decodedJwt = jwtDecode(response.data.data.access_token);
 
-      // Save new token
       setAuth((prev) => ({
         ...prev,
+        teamId: decodedJwt.team_id,
         role: decodedJwt.role,
         accessToken: response.data.data.access_token,
       }));
@@ -38,13 +39,10 @@ const useRefreshToken = () => {
       return response.data.data.access_token;
     } catch (error) {
       console.error("Refresh token failed:", error);
-
-      // Auto logout here
       Cookies.remove("accessToken");
       Cookies.remove("refreshToken");
-      setAuth(null); // <- this kicks them out
-
-      throw error; // still throw so components know
+      setAuth(null);
+      throw error;
     }
   };
 

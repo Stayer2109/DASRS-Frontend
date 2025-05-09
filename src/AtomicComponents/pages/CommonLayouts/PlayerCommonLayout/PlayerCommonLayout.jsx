@@ -16,16 +16,10 @@ import { Outlet } from "react-router-dom";
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import useAuth from "@/hooks/useAuth";
 import { Users, ListIcon } from "lucide-react"; // Import ListIcon
-import Cookies from "js-cookie";
-import { decryptToken } from "@/utils/CryptoUtils";
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const { auth } = useAuth(); // Changed _auth to auth since that's what's used in other components
-  const tokenFromCookies = Cookies.get("refreshToken");
-  const refreshToken = decryptToken(tokenFromCookies);
-  console.log(refreshToken);
-  
+  const { auth } = useAuth();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 

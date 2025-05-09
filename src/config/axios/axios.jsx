@@ -98,10 +98,12 @@ const createAxiosInstance = (config = {}) => {
 // Create instances with specific configurations
 export const apiClient = createAxiosInstance();
 
-export const apiAuth = createAxiosInstance({
-  headers: {
-    "Content-Type": "application/json",
-  },
+export const apiAuth = axios.create({
+  baseURL,
+  timeout: 10000,
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
 });
+
 
 export default apiClient;
