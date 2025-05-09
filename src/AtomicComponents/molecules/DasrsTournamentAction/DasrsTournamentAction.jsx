@@ -26,7 +26,7 @@ export const DasrsTournamentActions = ({
           size="sm"
           toolTipPos="top"
           tooltipData={`${
-            preventEdit ? "The tournament has started or been terminated." : ""
+            preventEdit ? "The tournament is completed or terminated." : ""
           }`}
           disabled={preventEdit}
           className="hover:bg-white-hover p-0 w-8 h-8 cursor-pointer"

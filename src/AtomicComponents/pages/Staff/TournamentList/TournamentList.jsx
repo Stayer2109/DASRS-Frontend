@@ -637,7 +637,9 @@ export const TournamentList = () => {
                               status={row.status}
                               preventEdit={
                                 row.status.toString().toLowerCase() ===
-                                "terminated"
+                                  "terminated" ||
+                                row.status.toString().toLowerCase() ===
+                                  "completed"
                               }
                               onExtend={() =>
                                 handleOpenTournamentExtendedEndDateModal(row)
