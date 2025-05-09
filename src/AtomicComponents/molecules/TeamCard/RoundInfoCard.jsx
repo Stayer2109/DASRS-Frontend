@@ -37,9 +37,9 @@ const RoundInfoCard = ({
       onClick={onClick}
     >
       {/* Content Wrapper (so text stays visible above background) */}
-      <div className="relative z-10 flex w-full justify-between items-baseline gap-3">
-        <h4 className="text-h4 flex items-center self-center">
-          {item.round_name ?? "Team name"}
+      <div className="z-10 relative flex justify-between items-baseline gap-3 w-full">
+        <h4 className="flex items-center self-center text-h4">
+          {item.tournament_name ?? "Team name"}
         </h4>
         {(() => {
           const status = item.status?.toLowerCase();
@@ -52,7 +52,7 @@ const RoundInfoCard = ({
             <div
               className={`status p-2 px-4 rounded-full self-center ${config.style}`}
             >
-              <span className="text-small font-medium">{config.label}</span>
+              <span className="font-medium text-small">{config.label}</span>
             </div>
           );
         })()}
