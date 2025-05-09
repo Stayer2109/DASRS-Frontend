@@ -17,7 +17,7 @@ import { Button } from "../../../atoms/Button/Button";
 import useAuth from "@/hooks/useAuth";
 import Cookies from "js-cookie";
 import apiClient, { apiAuth } from "@/config/axios/axios";
-import { encryptToken } from "@/utils/CryptoUtils";
+import { decryptToken, encryptToken } from "@/utils/CryptoUtils";
 import Spinner from "../../../atoms/Spinner/Spinner";
 import "./CommonLayout.scss";
 import Toast from "../../../molecules/Toaster/Toaster";
@@ -228,6 +228,12 @@ const CommonLayout = () => {
 
       // Decode jwt token
       const decodedToken = jwtDecode(accessToken);
+
+      console.log(refreshToken);
+      const test = encryptToken(refreshToken);
+      const test1 = decryptToken(test);
+      console.log(test1);
+      
 
       // Get information
       const role = decodedToken.role;

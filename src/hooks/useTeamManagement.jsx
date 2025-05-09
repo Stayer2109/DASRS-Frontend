@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import useAuth from "./useAuth";
 import { apiClient } from "@/config/axios/axios";
 import useRefreshToken from "./useRefreshToken";
+import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const useTeamManagement = () => {
   const [teams, setTeams] = useState([]);
@@ -38,7 +39,11 @@ export const useTeamManagement = () => {
       // Get the new team ID from the response
       const newTeamId = response.data?.data?.id;
 
-      toast.success("Team created successfully");
+      Toast({
+        title: "Team Created",
+        message: "Your team has been created successfully.",
+        type: "success",
+      });
 
       // Go to page my team use windows
       window.location.href = `/my-team`;
