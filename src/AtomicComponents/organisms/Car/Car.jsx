@@ -68,80 +68,83 @@ export const Car = () => {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>Cars Management</CardTitle>
-        <Button onClick={handleCreate}>
-          <Plus className="mr-2 h-4 w-4" /> Add Car
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Created Date</TableHead>
-              <TableHead>Last Modified Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+    <>
+      <h1 className="text-2xl font-bold pb-4">Car List</h1>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Button onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" /> Add Car
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  Loading...
-                </TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Created Date</TableHead>
+                <TableHead>Last Modified Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ) : (
-              tableData.map((car) => (
-                <TableRow key={car.car_id}>
-                  <TableCell>{car.car_name}</TableCell>
-                  <TableCell>{car.created_date}</TableCell>
-                  <TableCell>{car.last_modified_date}</TableCell>
-                  <TableCell>
-                    <Switch checked={car.is_enabled} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleViewDetails(car.car_id)}
-                        className="h-8 w-8"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(car.car_id)}
-                        className="h-8 w-8"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                tableData.map((car) => (
+                  <TableRow key={car.car_id}>
+                    <TableCell>{car.car_name}</TableCell>
+                    <TableCell>{car.created_date}</TableCell>
+                    <TableCell>{car.last_modified_date}</TableCell>
+                    <TableCell>
+                      <Switch checked={car.is_enabled} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleViewDetails(car.car_id)}
+                          className="h-8 w-8"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(car.car_id)}
+                          className="h-8 w-8"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
 
-        <CarModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          formMode={formMode}
-          formData={formData}
-          onSubmit={handleFormSubmit}
-        />
+          <CarModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            formMode={formMode}
+            formData={formData}
+            onSubmit={handleFormSubmit}
+          />
 
-        <CarDetailsModal
-          isOpen={isDetailsModalOpen}
-          onClose={() => setIsDetailsModalOpen(false)}
-          carData={selectedCar}
-        />
-      </CardContent>
-    </Card>
+          <CarDetailsModal
+            isOpen={isDetailsModalOpen}
+            onClose={() => setIsDetailsModalOpen(false)}
+            carData={selectedCar}
+          />
+        </CardContent>
+      </Card>
+    </>
   );
 };

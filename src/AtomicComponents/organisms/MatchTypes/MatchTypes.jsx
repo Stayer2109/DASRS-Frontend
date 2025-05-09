@@ -61,30 +61,9 @@ export const MatchTypes = () => {
     }
   };
 
-  const handleDeleteClick = (id) => {
-    const matchType = tableData.find((item) => item.match_type_id === id);
-    setMatchTypeToDelete(matchType);
-    setConfirmDialogOpen(true);
-  };
 
-  const confirmDelete = async () => {
-    if (!matchTypeToDelete) return;
-    
-    try {
-      const success = await handleDelete(matchTypeToDelete.match_type_id);
-      if (success) {
-        toast.success("Match type deleted successfully");
-      } else {
-        toast.error("Failed to delete match type");
-      }
-    } catch (error) {
-      console.error("Error deleting match type:", error);
-      toast.error("Failed to delete match type");
-    } finally {
-      setConfirmDialogOpen(false);
-      setMatchTypeToDelete(null);
-    }
-  };
+
+  
 
   const onSubmit = async (data) => {
     try {
@@ -101,6 +80,7 @@ export const MatchTypes = () => {
 
   return (
     <>
+      <h1 className="text-2xl font-bold pb-4">Match Type List</h1>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <Button onClick={handleCreate}>
@@ -116,7 +96,6 @@ export const MatchTypes = () => {
             onSort={handleSort}
             onStatusToggle={handleStatusToggle}
             onEdit={handleEdit}
-            onDelete={handleDeleteClick}
           />
 
           <MatchTypeModal
@@ -151,9 +130,6 @@ export const MatchTypes = () => {
               onClick={() => setConfirmDialogOpen(false)}
             >
               Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
-              Delete
             </Button>
           </DialogFooter>
         </DialogContent>

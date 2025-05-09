@@ -40,6 +40,12 @@ import Leaderboard from "./AtomicComponents/pages/Organizer/Leaderboard/Leaderbo
 import TeamComplaints from "./AtomicComponents/pages/Player/TeamComplaints/TeamComplaints";
 import NotFoundPage from "./AtomicComponents/pages/ErrorPage/NotFoundPage";
 import DownloadLauncher from "./AtomicComponents/pages/DownloadLauncher/DownloadLauncher";
+import { UserManagement } from "./AtomicComponents/organisms/UserManagement/UserManagement";
+import { Tournament } from "./AtomicComponents/organisms/Tournament/Tournament";
+import { MatchTypes } from "./AtomicComponents/organisms/MatchTypes/MatchTypes";
+import { Scene } from "./AtomicComponents/organisms/Scene/Scene";
+import Environment from "./AtomicComponents/organisms/Environment/Environment";
+import { Car } from "./AtomicComponents/organisms/Car/Car";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -71,7 +77,22 @@ const AppRoutes = () => {
           <Route element={<PersistLogin />}>
             <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
               <Route path="/" element={<AdminPage />}>
-                <Route index element={<h1>close</h1>} />
+                <Route index element={<Overview />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="tournaments" element={<Tournament />} />
+                <Route path="match-types" element={<MatchTypes />} />
+                <Route path="scenes" element={<Scene />} />
+                <Route path="environments" element={<Environment />} />
+                <Route path="cars" element={<Car />} />
+                <Route path="settings" element={<Settings />} />
+                <Route
+                  path="tournaments/:tournamentId/rounds"
+                  element={<TournamentRounds />}
+                />
+                <Route
+                  path="tournaments/:tournamentId/teams"
+                  element={<TournamentTeams />}
+                />
               </Route>
             </Route>
           </Route>
@@ -112,7 +133,10 @@ const AppRoutes = () => {
                   <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
                 </Route>
                 <Route path="settings" element={<Settings />} />
-                <Route path="download-launcher" element={<DownloadLauncher />} />
+                <Route
+                  path="download-launcher"
+                  element={<DownloadLauncher />}
+                />
               </Route>
             </Route>
           </Route>
