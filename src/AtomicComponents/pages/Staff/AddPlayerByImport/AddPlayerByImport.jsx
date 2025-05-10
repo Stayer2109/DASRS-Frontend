@@ -83,11 +83,36 @@ const AddPlayerByImport = () => {
         row.some((cell) => cell !== null && cell !== undefined && cell !== "")
       );
 
-      const formattedData = filteredRows.map((row) =>
-        row.map((cell) => ({
-          value: String(cell ?? ""),
-          readOnly: true,
-        }))
+      // Find index of "Date of Birth" column
+      const headerRow = filteredRows[0];
+      const dobIndex = headerRow.findIndex(
+        (col) => String(col).toLowerCase().trim() === "date of birth"
+      );
+
+      const isExcelDate = (val) =>
+        typeof val === "number" && val > 59 && val < 50000;
+
+      const convertExcelDate = (excelDate) => {
+        const jsDate = new Date((excelDate - 25569) * 86400 * 1000);
+        const day = String(jsDate.getDate()).padStart(2, "0");
+        const month = String(jsDate.getMonth() + 1).padStart(2, "0");
+        const year = jsDate.getFullYear();
+        return `${day}/${month}/${year}`; // dd/MM/yyyy
+      };
+
+      const formattedData = filteredRows.map((row, rowIndex) =>
+        row.map((cell, colIndex) => {
+          let value = cell ?? "";
+
+          if (rowIndex > 0 && colIndex === dobIndex && isExcelDate(value)) {
+            value = convertExcelDate(value);
+          }
+
+          return {
+            value: String(value),
+            readOnly: true,
+          };
+        })
       );
 
       setUploadedFile(file);
