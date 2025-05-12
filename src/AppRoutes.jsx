@@ -7,11 +7,9 @@ import { Toaster } from "react-hot-toast";
 import AdminPage from "./AtomicComponents/pages/Admin/AdminPage/AdminPage";
 import HomePage from "./AtomicComponents/pages/Home/Homepage";
 import useAuth from "./hooks/useAuth";
-import PersistLogin from "./config/provider/PersistLogin";
 import RequireAuth from "./config/provider/RequireAuth";
 import ForgetPassword from "./AtomicComponents/pages/ForgetPassword/ForgetPassword";
 import ScrollToTop from "./others/ScrollToTop";
-import CommonLayout from "./AtomicComponents/pages/CommonLayouts/GuestCommonLayout/CommonLayout";
 import AddPlayerByImport from "./AtomicComponents/pages/Staff/AddPlayerByImport/AddPlayerByImport";
 import "react-tooltip/dist/react-tooltip.css";
 import { TournamentRounds } from "./AtomicComponents/molecules/TournamentRounds/TournamentRounds";
@@ -63,137 +61,137 @@ const AppRoutes = () => {
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
-  const renderRoutesByRole = () => {
-    const role = auth?.role;
+  // const renderRoutesByRole = () => {
+  //   const role = auth?.role;
 
-    switch (role) {
-      case undefined:
-        return (
-          <Route path="/" element={<CommonLayout />}>
-            <Route index element={<HomePage />} />
-          </Route>
-        );
+  //   switch (role) {
+  //     case undefined:
+  //       return (
+  //         <Route path="/" element={<CommonLayout />}>
+  //           <Route index element={<HomePage />} />
+  //         </Route>
+  //       );
 
-      case "ADMIN":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
-              <Route path="/" element={<AdminPage />}>
-                <Route index element={<Overview />} />
-                <Route path="users" element={<UserManagement />} />
-                <Route path="tournaments" element={<Tournament />} />
-                <Route path="match-types" element={<MatchTypes />} />
-                <Route path="scenes" element={<Scene />} />
-                <Route path="environments" element={<Environment />} />
-                <Route path="cars" element={<Car />} />
-                <Route path="settings" element={<Settings />} />
-                <Route
-                  path="tournaments/:tournamentId/rounds"
-                  element={<TournamentRounds />}
-                />
-                <Route
-                  path="tournaments/:tournamentId/teams"
-                  element={<TournamentTeams />}
-                />
-              </Route>
-            </Route>
-          </Route>
-        );
+  //     case "ADMIN":
+  //       return (
+  //         <Route element={<PersistLogin />}>
+  //           <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
+  //             <Route path="/" element={<AdminPage />}>
+  //               <Route index element={<Overview />} />
+  //               <Route path="users" element={<UserManagement />} />
+  //               <Route path="tournaments" element={<Tournament />} />
+  //               <Route path="match-types" element={<MatchTypes />} />
+  //               <Route path="scenes" element={<Scene />} />
+  //               <Route path="environments" element={<Environment />} />
+  //               <Route path="cars" element={<Car />} />
+  //               <Route path="settings" element={<Settings />} />
+  //               <Route
+  //                 path="tournaments/:tournamentId/rounds"
+  //                 element={<TournamentRounds />}
+  //               />
+  //               <Route
+  //                 path="tournaments/:tournamentId/teams"
+  //                 element={<TournamentTeams />}
+  //               />
+  //             </Route>
+  //           </Route>
+  //         </Route>
+  //       );
 
-      case "ORGANIZER":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
-              <Route path="/" element={<OrganizerCommonLayout />}>
-                {/* <Route index element={<OrganizerTemplate />} /> */}
-                <Route index element={<Overview />} />
-                {/* <Route path="tournaments" element={<Tournament />} /> */}
-                <Route path="tournaments" element={<TournamentList />} />
-                <Route path="player-management">
-                  <Route path="player-list" element={<PlayerList />} />
-                  <Route path="add-player" element={<AddPlayerByImport />} />
-                </Route>
-                <Route path="my-profile" element={<OrganizerProfile />} />
-                <Route
-                  path="tournaments/:tournamentId/rounds"
-                  element={<TournamentRounds />}
-                />
-                <Route
-                  path="tournaments/:tournamentId/rounds/:roundId/matches"
-                  element={<RoundMatches />}
-                />
-                <Route
-                  path="tournaments/:tournamentId/teams"
-                  element={<TournamentTeams />}
-                />
-                <Route path="complaints" element={<Complaints />} />
-                <Route
-                  path="complaints/round/:roundId"
-                  element={<RoundComplaints />}
-                />
-                <Route path="leaderboard" element={<Leaderboard />}>
-                  <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
-                </Route>
-                <Route path="settings" element={<Settings />} />
-                <Route
-                  path="download-launcher"
-                  element={<DownloadLauncher />}
-                />
-              </Route>
-            </Route>
-          </Route>
-        );
+  //     case "ORGANIZER":
+  //       return (
+  //         <Route element={<PersistLogin />}>
+  //           <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
+  //             <Route path="/" element={<OrganizerCommonLayout />}>
+  //               {/* <Route index element={<OrganizerTemplate />} /> */}
+  //               <Route index element={<Overview />} />
+  //               {/* <Route path="tournaments" element={<Tournament />} /> */}
+  //               <Route path="tournaments" element={<TournamentList />} />
+  //               <Route path="player-management">
+  //                 <Route path="player-list" element={<PlayerList />} />
+  //                 <Route path="add-player" element={<AddPlayerByImport />} />
+  //               </Route>
+  //               <Route path="my-profile" element={<OrganizerProfile />} />
+  //               <Route
+  //                 path="tournaments/:tournamentId/rounds"
+  //                 element={<TournamentRounds />}
+  //               />
+  //               <Route
+  //                 path="tournaments/:tournamentId/rounds/:roundId/matches"
+  //                 element={<RoundMatches />}
+  //               />
+  //               <Route
+  //                 path="tournaments/:tournamentId/teams"
+  //                 element={<TournamentTeams />}
+  //               />
+  //               <Route path="complaints" element={<Complaints />} />
+  //               <Route
+  //                 path="complaints/round/:roundId"
+  //                 element={<RoundComplaints />}
+  //               />
+  //               <Route path="leaderboard" element={<Leaderboard />}>
+  //                 <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+  //               </Route>
+  //               <Route path="settings" element={<Settings />} />
+  //               <Route
+  //                 path="download-launcher"
+  //                 element={<DownloadLauncher />}
+  //               />
+  //             </Route>
+  //           </Route>
+  //         </Route>
+  //       );
 
-      case "PLAYER":
-        return (
-          <Route element={<PersistLogin />}>
-            <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
-              <Route path="/" element={<PlayerCommonLayout />}>
-                <Route index element={<DownloadLauncher />} />
-                <Route path="my-profile" element={<PlayerProfile />} />
-                <Route path="rounds" element={<PlayerRounds />} />
-                <Route
-                  path="rounds/:roundId/matches"
-                  element={<PlayerMatches />}
-                />
-                {/* <Route
-                  path="assign-player"
-                  element={
-                    auth?.isLeader ? <AssignPlayer /> : <Navigate to="/" />
-                  }
-                /> */}
-                <Route path="teams">
-                  <Route index element={<PlayerTeams />} />
-                  <Route path=":teamId" element={<TeamDetails />} />
-                </Route>
-                <Route path="my-team" element={<MyTeam />} />
-                <Route path="tournaments">
-                  <Route
-                    path="registration"
-                    element={
-                      auth?.isLeader ? (
-                        <TournamentRegistration />
-                      ) : (
-                        <Navigate to="/" />
-                      )
-                    }
-                  />
-                  <Route path="my-tournaments" element={<MyTournaments />} />
-                  <Route
-                    path=":tournamentId/rounds"
-                    element={<TeamTournamentRounds />}
-                  />
-                </Route>
-                <Route path="team-complaints" element={<TeamComplaints />} />
-              </Route>
-            </Route>
-          </Route>
-        );
+  //     case "PLAYER":
+  //       return (
+  //         <Route element={<PersistLogin />}>
+  //           <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
+  //             <Route path="/" element={<PlayerCommonLayout />}>
+  //               <Route index element={<DownloadLauncher />} />
+  //               <Route path="my-profile" element={<PlayerProfile />} />
+  //               <Route path="rounds" element={<PlayerRounds />} />
+  //               <Route
+  //                 path="rounds/:roundId/matches"
+  //                 element={<PlayerMatches />}
+  //               />
+  //               {/* <Route
+  //                 path="assign-player"
+  //                 element={
+  //                   auth?.isLeader ? <AssignPlayer /> : <Navigate to="/" />
+  //                 }
+  //               /> */}
+  //               <Route path="teams">
+  //                 <Route index element={<PlayerTeams />} />
+  //                 <Route path=":teamId" element={<TeamDetails />} />
+  //               </Route>
+  //               <Route path="my-team" element={<MyTeam />} />
+  //               <Route path="tournaments">
+  //                 <Route
+  //                   path="registration"
+  //                   element={
+  //                     auth?.isLeader ? (
+  //                       <TournamentRegistration />
+  //                     ) : (
+  //                       <Navigate to="/" />
+  //                     )
+  //                   }
+  //                 />
+  //                 <Route path="my-tournaments" element={<MyTournaments />} />
+  //                 <Route
+  //                   path=":tournamentId/rounds"
+  //                   element={<TeamTournamentRounds />}
+  //                 />
+  //               </Route>
+  //               <Route path="team-complaints" element={<TeamComplaints />} />
+  //             </Route>
+  //           </Route>
+  //         </Route>
+  //       );
 
-      default:
-        return <Route path="/" element={<h1>Not yet</h1>} />;
-    }
-  };
+  //     default:
+  //       return <Route path="/" element={<h1>Not yet</h1>} />;
+  //   }
+  // };
 
   return (
     <ScrollToTop>
