@@ -1,7 +1,7 @@
 /** @format */
 
 import PropTypes from "prop-types";
-import "./TeamCard.scss";
+import clsx from "clsx";
 
 const RoundInfoCard = ({
   className = "",
@@ -12,51 +12,58 @@ const RoundInfoCard = ({
   const statusMap = {
     pending: {
       label: "Pending",
-      style: "bg-yellow-600 text-white",
+      class: "bg-yellow-100 text-yellow-800 border border-yellow-300",
     },
     active: {
       label: "Active",
-      style: "bg-red-500 text-white",
+      class: "bg-red-100 text-red-600 border border-red-300",
     },
     terminated: {
       label: "Terminated",
-      style: "bg-gray-700 text-white",
+      class: "bg-gray-100 text-gray-600 border border-gray-300",
     },
     completed: {
       label: "Completed",
-      style: "bg-green-600 text-white",
+      class: "bg-green-100 text-green-700 border border-green-300",
     },
+  };
+
+  const status = item.status?.toLowerCase();
+  const config = statusMap[status] || {
+    label: status ?? "Unknown",
+    class: "bg-gray-200 text-gray-700 border border-gray-300",
   };
 
   return (
     <div
-      className={`${className} relative overflow-hidden 
-      rounded-full p-3 px-5 text-white font-bold flex justify-between 
-      cursor-pointer transition-all duration-150 ease-linear team-card
-      ${isActive ? "active" : ""}`}
       onClick={onClick}
+      className={clsx(
+        "relative flex justify-between items-center px-6 py-4 border rounded-xl overflow-hidden transition-all duration-100 ease-linear cursor-pointer",
+        isActive
+          ? "bg-blue-500 text-white shadow-md"
+          : "bg-gray-700 text-white hover:ring-2 hover:ring-blue-500 transition-shadow duration-100",
+        className
+      )}
     >
-      {/* Content Wrapper (so text stays visible above background) */}
-      <div className="z-10 relative flex justify-between items-baseline gap-3 w-full">
-        <h4 className="flex items-center self-center text-h4">
-          {item.tournament_name ?? "Team name"}
-        </h4>
-        {(() => {
-          const status = item.status?.toLowerCase();
-          const config = statusMap[status] || {
-            label: status ?? "Unknown",
-            style: "bg-gray-400 text-white",
-          };
+      {/* Title */}
+      <h4 className="z-10 max-w-[80%] font-semibold text-base sm:text-lg truncate">
+        {item.tournament_name ?? "Tournament name"}
+      </h4>
 
-          return (
-            <div
-              className={`status p-2 px-4 rounded-full self-center ${config.style}`}
-            >
-              <span className="font-medium text-small">{config.label}</span>
-            </div>
-          );
-        })()}
+      {/* Status Badge */}
+      <div
+        className={clsx(
+          "z-10 px-3 py-1 rounded-full font-medium text-sm whitespace-nowrap",
+          config.class
+        )}
+      >
+        {config.label}
       </div>
+
+      {/* Active Overlay Animation (if needed) */}
+      {isActive && (
+        <div className="absolute inset-0 bg-blue-500 opacity-30 rounded-xl animate-fade-in pointer-events-none" />
+      )}
     </div>
   );
 };
@@ -64,7 +71,7 @@ const RoundInfoCard = ({
 RoundInfoCard.propTypes = {
   className: PropTypes.string,
   item: PropTypes.object,
-  isActive: PropTypes.bool, // Added prop
+  isActive: PropTypes.bool,
   onClick: PropTypes.func,
 };
 

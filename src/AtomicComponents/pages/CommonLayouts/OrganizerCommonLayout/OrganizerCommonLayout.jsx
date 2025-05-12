@@ -3,6 +3,7 @@ import "./OrganizerCommonLayout.scss";
 import {
   AddPlayerIcon,
   ComplaintIcon,
+  DashboardIcon,
   HomeIcon,
   LeaderboardIcon,
   ListIcon,
@@ -17,7 +18,7 @@ import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import { Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useMediaQuery } from "react-responsive";
-import { Users } from "lucide-react";
+import { DownloadIcon, Users } from "lucide-react";
 import { Download } from "lucide-react";
 
 const OrganizerCommonLayout = () => {
@@ -33,19 +34,24 @@ const OrganizerCommonLayout = () => {
 
   const sidebarData = [
     {
-      item: "Home",
+      item: "Go to Website",
       icon: <HomeIcon color={navBarIconColor} width={iconWidth} />,
       link: "/",
     },
     {
+      item: "Home",
+      icon: <DashboardIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/organizer/dashboard",
+    },
+    {
       item: "Download Launcher",
-      icon: <Download color={navBarIconColor} width={iconWidth} />,
-      link: "/download-launcher",
+      icon: <DownloadIcon color={navBarIconColor} width={iconWidth} />,
+      link: "download-launcher",
     },
     {
       item: "Profile",
       icon: <UserInformationIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/my-profile",
+      link: "my-profile",
     },
     {
       item: "Player Management",
@@ -54,30 +60,30 @@ const OrganizerCommonLayout = () => {
         {
           item: "Add Player",
           icon: <AddPlayerIcon color={navBarIconColor} width={subIconWidth} />,
-          link: "/player-management/add-player",
+          link: "player-management/add-player",
         },
         {
           item: "Player List",
           icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
-          link: "/player-management/player-list",
+          link: "player-management/player-list",
         },
       ],
     },
     {
       item: "Tournaments",
       icon: <TournamentIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/tournaments",
+      link: "tournaments",
     },
     {
       item: "Complaints",
       icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/complaints",
+      link: "complaints",
     },
     {
       item: "Leaderboard",
       icon: <LeaderboardIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/leaderboard",
-    }
+      link: "leaderboard",
+    },
   ];
 
   const handleToggleSidebar = () => {

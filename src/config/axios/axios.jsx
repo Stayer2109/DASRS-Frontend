@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const baseURL = import.meta.env.VITE_BE_BASE_URL;
+import { decryptToken } from '@/utils/CryptoUtils';
 
 // Create base axios instance with common configuration
 const createAxiosInstance = (config = {}) => {
@@ -37,7 +38,7 @@ const createAxiosInstance = (config = {}) => {
         originalRequest._retry = true;
 
         try {
-          const refreshToken = Cookies.get("refreshToken");
+          const refreshToken = decryptToken(Cookies.get("refreshToken"));
 
           const response = await axios.post(
             `${baseURL}auth/refresh-token`,
@@ -71,7 +72,7 @@ const createAxiosInstance = (config = {}) => {
           // Refresh token failed → logout and redirect
           Cookies.remove("accessToken");
           Cookies.remove("refreshToken");
-          window.location.href = "/";
+          // window.location.href = "/";
           return Promise.reject(refreshError);
         }
       }
@@ -84,7 +85,7 @@ const createAxiosInstance = (config = {}) => {
         if (!isLoginRequest) {
           Cookies.remove("accessToken");
           Cookies.remove("refreshToken");
-          window.location.href = "/";
+          // window.location.href = "/";
         }
       }
 

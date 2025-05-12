@@ -46,6 +46,8 @@ import { MatchTypes } from "./AtomicComponents/organisms/MatchTypes/MatchTypes";
 import { Scene } from "./AtomicComponents/organisms/Scene/Scene";
 import Environment from "./AtomicComponents/organisms/Environment/Environment";
 import { Car } from "./AtomicComponents/organisms/Car/Car";
+import Layout from "./AtomicComponents/pages/Layout/Layout";
+import UnauthorizedPage from "./AtomicComponents/pages/ErrorPage/UnauthorizedPage";
 
 const AppRoutes = () => {
   const { auth } = useAuth();
@@ -197,9 +199,117 @@ const AppRoutes = () => {
     <ScrollToTop>
       <Toaster position={toastPosition} />
       <Routes>
-        {renderRoutesByRole()}
-        <Route path="reset-password/:token" element={<ForgetPassword />} />
-        <Route path="*" element={<NotFoundPage />} />
+        {/* {renderRoutesByRole()} */}
+        <Route path="/" element={<Layout />}>
+          {/* Public Routes */}
+          <Route index element={<HomePage />} />
+          <Route path="reset-password/:token" element={<ForgetPassword />} />
+          <Route path="unauthorized" element={<UnauthorizedPage />} />
+
+          {/* Protected Routes */}
+          {/* Admin */}
+          <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
+            <Route path="/admin" element={<AdminPage />}>
+              <Route index element={<Overview />} />
+              <Route path="dashboard" element={<Overview />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="tournaments" element={<Tournament />} />
+              <Route path="match-types" element={<MatchTypes />} />
+              <Route path="scenes" element={<Scene />} />
+              <Route path="environments" element={<Environment />} />
+              <Route path="cars" element={<Car />} />
+              <Route path="settings" element={<Settings />} />
+              <Route
+                path="tournaments/:tournamentId/rounds"
+                element={<TournamentRounds />}
+              />
+              <Route
+                path="tournaments/:tournamentId/teams"
+                element={<TournamentTeams />}
+              />
+            </Route>
+          </Route>
+
+          {/* Organizer */}
+          <Route element={<RequireAuth allowedRoles={["ORGANIZER"]} />}>
+            <Route path="/organizer" element={<OrganizerCommonLayout />}>
+              <Route index element={<Overview />} />
+              <Route path="dashboard" element={<Overview />} />
+              <Route path="tournaments" element={<TournamentList />} />
+              <Route path="player-management">
+                <Route path="player-list" element={<PlayerList />} />
+                <Route path="add-player" element={<AddPlayerByImport />} />
+              </Route>
+              <Route path="my-profile" element={<OrganizerProfile />} />
+              <Route
+                path="tournaments/:tournamentId/rounds"
+                element={<TournamentRounds />}
+              />
+              <Route
+                path="tournaments/:tournamentId/rounds/:roundId/matches"
+                element={<RoundMatches />}
+              />
+              <Route
+                path="tournaments/:tournamentId/teams"
+                element={<TournamentTeams />}
+              />
+              <Route path="complaints" element={<Complaints />} />
+              <Route
+                path="complaints/round/:roundId"
+                element={<RoundComplaints />}
+              />
+              <Route path="leaderboard" element={<Leaderboard />}>
+                <Route path=":tournamentId" element={<h1>Leaderboard</h1>} />
+              </Route>
+              <Route path="settings" element={<Settings />} />
+              <Route path="download-launcher" element={<DownloadLauncher />} />
+            </Route>
+          </Route>
+
+          {/* Player */}
+          <Route element={<RequireAuth allowedRoles={["PLAYER"]} />}>
+            <Route path="/player" element={<PlayerCommonLayout />}>
+              <Route index element={<DownloadLauncher />} />
+              <Route path="my-profile" element={<PlayerProfile />} />
+              <Route path="rounds" element={<PlayerRounds />} />
+              <Route
+                path="rounds/:roundId/matches"
+                element={<PlayerMatches />}
+              />
+              {/* <Route
+                  path="assign-player"
+                  element={
+                    auth?.isLeader ? <AssignPlayer /> : <Navigate to="/" />
+                  }
+                /> */}
+              <Route path="teams">
+                <Route index element={<PlayerTeams />} />
+                <Route path=":teamId" element={<TeamDetails />} />
+              </Route>
+              <Route path="my-team" element={<MyTeam />} />
+              <Route path="tournaments">
+                <Route
+                  path="registration"
+                  element={
+                    auth?.isLeader ? (
+                      <TournamentRegistration />
+                    ) : (
+                      <Navigate to="/" />
+                    )
+                  }
+                />
+                <Route path="my-tournaments" element={<MyTournaments />} />
+                <Route
+                  path=":tournamentId/rounds"
+                  element={<TeamTournamentRounds />}
+                />
+              </Route>
+              <Route path="team-complaints" element={<TeamComplaints />} />
+            </Route>
+          </Route>
+
+          <Route path="/*" element={<NotFoundPage />} />
+        </Route>
       </Routes>
     </ScrollToTop>
   );
