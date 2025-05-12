@@ -15,7 +15,7 @@ import PropTypes from "prop-types";
 import { Outlet } from "react-router-dom";
 import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import useAuth from "@/hooks/useAuth";
-import { Users, ListIcon } from "lucide-react"; // Import ListIcon
+import { Users, ListIcon, DownloadIcon } from "lucide-react"; // Import ListIcon
 
 const PlayerCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -36,7 +36,7 @@ const PlayerCommonLayout = () => {
       subMenu.push({
         item: "Registration",
         icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
-        link: "/tournaments/registration",
+        link: "tournaments/registration",
       });
     }
 
@@ -45,7 +45,7 @@ const PlayerCommonLayout = () => {
       subMenu.push({
         item: "My Tournaments",
         icon: <TournamentIcon color={navBarIconColor} width={subIconWidth} />,
-        link: "/tournaments/my-tournaments",
+        link: "tournaments/my-tournaments",
       });
     }
 
@@ -54,14 +54,19 @@ const PlayerCommonLayout = () => {
 
   const sidebarData = [
     {
-      item: "Home",
+      item: "Go to Website",
       icon: <HomeIcon color={navBarIconColor} width={iconWidth} />,
       link: "/",
     },
     {
+      item: "Home",
+      icon: <DownloadIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/player",
+    },
+    {
       item: "Profile",
       icon: <UserIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/my-profile",
+      link: "my-profile",
     },
     {
       item: "Teams",
@@ -70,12 +75,12 @@ const PlayerCommonLayout = () => {
         {
           item: "Team List",
           icon: <ListIcon color={navBarIconColor} width={subIconWidth} />,
-          link: "/teams",
+          link: "teams",
         },
         {
           item: "My Team",
           icon: <Users color={navBarIconColor} width={subIconWidth} />,
-          link: "/my-team",
+          link: "my-team",
         },
       ],
     },
@@ -92,7 +97,7 @@ const PlayerCommonLayout = () => {
     {
       item: "Team Complaints",
       icon: <ComplaintIcon color={navBarIconColor} width={iconWidth} />,
-      link: "/team-complaints",
+      link: "team-complaints",
     },
   ];
 
