@@ -143,7 +143,7 @@ const PlayerRounds = () => {
 
       <div className="flex justify-between">
         <div className="flex-1">
-          <div className="mb-4 flex justify-between flex-wrap gap-2">
+          <div className="flex flex-wrap justify-between gap-2 mb-4">
             <Input
               type="text"
               placeholder="Search rounds by round name or tournament name..."
@@ -152,16 +152,16 @@ const PlayerRounds = () => {
                 setSearchTerm(e.target.value);
                 setPageIndex(1); // Reset to page 1 on search
               }}
-              className="border border-gray-300 rounded px-4 py-2 w-full sm:max-w-xl"
+              className="px-4 py-2 border border-gray-300 rounded w-full sm:max-w-xl"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-4 mb-4 top-0 right-0">
+        <div className="top-0 right-0 flex justify-end items-center gap-4 mb-4">
           <select
             value={sortByKey}
             onChange={(e) => handleSort(e.target.value)}
-            className="border px-2 py-1 rounded"
+            className="px-2 py-1 border rounded"
           >
             <option value="round_id">Sort by ID</option>
             <option value="created_date">Sort by Created Date</option>
@@ -175,7 +175,7 @@ const PlayerRounds = () => {
               setSortDirection(e.target.value);
               setPageIndex(1);
             }}
-            className="border px-2 py-1 rounded"
+            className="px-2 py-1 border rounded"
           >
             <option value="ASC">Asc</option>
             <option value="DESC">Desc</option>
@@ -185,24 +185,24 @@ const PlayerRounds = () => {
 
       <div className="space-y-6">
         {roundList.length == 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex justify-center items-center h-full text-gray-500">
             No rounds available.
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3">
             {roundList.map((round) => (
               <Card
                 key={round.round_id}
-                className="hover:shadow-md transition-shadow overflow-hidden flex flex-col h-full"
+                className="flex flex-col hover:shadow-md h-full overflow-hidden transition-shadow"
               >
-                <CardHeader className="bg-gray-50 p-4 pb-3 border-b h-[120px] flex flex-col justify-between shrink-0">
+                <CardHeader className="flex flex-col justify-between bg-gray-50 p-4 pb-3 border-b h-[120px] shrink-0">
                   <h1 className="">{round.tournament_name}</h1>
                   <div className="flex justify-between items-start w-full">
-                    <CardTitle className="text-lg font-bold group relative">
-                      <span className="truncate block max-w-[200px] group-hover:text-clip">
+                    <CardTitle className="group relative font-bold text-lg">
+                      <span className="block max-w-[200px] truncate group-hover:text-clip">
                         {round.round_name || `Round ${round.round_no}`}
                       </span>
-                      <span className="invisible group-hover:visible absolute -top-8 left-0 bg-black/75 text-white px-2 py-1 rounded text-sm whitespace-nowrap z-50">
+                      <span className="invisible group-hover:visible -top-8 left-0 z-50 absolute bg-black/75 px-2 py-1 rounded text-white text-sm whitespace-nowrap">
                         {round.round_name || `Round ${round.round_no}`}
                       </span>
                     </CardTitle>
@@ -225,14 +225,14 @@ const PlayerRounds = () => {
                 <CardContent className="p-4 h-max-[400px] overflow-y-auto">
                   <div className="space-y-3">
                     {round.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-gray-600 text-sm line-clamp-2">
                         {round.description}
                       </p>
                     )}
 
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="gap-2 grid grid-cols-2 text-sm">
                       <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                        <Calendar className="mr-2 w-4 h-4 text-gray-500" />
                         <span className="text-muted-foreground">Start:</span>
                       </div>
                       <span className="text-right">
@@ -240,7 +240,7 @@ const PlayerRounds = () => {
                       </span>
 
                       <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                        <Calendar className="mr-2 w-4 h-4 text-gray-500" />
                         <span className="text-muted-foreground">End:</span>
                       </div>
                       <span className="text-right">
@@ -248,27 +248,27 @@ const PlayerRounds = () => {
                       </span>
 
                       <div className="flex items-center">
-                        <Map className="h-4 w-4 mr-2 text-gray-500" />
+                        <Map className="mr-2 w-4 h-4 text-gray-500" />
                         <span className="text-muted-foreground">
                           Match Type:
                         </span>
                       </div>
-                      <span className="text-right font-medium truncate">
+                      <span className="font-medium text-right truncate">
                         {round.match_type_name}
                       </span>
 
                       <div className="flex items-center">
-                        <Flag className="h-4 w-4 mr-2 text-gray-500" />
+                        <Flag className="mr-2 w-4 h-4 text-gray-500" />
                         <span className="text-muted-foreground">
                           Finish Type:
                         </span>
                       </div>
-                      <span className="text-right font-medium truncate">
+                      <span className="font-medium text-right truncate">
                         {round.finish_type}
                       </span>
 
                       <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-2 text-gray-500" />
+                        <Users className="mr-2 w-4 h-4 text-gray-500" />
                         <span className="text-muted-foreground">
                           Qualification Spots:
                         </span>

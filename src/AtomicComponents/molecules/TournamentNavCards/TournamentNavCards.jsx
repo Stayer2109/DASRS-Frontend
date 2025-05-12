@@ -27,13 +27,13 @@ export const TournamentNavCards = ({
       title: "Rounds",
       description: "View all rounds and match schedules",
       icon: <CalendarIcon className="w-12 h-12 text-primary" />,
-      path: `/tournaments/${tournamentId}/rounds`,
+      path: `${tournamentId}/rounds`,
     },
     {
       title: "Teams",
       description: "Manage teams participating in the tournament",
       icon: <UsersIcon className="w-12 h-12 text-primary" />,
-      path: `/tournaments/${tournamentId}/teams`,
+      path: `${tournamentId}/teams`,
     },
   ];
 

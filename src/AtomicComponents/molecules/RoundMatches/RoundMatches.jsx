@@ -8,12 +8,7 @@ import {
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import {
-  Calendar,
-  Clock,
-  ArrowLeft,
-  ChevronDown,
-} from "lucide-react";
+import { Calendar, Clock, ArrowLeft, ChevronDown } from "lucide-react";
 import apiClient from "@/config/axios/axios";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
@@ -24,8 +19,10 @@ import {
   CollapsibleTrigger,
 } from "@/AtomicComponents/atoms/shadcn/collapsible";
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
+import useAuth from "@/hooks/useAuth";
 
 export const RoundMatches = () => {
+  const { auth } = useAuth();
   const { tournamentId, roundId } = useParams();
   const [matches, setMatches] = useState([]);
   const [round, setRound] = useState(null);
@@ -34,6 +31,7 @@ export const RoundMatches = () => {
   const [error, setError] = useState(null);
   const [scoreDetails, setScoreDetails] = useState({});
   const [loadingScores, setLoadingScores] = useState({});
+  const role = auth?.role.toString().toLowerCase();
 
   // Add pagination states
   const [pageIndex, setPageIndex] = useState(1);
@@ -67,13 +65,16 @@ export const RoundMatches = () => {
         setRound(roundResponse.data.data);
 
         // Update matches fetch to include pagination
-        const matchesResponse = await apiClient.get(`matches/round/${roundId}`, {
-          params: {
-            pageNo: pageIndex - 1, // Adjust for 0-based indexing if your API uses it
-            pageSize: pageSize,
-            sortBy: "SORT_BY_ID_ASC",
-          },
-        });
+        const matchesResponse = await apiClient.get(
+          `matches/round/${roundId}`,
+          {
+            params: {
+              pageNo: pageIndex - 1, // Adjust for 0-based indexing if your API uses it
+              pageSize: pageSize,
+              sortBy: "SORT_BY_ID_ASC",
+            },
+          }
+        );
 
         setMatches(matchesResponse.data.data.content || []);
         setTotalPages(matchesResponse.data.data.total_pages || 1);
@@ -91,14 +92,14 @@ export const RoundMatches = () => {
 
   // Breadcrumb items
   const breadcrumbItems = [
-    { label: "Tournaments", href: "/tournaments" },
+    { label: "Tournaments", href: `/${role}/tournaments` },
     {
       label: tournament?.tournament_name || "Tournament",
-      href: `/tournaments`,
+      href: `/${role}/tournaments`,
     },
     {
       label: "Rounds",
-      href: `/tournaments/${tournamentId}/rounds`,
+      href: `/${role}/tournaments/${tournamentId}/rounds`,
     },
     {
       label: round?.round_name || `Round ${round?.round_no}` || "Round Matches",

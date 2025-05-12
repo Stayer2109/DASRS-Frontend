@@ -37,6 +37,7 @@ export const TeamTournamentRounds = () => {
     useState(false);
   const [roundLeaderboard, setRoundLeaderboard] = useState(null);
   const [_selectedRound, setSelectedRound] = useState(null);
+  const role = auth?.role.toString().toLowerCase();
 
   // Pagination states
   const [pageIndex, setPageIndex] = useState(1);
@@ -83,7 +84,7 @@ export const TeamTournamentRounds = () => {
   }, [tournamentId, pageIndex, pageSize]);
 
   const handleViewMatches = (roundId, roundName) => {
-    navigate(`/rounds/${roundId}/matches`, {
+    navigate(`/${role}/rounds/${roundId}/matches`, {
       state: { roundName }, // Pass round name as state
     });
   };
@@ -106,7 +107,7 @@ export const TeamTournamentRounds = () => {
   };
 
   const handleBack = () => {
-    navigate("/tournaments/my-tournaments");
+    navigate(`/${role}/tournaments/my-tournaments`);
   };
 
   // Pagination handlers
