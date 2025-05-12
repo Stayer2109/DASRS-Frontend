@@ -44,9 +44,13 @@ export default function Header() {
         <img
           src={Logo}
           alt="DASRS Logo"
-          className="bg-white shadow-sm rounded-full w-12 sm:w-16 h-12 sm:h-16 object-contain hover:scale-105 transition-transform"
+          className="bg-white shadow-sm p-1.5 rounded-full w-12 sm:w-16 h-12 sm:h-16 object-contain transition-transform"
         />
-        <h1 className="hidden sm:block font-bold text-white text-lg sm:text-2xl">
+        <h1
+          className={`hidden sm:block font-bold text-lg sm:text-2xl ${
+            isTop ? "text-black" : "text-white "
+          }`}
+        >
           Digital Automotive Simulation Racing System
         </h1>
       </div>
