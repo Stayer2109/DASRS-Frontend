@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Collapsible,
@@ -6,8 +6,9 @@ import {
   CollapsibleTrigger,
 } from "@/AtomicComponents/atoms/shadcn/collapsible";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient from "@/config/axios/axios";
 import { toast } from "sonner";
+import PropTypes from "prop-types";
 
 export const ScoreMethodDetails = ({ scoredMethodId }) => {
   const [scoreMethod, setScoreMethod] = useState(null);
@@ -19,7 +20,7 @@ export const ScoreMethodDetails = ({ scoredMethodId }) => {
 
     setIsLoading(true);
     try {
-      const response = await apiAuth.get(`scored-methods/${scoredMethodId}`);
+      const response = await apiClient.get(`scored-methods/${scoredMethodId}`);
       setScoreMethod(response.data.data);
     } catch (error) {
       console.error("Error fetching score method:", error);
@@ -33,6 +34,8 @@ export const ScoreMethodDetails = ({ scoredMethodId }) => {
     if (isOpen && !scoreMethod && scoredMethodId) {
       fetchScoreMethod();
     }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, scoredMethodId]);
 
   return (
@@ -71,4 +74,8 @@ export const ScoreMethodDetails = ({ scoredMethodId }) => {
       </CollapsibleContent>
     </Collapsible>
   );
+};
+
+ScoreMethodDetails.propTypes = {
+  scoredMethodId: PropTypes.string.isRequired,
 };

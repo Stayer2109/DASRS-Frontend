@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Collapsible,
@@ -6,8 +6,9 @@ import {
   CollapsibleTrigger,
 } from "@/AtomicComponents/atoms/shadcn/collapsible";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient from "@/config/axios/axios";
 import { toast } from "sonner";
+import PropTypes from "prop-types";
 
 export const EnvironmentDetails = ({ environmentId }) => {
   const [environment, setEnvironment] = useState(null);
@@ -19,7 +20,7 @@ export const EnvironmentDetails = ({ environmentId }) => {
 
     setIsLoading(true);
     try {
-      const response = await apiAuth.get(`environments/${environmentId}`);
+      const response = await apiClient.get(`environments/${environmentId}`);
       setEnvironment(response.data.data);
     } catch (error) {
       console.error("Error fetching environment:", error);
@@ -33,7 +34,7 @@ export const EnvironmentDetails = ({ environmentId }) => {
     if (isOpen && !environment && environmentId) {
       fetchEnvironment();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, environmentId]);
 
   return (
@@ -47,12 +48,13 @@ export const EnvironmentDetails = ({ environmentId }) => {
           <div className="flex justify-center py-2">
             <LoadingIndicator size="small" />
           </div>
-        ) : environment && environment.status.toString().toLowerCase() !== "inactive" ? (
+        ) : environment &&
+          environment.status.toString().toLowerCase() !== "inactive" ? (
           <div className="gap-2 grid grid-cols-2 bg-gray-50 p-3 rounded-md text-sm">
             <div className="text-gray-600">Name:</div>
             <div className="text-right">{environment.environment_name}</div>
             <div className="text-gray-600">Description:</div>
-            <div className="text-right">{environment.description || 'N/A'}</div>
+            <div className="text-right">{environment.description || "N/A"}</div>
             <div className="text-gray-600">Status:</div>
             <div className="text-right">{environment.status}</div>
           </div>
@@ -64,4 +66,8 @@ export const EnvironmentDetails = ({ environmentId }) => {
       </CollapsibleContent>
     </Collapsible>
   );
+};
+
+EnvironmentDetails.propTypes = {
+  environmentId: PropTypes.string.isRequired,
 };

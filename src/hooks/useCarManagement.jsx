@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient from "@/config/axios/axios";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const useCarManagement = () => {
@@ -28,7 +28,7 @@ export const useCarManagement = () => {
     anti_roll_force: 0,
     steering_helper_strength: 0,
     traction_helper_strength: 0,
-    is_enabled: true
+    is_enabled: true,
   });
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -38,7 +38,7 @@ export const useCarManagement = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await apiAuth.get(
+      const response = await apiClient.get(
         `cars?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=${sortColumn}&sortDirection=${sortOrder}`
       );
 
@@ -58,6 +58,8 @@ export const useCarManagement = () => {
 
   useEffect(() => {
     fetchData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.pageNo, pagination.pageSize, sortColumn, sortOrder]);
 
   const handleFormSubmit = async (e, submittedFormData) => {
@@ -83,13 +85,13 @@ export const useCarManagement = () => {
         front_ssd: submittedFormData.front_ssd,
         rear_ssd: submittedFormData.rear_ssd,
         max_brake_torque: submittedFormData.max_brake_torque,
-        is_enabled: submittedFormData.is_enabled // Include is_enabled in the payload
+        is_enabled: submittedFormData.is_enabled, // Include is_enabled in the payload
       };
 
       if (formMode === "create") {
-        await apiAuth.post("cars", payload);
+        await apiClient.post("cars", payload);
       } else {
-        await apiAuth.put(`cars/${submittedFormData.car_id}`, payload);
+        await apiClient.put(`cars/${submittedFormData.car_id}`, payload);
       }
       setIsModalOpen(false);
       fetchData();
@@ -108,7 +110,7 @@ export const useCarManagement = () => {
       setFormMode("edit");
       setFormData({
         ...carToEdit,
-        is_enabled: carToEdit.is_enabled // Ensure is_enabled is included
+        is_enabled: carToEdit.is_enabled, // Ensure is_enabled is included
       });
       setIsModalOpen(true);
     }
@@ -117,7 +119,7 @@ export const useCarManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this car?")) {
       try {
-        await apiAuth.delete(`cars/${id}`);
+        await apiClient.delete(`cars/${id}`);
         await fetchData();
       } catch (err) {
         console.error("Error deleting car:", err);
@@ -125,8 +127,6 @@ export const useCarManagement = () => {
       }
     }
   };
-
- 
 
   const handleSort = (column) => {
     if (sortColumn === column) {
