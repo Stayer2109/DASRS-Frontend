@@ -54,12 +54,6 @@ const PlayerMatches = () => {
     description: "",
   });
 
-  // BREADCRUM ITEMS
-  const breadcrumbItems = [
-    { label: `${roundNameFromState}`, href: "/rounds" },
-    { label: "Matches", href: `/rounds/${roundId}/matches` },
-  ];
-
   // HANDLE SELECT MATCH
   const handleSelectMatch = (match) => {
     setSelectedMatch(match);
@@ -282,7 +276,6 @@ const PlayerMatches = () => {
   return (
     <>
       {isLoading && <Spinner />}
-      <Breadcrumb items={breadcrumbItems} />
 
       {/* Switch button for different render mode */}
       {/* <div className="mb-5 w-full">

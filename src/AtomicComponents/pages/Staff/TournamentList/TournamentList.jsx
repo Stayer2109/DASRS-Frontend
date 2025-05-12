@@ -343,7 +343,7 @@ export const TournamentList = () => {
 
   // BREADCRUMB ITEMS
   const breadcrumbItems = [
-    { label: "Tournament", href: "/tournaments" },
+    { label: "Tournament", href: "#" },
     ...(selectedTournament
       ? [{ label: selectedTournament.tournament_name }]
       : []),
@@ -548,6 +548,7 @@ export const TournamentList = () => {
         <ButtonIcon
           bgColor="#000"
           content="New Tournament"
+          className="rounded-md"
           onClick={() => handleOpenTournamentManagementModal()}
         />
       </div>

@@ -96,11 +96,11 @@ const Complaints = () => {
   // HANDLE NAVIGATE TO ROUND'S COMPLAINTS
   const handleViewRoundComplaints = (roundId) => {
     // Navigate to the round's complaints page
-    navigate(`/complaints/round/${roundId}`);
+    navigate(`round/${roundId}`);
   };
 
   // BREADCRUMB ITEMS
-  const breadcrumbItems = [{ label: "Player complaints", href: "/complaints" }];
+  const breadcrumbItems = [{ label: "Player complaints", href: "#" }];
 
   //#region MODAL CONTROLLERS
   // COMPLAINT MODAL

@@ -1,3 +1,4 @@
+import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { Button } from "@/AtomicComponents/atoms/Button/Button";
 import Checkbox from "@/AtomicComponents/atoms/Checkbox/Checkbox";
 import Input from "@/AtomicComponents/atoms/Input/Input";
@@ -16,6 +17,7 @@ import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsP
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import { apiClient } from "@/config/axios/axios";
+import useAuth from "@/hooks/useAuth";
 import { ComplaintReplyValidation } from "@/utils/Validation";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -59,6 +61,7 @@ const displayedValues = [6, 9, 12, 15];
 const RoundComplaints = () => {
   //#region VARIABLES DECLARATION
   const { roundId } = useParams();
+  const {auth} = useAuth();
   const [round, setRound] = useState(null);
   const [complaints, setComplaints] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,6 +84,7 @@ const RoundComplaints = () => {
   });
   const [complaintErrors, setComplaintErrors] = useState({});
   const [confirmAction, setConfirmAction] = useState(null);
+  const role = auth?.role?.toString().toLowerCase();
   //#endregion
 
   // CHECK IF THERE IS ANY APPROVED COMPLAINTS TO RENDER REMATCH CREATE BUTTON
@@ -418,9 +422,18 @@ const RoundComplaints = () => {
   }, [roundId, showByStatus, pageIndex, pageSize]);
   //#endregion
 
+  // BREADCRUMB ITEMS
+  const breadcrumbItems = [
+    { label: "Player complaints", href: `/${role}/complaints`},
+    { label: round?.round_name },
+  ];
+
   return (
     <>
       <div className="z-50">{isLoading && <Spinner />}</div>
+
+      {/* Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
 
       <div className="relative p-4">
         {/* Display Errors If Any Found */}

@@ -222,6 +222,10 @@ const AppRoutes = () => {
                 element={<TournamentRounds />}
               />
               <Route
+                path="tournaments/:tournamentId/rounds/:roundId/matches"
+                element={<RoundMatches />}
+              />
+              <Route
                 path="tournaments/:tournamentId/teams"
                 element={<TournamentTeams />}
               />

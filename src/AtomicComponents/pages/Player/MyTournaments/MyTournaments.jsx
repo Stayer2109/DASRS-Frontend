@@ -15,10 +15,11 @@ import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { useNavigate } from "react-router-dom";
 
 export const MyTournaments = () => {
+  const { auth } = useAuth();
   const [tournaments, setTournaments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { auth } = useAuth();
   const navigate = useNavigate();
+  const role = auth?.role.toString().toLowerCase();
 
   // Display values for pagination
 
@@ -43,7 +44,7 @@ export const MyTournaments = () => {
   };
 
   const handleViewRounds = (tournamentId) => {
-    navigate(`/tournaments/${tournamentId}/rounds`);
+    navigate(`/${role}/tournaments/${tournamentId}/rounds`);
   };
 
   useEffect(() => {
@@ -53,16 +54,16 @@ export const MyTournaments = () => {
   if (isLoading) return <Spinner />;
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">My Tournaments</h1>
+    <div className="mx-auto p-4 container">
+      <h1 className="mb-6 font-bold text-2xl">My Tournaments</h1>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="gap-4 grid md:grid-cols-2">
         {tournaments.map((tournament) => (
           <Card key={tournament.tournament_id}>
             <CardHeader>
               <CardTitle className="flex justify-between items-center">
                 <span
-                  className="truncate max-w-[200px]"
+                  className="max-w-[200px] truncate"
                   title={tournament.tournament_name}
                 >
                   {tournament.tournament_name}
@@ -72,7 +73,7 @@ export const MyTournaments = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <p className="text-sm text-gray-500  truncate">
+                <p className="text-gray-500 text-sm truncate">
                   {tournament.tournament_context}
                 </p>
                 <div className="flex justify-between items-center text-sm">
@@ -99,11 +100,10 @@ export const MyTournaments = () => {
       </div>
 
       {tournaments.length === 0 && (
-        <div className="text-center text-gray-500 mt-8">
+        <div className="mt-8 text-gray-500 text-center">
           You haven't joined any tournaments yet
         </div>
       )}
     </div>
   );
 };
-
