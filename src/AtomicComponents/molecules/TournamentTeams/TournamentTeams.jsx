@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import apiClient, { apiAuth } from "@/config/axios/axios";
+import { useEffect, useState } from "react";
+import apiClient from "@/config/axios/axios";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
