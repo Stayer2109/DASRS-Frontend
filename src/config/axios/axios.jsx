@@ -72,20 +72,22 @@ const createAxiosInstance = (config = {}) => {
           // Refresh token failed → logout and redirect
           Cookies.remove("accessToken");
           Cookies.remove("refreshToken");
-          // window.location.href = "/";
+          window.location.href = "/";
           return Promise.reject(refreshError);
         }
       }
 
       // Handle 401 (Unauthorized) - No refresh, just logout and redirect
       if (error?.response?.status === 401) {
+        console.log("Unauthorized access - logging out");
+        
         const isLoginRequest = originalRequest.url.includes("auth/login");
 
         // If the request is not a login request, remove tokens and redirect
         if (!isLoginRequest) {
           Cookies.remove("accessToken");
           Cookies.remove("refreshToken");
-          // window.location.href = "/";
+          window.location.href = "/";
         }
       }
 

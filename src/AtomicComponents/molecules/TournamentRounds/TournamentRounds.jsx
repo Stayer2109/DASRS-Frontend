@@ -107,20 +107,25 @@ export const TournamentRounds = () => {
   const [roundLeaderboardModalShow, setRoundLeaderboardModalShow] =
     useState(false);
   const [roundLeaderboard, setRoundLeaderboard] = useState(null);
+  const role = auth?.role?.toString().toLowerCase();
 
   // BREADCRUMB ITEMS
   const breadcrumbItems = [
-    { label: "Tournaments", href: "/tournaments" },
+    { label: "Tournaments", href: `/${role}/tournaments` },
     {
       label: tournament?.tournament_name || "Tournament",
-      href: "/tournaments",
+      href: `/${role}/tournaments`,
     },
     { label: "Rounds" },
   ];
 
   // HANDLE NAVIGATE BACK TO TOUNRNAMENTS
   const handleBackToTournament = () => {
-    navigate("/tournaments", { replace: true });
+    if (auth?.role) {
+      navigate(`/${auth?.role?.toString().toLowerCase()}/tournaments`, {
+        replace: true,
+      });
+    }
   };
 
   // CHECK IF ROUND IS LATEST
@@ -137,7 +142,7 @@ export const TournamentRounds = () => {
 
   // HANDLE VIEW MATCHES OF ROUND
   const handleViewMatches = (roundId) => {
-    navigate(`/tournaments/${tournamentId}/rounds/${roundId}/matches`);
+    navigate(`${roundId}/matches`);
   };
 
   // HANDLE TOURNAMENT MANAGEMENT DATA VALIDATION
@@ -710,15 +715,26 @@ export const TournamentRounds = () => {
             Back to Tournaments
           </Button>
           {auth?.role === "ORGANIZER" && (
-            <Button
-              className="cursor-pointer"
-              disabled={hasFinalRound}
-              toolTipPos="bottom"
-              tooltipData="Cannot create new round after final round."
-              onClick={() => handleOpenRoundManagementModal(null)}
-            >
-              <Plus className="mr-2 w-4 h-4" /> Create Round
-            </Button>
+            <>
+              {hasFinalRound ? (
+                <Button
+                  className="cursor-pointer"
+                  disabled
+                  toolTipPos="bottom"
+                  tooltipData="Cannot create new round after final round."
+                  onClick={() => handleOpenRoundManagementModal(null)}
+                >
+                  <Plus className="mr-2 w-4 h-4" /> Create Round
+                </Button>
+              ) : (
+                <Button
+                  className="cursor-pointer"
+                  onClick={() => handleOpenRoundManagementModal(null)}
+                >
+                  <Plus className="mr-2 w-4 h-4" /> Create Round
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>

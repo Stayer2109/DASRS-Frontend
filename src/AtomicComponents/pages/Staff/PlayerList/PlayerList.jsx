@@ -15,7 +15,7 @@ import { apiClient } from "@/config/axios/axios";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const sortKeyMap = {
-  account_id: "SORT_BY_ID",
+  // account_id: "SORT_BY_ID",
   last_name: "SORT_BY_LASTNAME",
   first_name: "SORT_BY_FIRSTNAME",
   email: "SORT_BY_EMAIL",
@@ -29,12 +29,12 @@ const PlayerList = () => {
   const [pageSize, setPageSize] = useState(10);
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortByKey, setSortByKey] = useState("account_id"); // default sort key
+  const [sortByKey, setSortByKey] = useState("last_name"); // default sort key
   const [sortDirection, setSortDirection] = useState("ASC"); // "ASC", "DESC", or null
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const columns = [
-    { key: "account_id", label: "ID", sortable: true },
+    // { key: "account_id", label: "ID", sortable: true },
     { key: "last_name", label: "Last Name", sortable: true },
     { key: "first_name", label: "First Name", sortable: true },
     { key: "email", label: "Email", sortable: true },
@@ -133,7 +133,12 @@ const PlayerList = () => {
           />
           <TableBody>
             {playerList.map((row, idx) => (
-              <TableRow key={idx} pageIndex={pageIndex} pageSize={pageSize} index={idx}>
+              <TableRow
+                key={idx}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                index={idx}
+              >
                 {columns.map((col) => (
                   <TableCell key={col.key}>
                     {col.key === "email" ? (

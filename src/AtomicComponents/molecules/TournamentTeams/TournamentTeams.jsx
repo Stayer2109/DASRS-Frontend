@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient, { apiAuth } from "@/config/axios/axios";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Breadcrumb } from "@/AtomicComponents/atoms/Breadcrumb/Breadcrumb";
 import { Button } from "@/AtomicComponents/atoms/shadcn/button";
@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import { Plus, Users, Shield, AlertTriangle } from "lucide-react";
+import { Users, Shield, AlertTriangle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
@@ -25,6 +25,7 @@ export const TournamentTeams = () => {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [showMembersModal, setShowMembersModal] = useState(false);
   const navigate = useNavigate();
+  const role = auth?.role?.toString().toLowerCase();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,12 +39,12 @@ export const TournamentTeams = () => {
         setError(null);
 
         // Fetch tournament information
-        const tournamentResponse = await apiAuth.get(
+        const tournamentResponse = await apiClient.get(
           `tournaments/${tournamentId}`
         );
         setTournament(tournamentResponse.data.data);
 
-        const teamsResponse = await apiAuth.get(
+        const teamsResponse = await apiClient.get(
           `tournaments/teams/${tournamentId}`
         );
 
@@ -62,21 +63,16 @@ export const TournamentTeams = () => {
 
   // Breadcrumb items
   const breadcrumbItems = [
-    { label: "Tournament", href: "/tournaments" },
+    { label: "Tournament", href: `/${role}/tournaments` },
     {
       label: tournament?.tournament_name || "Tournament",
-      href: `/tournaments`,
+      href: `/${role}/tournaments`,
     },
     { label: "Teams" },
   ];
 
-  const handleAddTeam = () => {
-    // Implement team creation/assignment functionality
-    console.log("Add team to tournament:", tournamentId);
-  };
-
   const handleBackToTournament = () => {
-    navigate("/tournaments");
+    navigate(`/${role}/tournaments`);
   };
 
   const handleViewPlayers = (team) => {
@@ -109,9 +105,9 @@ export const TournamentTeams = () => {
     return (
       <Badge
         variant="outline"
-        className="bg-red-100 text-red-800 ml-2 font-medium"
+        className="bg-red-100 ml-2 font-medium text-red-800"
       >
-        <AlertTriangle className="h-3 w-3 mr-1" /> Disqualified
+        <AlertTriangle className="mr-1 w-3 h-3" /> Disqualified
       </Badge>
     );
   };
@@ -124,12 +120,12 @@ export const TournamentTeams = () => {
         {selectedTeam.team_members.map((member) => (
           <div
             key={member.account_id}
-            className="bg-gray-50 p-3 rounded-lg space-y-1"
+            className="space-y-1 bg-gray-50 p-3 rounded-lg"
           >
             <div className="font-medium">
               {member.first_name} {member.last_name}
             </div>
-            <div className="text-sm text-gray-500 flex flex-col gap-1">
+            <div className="flex flex-col gap-1 text-gray-500 text-sm">
               <div>Email: {member.email}</div>
               <div>Phone: {member.phone}</div>
               <div>Gender: {member.gender || "Not specified"}</div>
@@ -143,7 +139,7 @@ export const TournamentTeams = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex justify-center items-center h-64">
         <LoadingIndicator />
       </div>
     );
@@ -155,7 +151,7 @@ export const TournamentTeams = () => {
         <Breadcrumb items={breadcrumbItems} />
 
         <div className="flex justify-between items-center gap-5">
-          <h2 className="text-2xl font-bold">
+          <h2 className="font-bold text-2xl">
             {tournament?.tournament_name} - Teams
           </h2>
           <div className="space-x-2">
@@ -170,25 +166,25 @@ export const TournamentTeams = () => {
         </div>
 
         {error ? (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+          <div className="bg-red-50 px-4 py-3 border border-red-200 rounded-md text-red-700">
             {error}
           </div>
         ) : teams.length === 0 ? (
-          <div className="text-center py-8 bg-gray-50 rounded-md">
-            <p className="text-muted-foreground mb-4">
+          <div className="bg-gray-50 py-8 rounded-md text-center">
+            <p className="mb-4 text-muted-foreground">
               No teams have been added to this tournament yet.
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3">
             {teams.map((team) => (
               <Card
                 key={team.id}
-                className="overflow-hidden hover:shadow-md transition-shadow"
+                className="hover:shadow-md overflow-hidden transition-shadow"
               >
                 <CardHeader className="bg-gray-50 p-4 pb-3">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-bold">
+                    <CardTitle className="font-bold text-lg">
                       {team.team_name}
                     </CardTitle>
                     <div>
@@ -199,15 +195,15 @@ export const TournamentTeams = () => {
                 </CardHeader>
                 <CardContent className="p-4 pt-3">
                   <div className="flex flex-col space-y-3">
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Team Counts</span>
-                      <span className="font-medium px-2 py-1 ">
+                      <span className="px-2 py-1 font-medium">
                         {team.team_members.length}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Team Tag</span>
-                      <span className="font-medium bg-gray-100 px-2 py-1 rounded">
+                      <span className="bg-gray-100 px-2 py-1 rounded font-medium">
                         {team.team_tag}
                       </span>
                     </div>
@@ -219,14 +215,14 @@ export const TournamentTeams = () => {
                         className="w-full cursor-pointer"
                         onClick={() => handleViewPlayers(team)}
                       >
-                        <Users className="h-4 w-4 mr-2" /> View Players
+                        <Users className="mr-2 w-4 h-4" /> View Players
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="ml-2 cursor-pointer"
                       >
-                        <Shield className="h-4 w-4" />
+                        <Shield className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -250,7 +246,7 @@ export const TournamentTeams = () => {
           className="pb-4 border-b"
         />
         <Modal.Body className="py-4">{renderMembersList()}</Modal.Body>
-        <Modal.Footer className="border-t pt-4">
+        <Modal.Footer className="pt-4 border-t">
           <Button variant="outline" onClick={() => setShowMembersModal(false)}>
             Close
           </Button>
