@@ -86,7 +86,7 @@ export const UserManagement = () => {
     { key: "email", label: "Email", sortable: true },
     { key: "phone", label: "Phone", sortable: false },
     { key: "role_name", label: "Role", sortable: true },
-    { key: "is_locked", label: "Status", sortable: true },
+    { key: "is_locked", label: "Status", sortable: false },
   ];
 
   // GET SORT PARAMS
@@ -301,7 +301,7 @@ export const UserManagement = () => {
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2"
           >
-            <Plus className="h-4 w-4" /> Add Organizer
+            <Plus className="w-4 h-4" /> Add Organizer
           </ShadcnButton>
         </div>
         <div className="flex flex-wrap justify-between gap-2 mb-4">
@@ -396,7 +396,7 @@ export const UserManagement = () => {
                       data-tooltip-id="view-tooltip"
                       data-tooltip-content="View Details"
                     >
-                      <Eye className="h-4 w-4" />
+                      <Eye className="w-4 h-4" />
                     </ShadcnButton>
                     <ShadcnButton
                       variant={row.is_locked ? "outline" : "destructive"}
@@ -411,9 +411,9 @@ export const UserManagement = () => {
                       }
                     >
                       {row.is_locked ? (
-                        <Unlock className="h-4 w-4" />
+                        <Unlock className="w-4 h-4" />
                       ) : (
-                        <Lock className="h-4 w-4" />
+                        <Lock className="w-4 h-4" />
                       )}
                     </ShadcnButton>
                   </div>
@@ -448,7 +448,7 @@ export const UserManagement = () => {
           <form onSubmit={handleCreateAccount} className="space-y-4">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="block mb-1 font-medium text-sm">Email</label>
                 <Input
                   type="email"
                   value={newAccount.email}
@@ -463,7 +463,7 @@ export const UserManagement = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block mb-1 font-medium text-sm">
                   First Name
                 </label>
                 <Input
@@ -480,7 +480,7 @@ export const UserManagement = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block mb-1 font-medium text-sm">
                   Last Name
                 </label>
                 <Input
@@ -497,7 +497,7 @@ export const UserManagement = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
+                <label className="block mb-1 font-medium text-sm">Phone</label>
                 <Input
                   type="tel"
                   value={newAccount.phone}
@@ -512,7 +512,7 @@ export const UserManagement = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block mb-1 font-medium text-sm">
                   Address
                 </label>
                 <Input
@@ -556,7 +556,7 @@ export const UserManagement = () => {
           {selectedUser && (
             <div className="space-y-6">
               <div className="flex flex-col items-center mb-6">
-                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-blue-500 shadow-lg mb-3">
+                <div className="shadow-lg mb-3 border-4 border-blue-500 rounded-full w-28 h-28 overflow-hidden">
                   <img
                     src={
                       selectedUser.avatar || "https://via.placeholder.com/150"
@@ -568,7 +568,7 @@ export const UserManagement = () => {
                     }}
                   />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">
+                <h3 className="font-bold text-gray-800 text-xl">
                   {selectedUser.first_name} {selectedUser.last_name}
                 </h3>
                 <span
@@ -582,27 +582,27 @@ export const UserManagement = () => {
                 </span>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
-                <h4 className="text-sm uppercase text-gray-500 font-semibold mb-4 border-b pb-2">
+              <div className="bg-gray-50 p-5 border border-gray-200 rounded-lg">
+                <h4 className="mb-4 pb-2 border-b font-semibold text-gray-500 text-sm uppercase">
                   Account Information
                 </h4>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                <div className="gap-x-6 gap-y-4 grid grid-cols-2">
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">ID</p>
+                    <p className="mb-1 text-gray-500 text-sm">ID</p>
                     <p className="font-medium text-gray-800 break-all">
                       {selectedUser.account_id}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Role</p>
+                    <p className="mb-1 text-gray-500 text-sm">Role</p>
                     <p className="font-medium text-gray-800">
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                      <span className="bg-blue-100 px-2 py-1 rounded text-blue-800 text-xs">
                         {selectedUser.role_name}
                       </span>
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Email</p>
+                    <p className="mb-1 text-gray-500 text-sm">Email</p>
                     <p className="font-medium text-gray-800 break-all">
                       <a
                         href={`mailto:${selectedUser.email}`}
@@ -613,13 +613,13 @@ export const UserManagement = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-1">Phone</p>
+                    <p className="mb-1 text-gray-500 text-sm">Phone</p>
                     <p className="font-medium text-gray-800">
                       {selectedUser.phone || "N/A"}
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <p className="text-sm text-gray-500 mb-1">Address</p>
+                    <p className="mb-1 text-gray-500 text-sm">Address</p>
                     <p className="font-medium text-gray-800">
                       {selectedUser.address || "N/A"}
                     </p>
@@ -629,16 +629,16 @@ export const UserManagement = () => {
 
               {/* Team information section - only shown for players */}
               {selectedUser.role_name === "PLAYER" && (
-                <div className="bg-blue-50 rounded-lg p-5 border border-blue-200">
-                  <h4 className="text-sm uppercase text-blue-700 font-semibold mb-4 border-b border-blue-200 pb-2">
+                <div className="bg-blue-50 p-5 border border-blue-200 rounded-lg">
+                  <h4 className="mb-4 pb-2 border-b border-blue-200 font-semibold text-blue-700 text-sm uppercase">
                     Team Information
                   </h4>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-blue-700 mb-1">Team</p>
+                      <p className="mb-1 text-blue-700 text-sm">Team</p>
                       <p className="font-medium text-gray-800">
                         {selectedUser.team_name ? (
-                          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded text-sm">
+                          <span className="bg-blue-100 px-3 py-1 rounded text-blue-800 text-sm">
                             {selectedUser.team_name}
                           </span>
                         ) : (
@@ -651,13 +651,13 @@ export const UserManagement = () => {
 
                     {selectedUser.team_name && (
                       <div>
-                        <p className="text-sm text-blue-700 mb-1">Role</p>
+                        <p className="mb-1 text-blue-700 text-sm">Role</p>
                         <p className="font-medium text-gray-800">
                           {selectedUser.is_leader ? (
-                            <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded text-sm flex items-center w-fit">
+                            <span className="flex items-center bg-yellow-100 px-3 py-1 rounded w-fit text-yellow-800 text-sm">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1"
+                                className="mr-1 w-4 h-4"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
                               >
@@ -666,7 +666,7 @@ export const UserManagement = () => {
                               Team Leader
                             </span>
                           ) : (
-                            <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded text-sm">
+                            <span className="bg-gray-100 px-3 py-1 rounded text-gray-800 text-sm">
                               Team Member
                             </span>
                           )}
@@ -677,7 +677,7 @@ export const UserManagement = () => {
                 </div>
               )}
 
-              <div className="flex justify-end mt-6 space-x-3">
+              <div className="flex justify-end space-x-3 mt-6">
                 <ShadcnButton
                   variant={selectedUser.is_locked ? "outline" : "destructive"}
                   onClick={() => {
@@ -696,12 +696,12 @@ export const UserManagement = () => {
                 >
                   {selectedUser.is_locked ? (
                     <>
-                      <Unlock className="h-4 w-4" />
+                      <Unlock className="w-4 h-4" />
                       Unlock Account
                     </>
                   ) : (
                     <>
-                      <Lock className="h-4 w-4" />
+                      <Lock className="w-4 h-4" />
                       Lock Account
                     </>
                   )}
