@@ -797,46 +797,52 @@ export const TournamentRounds = () => {
 
                 <div className="flex items-center space-x-2">
                   {/* Edit Button */}
-                  {round.status.toString().toLowerCase() === "completed" ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      tooltipData="Cannot edit completed round."
-                      disabled
-                      className="w-full cursor-not-allowed"
-                    >
-                      Edit
-                    </Button>
-                  ) : !isLatestRound(round.round_id) ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      tooltipData="Only the latest round can be edited."
-                      disabled
-                      className="w-full cursor-not-allowed"
-                    >
-                      Edit
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenRoundManagementModal(round)}
-                      className="cursor-pointer"
-                    >
-                      Edit
-                    </Button>
-                  )}
+                  {role === "organizer" && (
+                    <>
+                      {round.status.toString().toLowerCase() === "completed" ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          tooltipData="Cannot edit completed round."
+                          disabled
+                          className="w-full cursor-not-allowed"
+                        >
+                          Edit
+                        </Button>
+                      ) : !isLatestRound(round.round_id) ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          tooltipData="Only the latest round can be edited."
+                          disabled
+                          className="w-full cursor-not-allowed"
+                        >
+                          Edit
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenRoundManagementModal(round)}
+                          className="cursor-pointer"
+                        >
+                          Edit
+                        </Button>
+                      )}
 
-                  {/* Extend Round Button */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenExtendedRoundEndDateModal(round)}
-                    className="cursor-pointer"
-                  >
-                    Extend
-                  </Button>
+                      {/* Extend Round Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleOpenExtendedRoundEndDateModal(round)
+                        }
+                        className="cursor-pointer"
+                      >
+                        Extend
+                      </Button>
+                    </>
+                  )}
                 </div>
 
                 {/* Status and Is Final Round */}

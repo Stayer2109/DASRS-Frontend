@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import {
   Collapsible,
@@ -6,8 +6,9 @@ import {
   CollapsibleTrigger,
 } from "@/AtomicComponents/atoms/shadcn/collapsible";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
-import { apiAuth } from "@/config/axios/axios";
+import apiClient from "@/config/axios/axios";
 import { toast } from "sonner";
+import PropTypes from "prop-types";
 
 export const MapDetails = ({ resourceId }) => {
   const [mapResource, setMapResource] = useState(null);
@@ -19,7 +20,7 @@ export const MapDetails = ({ resourceId }) => {
 
     setIsLoading(true);
     try {
-      const response = await apiAuth.get(`resources/${resourceId}`);
+      const response = await apiClient.get(`resources/${resourceId}`);
       setMapResource(response.data.data);
     } catch (error) {
       console.error("Error fetching map resource:", error);
@@ -33,6 +34,8 @@ export const MapDetails = ({ resourceId }) => {
     if (isOpen && !mapResource && resourceId) {
       fetchMapResource();
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, resourceId]);
 
   return (
@@ -53,7 +56,7 @@ export const MapDetails = ({ resourceId }) => {
             <div className="text-gray-600">Type:</div>
             <div className="text-right">{mapResource.resource_type}</div>
             <div className="text-gray-600">Description:</div>
-            <div className="text-right">{mapResource.description || 'N/A'}</div>
+            <div className="text-right">{mapResource.description || "N/A"}</div>
           </div>
         ) : (
           <p className="py-2 text-gray-500 text-sm text-center">
@@ -63,4 +66,8 @@ export const MapDetails = ({ resourceId }) => {
       </CollapsibleContent>
     </Collapsible>
   );
+};
+
+MapDetails.propTypes = {
+  resourceId: PropTypes.string.isRequired,
 };

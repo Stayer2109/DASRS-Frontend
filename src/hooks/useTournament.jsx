@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiAuth } from "@/config/axios/axios";
+import { apiClient } from "@/config/axios/axios";
 import { toast } from "sonner";
 
 export const useTournament = () => {
@@ -37,7 +37,7 @@ export const useTournament = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await apiAuth.get(
+      const response = await apiClient.get(
         `tournaments?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=SORT_BY_ID_ASC&status=ALL`
       );
 
@@ -88,10 +88,10 @@ export const useTournament = () => {
       // Special handling for ACTIVE status which uses a different endpoint
       if (status === "ACTIVE") {
         // Call the active endpoint instead of the status endpoint
-        await apiAuth.put(`tournaments/active/${tournamentId}`);
+        await apiClient.put(`tournaments/active/${tournamentId}`);
       } else {
         // Use the regular status endpoint for other statuses
-        await apiAuth.put(
+        await apiClient.put(
           `tournaments/status/${tournamentId}?status=${status}`
         );
       }
@@ -166,7 +166,7 @@ export const useTournament = () => {
 
     try {
       // Call delete API
-      await apiAuth.delete(`tournaments/${tournamentId}`);
+      await apiClient.delete(`tournaments/${tournamentId}`);
 
       // Update local state
       setTournaments((prev) =>
@@ -193,10 +193,10 @@ export const useTournament = () => {
         // Special handling for ACTIVE status
         if (status === "ACTIVE") {
           // Call the active endpoint instead
-          await apiAuth.put(`tournaments/active/${tournamentId}`);
+          await apiClient.put(`tournaments/active/${tournamentId}`);
         } else {
           // Use the regular status endpoint for other statuses
-          await apiAuth.put(
+          await apiClient.put(
             `tournaments/status/${tournamentId}?status=${status}`
           );
         }
@@ -300,7 +300,7 @@ export const useTournament = () => {
 
       if (formMode === "edit") {
         // Edit existing tournament
-        await apiAuth.put(
+        await apiClient.put(
           `tournaments/context/${formData.tournament_id}`,
           payload
         );
@@ -310,7 +310,7 @@ export const useTournament = () => {
         });
       } else {
         // Create new tournament (implement this as needed)
-        await apiAuth.post("tournaments", payload);
+        await apiClient.post("tournaments", payload);
 
         toast("Tournament created", {
           description: "New tournament has been successfully created.",

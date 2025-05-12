@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiAuth } from "@/config/axios/axios";
+import { apiClient } from "@/config/axios/axios";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 
 export const useEnvironmentManagement = () => {
@@ -26,7 +26,7 @@ export const useEnvironmentManagement = () => {
     try {
       setIsLoading(true);
 
-      const response = await apiAuth.get(
+      const response = await apiClient.get(
         `environments?pageNo=${pagination.pageNo}&pageSize=${pagination.pageSize}&sortBy=${sortColumn}&sortDirection=${sortOrder}`
       );
 
@@ -55,11 +55,11 @@ export const useEnvironmentManagement = () => {
   const handleFormSubmit = async (formValues) => {
     try {
       if (formMode === "create") {
-        await apiAuth.post("environments", {
+        await apiClient.post("environments", {
           environment_name: formValues.environment_name,
         });
       } else {
-        await apiAuth.put(`environments/${formValues.environment_id}`, {
+        await apiClient.put(`environments/${formValues.environment_id}`, {
           environment_name: formValues.environment_name,
           status: formValues.status, // Include status in the update payload
         });
@@ -94,7 +94,7 @@ export const useEnvironmentManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this environment?")) {
       try {
-        await apiAuth.delete(`environments/${id}`);
+        await apiClient.delete(`environments/${id}`);
         await fetchData();
       } catch (err) {
         console.error("Error deleting environment:", err);
@@ -112,7 +112,7 @@ export const useEnvironmentManagement = () => {
       // Convert boolean to expected status string
       const newStatus = currentStatus ? "INACTIVE" : "ACTIVE";
 
-      await apiAuth.put(
+      await apiClient.put(
         `environments/change-status/${id}?enable=${!currentStatus}`
       );
 
