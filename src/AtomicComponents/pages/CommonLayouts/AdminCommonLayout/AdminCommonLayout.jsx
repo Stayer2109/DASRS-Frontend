@@ -9,7 +9,7 @@ import {
   Layers,
   Car,
   Trophy,
-  SidebarIcon
+  SidebarIcon,
 } from "lucide-react";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -18,6 +18,7 @@ import DasrsSidebar from "@/AtomicComponents/organisms/Sidebar/DasrsSidebar";
 import { Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 import { useMediaQuery } from "react-responsive";
+import { DashboardIcon } from "@/assets/icon-svg";
 
 const AdminCommonLayout = () => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -32,45 +33,50 @@ const AdminCommonLayout = () => {
 
   const sidebarData = [
     {
-      item: "Overview",
+      item: "Go to Website",
       icon: <HomeIcon color={navBarIconColor} width={iconWidth} />,
       link: "/",
     },
     {
+      item: "Overview",
+      icon: <DashboardIcon color={navBarIconColor} width={iconWidth} />,
+      link: "/admin/dashboard",
+    },
+    {
       item: "User Management",
       icon: <Users color={navBarIconColor} width={iconWidth} />,
-      link: "/users",
+      link: "users",
     },
     {
       item: "Tournaments",
       icon: <Trophy color={navBarIconColor} width={iconWidth} />,
-      link: "/tournaments",
+      link: "tournaments",
     },
     {
       item: "Match Types",
       icon: <BarChart3 color={navBarIconColor} width={iconWidth} />,
-      link: "/match-types",
+      link: "match-types",
     },
     {
       item: "Scenes",
       icon: <Layers color={navBarIconColor} width={iconWidth} />,
-      link: "/scenes",
+      link: "scenes",
     },
     {
       item: "Environments",
       icon: <SlidersHorizontal color={navBarIconColor} width={iconWidth} />,
-      link: "/environments",
+      link: "environments",
     },
     {
       item: "Cars",
       icon: <Car color={navBarIconColor} width={iconWidth} />,
-      link: "/cars",
+      link: "cars",
     },
     {
       item: "Settings",
       icon: <Settings color={navBarIconColor} width={iconWidth} />,
-      link: "/settings",
-    }
+      link: "settings",
+    },
   ];
 
   const handleToggleSidebar = () => {

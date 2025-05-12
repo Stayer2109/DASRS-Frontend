@@ -48,10 +48,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
   const [hasMounted, setHasMounted] = useState(false);
 
   const handleMenuItemClick = (item) => {
-    if (item.onclick) item.onclick();
-    if (selectedItem !== item.link) {
-      setSelectedItem(item.link);
-    }
+    setSelectedItem(item.link); // always update to the clicked item's main link
 
     if (item.subMenu) {
       setActiveSubmenu(item.item);
@@ -77,27 +74,23 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
   }, []);
 
   useEffect(() => {
-    let activeItem = location.pathname.split("/")[1];
-    if (activeItem === "profile") activeItem = "my-profile";
+    const path = location.pathname;
 
-    if (selectedItem !== "/" + activeItem) {
-      setSelectedItem("/" + activeItem);
-    }
+    const matchedParent = data.find((item) =>
+      item?.subMenu?.some((sub) => sub.link === path)
+    );
 
-    // Add null check for data array
-    if (data && data.length > 0) {
-      // Auto-expand submenu if current route matches any submenu item
-      const matchedParent = data.find((item) =>
-        item?.subMenu?.some((sub) => location.pathname.includes(sub.link))
-      );
-
-      if (matchedParent && activeSubmenu !== matchedParent.item) {
-        setActiveSubmenu(matchedParent.item);
+    if (matchedParent) {
+      setActiveSubmenu(matchedParent.item);
+      setSelectedItem(path); // 💥 Make sure selectedItem = actual selected sub link
+    } else {
+      const matchedItem = data.find((item) => item.link === path);
+      if (matchedItem) {
+        setSelectedItem(path);
+        setActiveSubmenu(matchedItem.item);
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]); // Add proper dependency
+  }, [location.pathname]);
 
   return (
     <>
@@ -113,9 +106,9 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
           isMobile ? "fixed top-0 left-0" : ""
         }`}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col gap-8 h-full">
           {/* Headers */}
-          <div className="relative mb-4 h-17">
+          <div className="relative h-17">
             {/* Title */}
             <motion.span
               animate={{
@@ -154,9 +147,11 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
               const isSubItemActive = item?.subMenu?.some(
                 (sub) => location.pathname === sub.link
               );
-              
+
               const isParentActive =
-                location.pathname === item.link || isSubItemActive;
+                item.link === location.pathname ||
+                item.subMenu?.some((sub) => location.pathname === sub.link);
+
               return (
                 <AnimatePresence key={item.item}>
                   <Link to={item.link}>
@@ -178,9 +173,9 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                     >
                       <div
                         className={`relative flex items-center rounded-xl ${
-                          selectedItem === item.link
+                          selectedItem === item.link || isParentActive
                             ? openedItemTextHoverClass
-                            : "px-2 py-2"
+                            : ""
                         } ${
                           item.item === activeSubmenu
                             ? openedItemTextHoverClass
@@ -263,8 +258,14 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                               } mt-1 flex flex-col gap-1 text-sm text-gray-300 overflow-hidden`}
                             >
                               {item.subMenu?.map((subItem, index) => {
+                                const locationPath = location.pathname
+                                  .split("/")
+                                  .slice(2)
+                                  .join("/");
+
                                 const isSubActive =
-                                  location.pathname === subItem.link;
+                                  locationPath === subItem.link ||
+                                  selectedItem === subItem.link;
 
                                 return (
                                   <li key={index}>
@@ -321,7 +322,7 @@ const DasrsSidebar = ({ isOpened = false, onToggle = () => {}, data = [] }) => {
                                               ? React.cloneElement(
                                                   subItem.icon,
                                                   {
-                                                    className: `${closedSubIconSelectedClass}`,
+                                                    className: `${closedSubIconSelectedClass}`, // ✔ bold stroke
                                                   }
                                                 )
                                               : React.cloneElement(

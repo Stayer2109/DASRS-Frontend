@@ -4,7 +4,10 @@ import F1Racers from "../../../../assets/img/f1-racers.jpg";
 import Racing1 from "../../../../assets/img/racing-cinematic1.jpg";
 import Racing2 from "../../../../assets/img/racing-cinematic2.jpg";
 import Racing3 from "../../../../assets/img/racing-cinematic3.jpg";
-import './CurrentRaces.scss';
+import Racing4 from "../../../../assets/img/racing-cinematic4.jpg";
+import Racing5 from "../../../../assets/img/racing-cinematic5.jpg";
+import Racing7 from "../../../../assets/img/racing-cinematic7.jpg";
+import "./CurrentRaces.scss";
 import { useCallback, useEffect, useState } from "react";
 
 const CurrentRaces = () => {
@@ -13,7 +16,15 @@ const CurrentRaces = () => {
     "p-2.5 transform rotate-180 group-hover:scale-130 transition ease-linear duration-150";
 
   // IMAGES LIST WITH CLONED ELEMENTS FOR INFINITE SLIDE
-  const imagesList = [Racing1, Racing2, Racing3, F1Racers];
+  const imagesList = [
+    Racing1,
+    Racing2,
+    Racing3,
+    F1Racers,
+    Racing4,
+    Racing5,
+    Racing7,
+  ];
   const extendedImages = [
     imagesList[imagesList.length - 1],
     ...imagesList,
@@ -73,7 +84,7 @@ const CurrentRaces = () => {
   }, [handleNextImage, isClickable]); // dependency can be adjusted based on your needs
 
   return (
-    <div className="current-races-container pt-3 relative select-none h-[250px] sm:h-[900px] flex justify-center items-center overflow-hidden w-full">
+    <div className="relative flex justify-center items-center pt-3 w-full h-[250px] sm:h-[900px] overflow-hidden select-none current-races-container">
       {/* Image Slider */}
       <div
         className={`flex w-full h-full transition-transform ${
@@ -88,7 +99,7 @@ const CurrentRaces = () => {
             key={index}
             src={image}
             alt="Racing Image"
-            className="border-blue-600 border-8 border-solid rounded-[12px] object-cover w-full h-full flex-shrink-0"
+            className="flex-shrink-0 border-8 border-blue-600 border-solid rounded-[12px] w-full h-full object-cover"
           />
         ))}
       </div>
@@ -130,7 +141,7 @@ const CurrentRaces = () => {
       </button>
 
       {/* Indicators (Dots) */}
-      <div className="absolute bottom-4 flex gap-2">
+      <div className="bottom-4 absolute flex gap-2">
         {imagesList.map((_, index) => (
           <button
             key={index}

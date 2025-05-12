@@ -1,3 +1,5 @@
+/** @format */
+
 import { useEffect, useState } from "react";
 import { PropTypes } from "prop-types";
 import { apiClient } from "@/config/axios/axios";
@@ -22,18 +24,14 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
-// ✅ reusable InfoLine component
 const InfoLine = ({ label, value, Icon }) => (
-  <div className="flex items-center gap-3 text-white text-sm sm:text-base">
-    {Icon && <Icon className="w-5 h-5 text-white/70 shrink-0" />}
+  <div className="flex items-center gap-3 text-slate-200 text-sm sm:text-base leading-tight">
+    {Icon && <Icon className="w-5 h-5 text-slate-400 shrink-0" />}
     <span className="font-semibold whitespace-nowrap">{label}:</span>
-    <span className="font-medium text-white/90 break-all">
-      {value ?? "N/A"}
-    </span>
+    <span className="font-medium text-slate-100 break-words">{value ?? "N/A"}</span>
   </div>
 );
 
-// ✅ round accordion component with open state controlled by parent
 const RoundSection = ({ round, isOpen, onToggle }) => {
   const [map, setMap] = useState({});
   const [scoreMethod, setScoreMethod] = useState({});
@@ -65,17 +63,13 @@ const RoundSection = ({ round, isOpen, onToggle }) => {
   }, [isOpen, round]);
 
   return (
-    <div className="bg-white/10 shadow-md hover:shadow-lg border border-white/10 rounded-xl transition-all">
+    <div className="bg-slate-800/50 shadow-sm hover:shadow-lg border border-slate-300/10 rounded-xl overflow-hidden transition-all">
       <button
         onClick={onToggle}
-        className="flex justify-between items-center hover:bg-white/5 px-4 py-3 w-full font-bold text-white text-lg transition-all cursor-pointer"
+        className="flex justify-between items-center hover:bg-slate-700/40 px-4 py-3 w-full font-bold text-slate-100 text-lg transition-all cursor-pointer"
       >
-        {round.round_name}
-        {isOpen ? (
-          <ChevronUp className="w-5 h-5" />
-        ) : (
-          <ChevronDown className="w-5 h-5" />
-        )}
+        <span className="truncate">{round.round_name}</span>
+        {isOpen ? <ChevronUp className="w-5 h-5 text-blue-300" /> : <ChevronDown className="w-5 h-5 text-blue-300" />}
       </button>
 
       <AnimatePresence>
@@ -85,84 +79,38 @@ const RoundSection = ({ round, isOpen, onToggle }) => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="px-4 pb-4 overflow-hidden"
+            className="bg-slate-700/40 px-4 pt-2 pb-5 rounded-b-xl overflow-hidden text-slate-200 text-sm"
           >
-            <p className="text-white/80 text-sm sm:text-base italic">
-              {round.description}
-            </p>
-
-            <div className="gap-2 grid grid-cols-2 my-2">
-              <InfoLine
-                label="Finish Type"
-                value={round.finish_type}
-                Icon={Trophy}
-              />
-              <InfoLine
-                label="Match Type"
-                value={round.match_type_name}
-                Icon={Target}
-              />
-              <InfoLine
-                label="Start"
-                value={`${GetDateFromDate(
-                  round.start_date
-                )} - ${GetTimeFromDate(round.start_date)}`}
-                Icon={CalendarDays}
-              />
-              <InfoLine
-                label="End"
-                value={`${GetDateFromDate(round.end_date)} - ${GetTimeFromDate(
-                  round.end_date
-                )}`}
-                Icon={Clock}
-              />
-              <InfoLine
-                label="Qualification Spots"
-                value={round.team_limit}
-                Icon={Flag}
-              />
+            <p className="text-slate-400 text-sm italic">{round.description}</p>
+            <div className="gap-2 grid grid-cols-2 my-3">
+              <InfoLine label="Finish Type" value={round.finish_type} Icon={Trophy} />
+              <InfoLine label="Match Type" value={round.match_type_name} Icon={Target} />
+              <InfoLine label="Start" value={`${GetDateFromDate(round.start_date)} - ${GetTimeFromDate(round.start_date)}`} Icon={CalendarDays} />
+              <InfoLine label="End" value={`${GetDateFromDate(round.end_date)} - ${GetTimeFromDate(round.end_date)}`} Icon={Clock} />
+              <InfoLine label="Qualification Spots" value={round.team_limit} Icon={Flag} />
             </div>
-
-            <Separator className="bg-white/20 my-2" />
-
-            <h5 className="font-semibold text-base">Round Resources</h5>
-
+            <Separator className="bg-slate-500/40 my-2" />
+            <h5 className="mb-2 font-semibold text-base">Round Resources</h5>
             {loading ? (
-              <p className="text-white/70 text-sm italic">
-                Loading round resources...
-              </p>
+              <p className="text-slate-400 text-sm italic">Loading round resources...</p>
             ) : (
-              <div className="space-y-1">
-                <InfoLine
-                  label="Map"
-                  value={map?.resource_name}
-                  Icon={MapPin}
-                />
-                <InfoLine
-                  label="Environment"
-                  value={environment?.environment_name}
-                  Icon={Settings2}
-                />
-
+              <>
+                <InfoLine label="Map" value={map?.resource_name} Icon={MapPin} />
+                <InfoLine label="Environment" value={environment?.environment_name} Icon={Settings2} />
                 {scoreMethod && (
-                  <div className="space-y-1 mt-2">
-                    <h5 className="mt-4 font-semibold text-white text-lg">
-                      Score Method
-                    </h5>
-
-                    <ul className="pl-4 text-white/90 text-sm list-disc list-inside">
+                  <div className="space-y-1 mt-4">
+                    <h5 className="mb-1 font-semibold text-slate-100 text-base">Scoring</h5>
+                    <ul className="space-y-1 pl-2 text-slate-100 text-sm list-disc list-inside">
                       <li>Assist usage: {scoreMethod.assist_usage} pts</li>
                       <li>Average speed: {scoreMethod.average_speed} pts</li>
                       <li>Collision: {scoreMethod.collision} pts</li>
                       <li>Top speed: {scoreMethod.top_speed} pts</li>
                       <li>Total distance: {scoreMethod.total_distance} pts</li>
-                      <li>
-                        Total race time: {scoreMethod.total_race_time} pts
-                      </li>
+                      <li>Total race time: {scoreMethod.total_race_time} pts</li>
                     </ul>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </motion.div>
         )}
@@ -173,9 +121,7 @@ const RoundSection = ({ round, isOpen, onToggle }) => {
 
 const InformationCard = ({ className, item }) => {
   const [openRoundId, setOpenRoundId] = useState(null);
-
   if (!item) return null;
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -185,69 +131,41 @@ const InformationCard = ({ className, item }) => {
         exit={{ opacity: 0, x: -50 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <Card
-          className={`${className} bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-xl rounded-2xl border border-white/10`}
-        >
+        <Card className={`${className} bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-2xl rounded-2xl border border-blue-400/10 transition-all`}>
           <CardTitle className="px-6 pt-6 font-bold text-white text-3xl tracking-tight">
             {item.tournament_name}
           </CardTitle>
-
-          <CardContent className="space-y-4 text-sm">
-            <Separator className="bg-blue-600" />
-            <div className="gap-2 grid grid-cols-2">
+          <CardContent className="space-y-5 px-6 pb-6">
+            <Separator className="bg-blue-500/60" />
+            <div className="gap-3 grid grid-cols-2">
               <InfoLine label="Status" value={item.status} Icon={Settings2} />
-              <InfoLine
-                label="Is Started"
-                value={item.is_started ? "In Progress" : "Not Started Yet"}
-                Icon={Flag}
-              />
-              <InfoLine
-                label="Start"
-                value={item.start_date}
-                Icon={CalendarDays}
-              />
+              <InfoLine label="Is Started" value={item.is_started ? "In Progress" : "Not Started Yet"} Icon={Flag} />
+              <InfoLine label="Start" value={item.start_date} Icon={CalendarDays} />
               <InfoLine label="End" value={item.end_date} Icon={Clock} />
-              <InfoLine
-                label="Team Count"
-                value={item.team_number}
-                Icon={Trophy}
-              />
+              <InfoLine label="Team Count" value={item.team_number} Icon={Trophy} />
             </div>
-
-            <Separator className="bg-blue-600" />
-            <h4 className="flex items-center gap-2 mt-6 mb-2 font-semibold text-white text-xl">
-              <Info className="w-5 h-5" /> Tournament Information
+            <Separator className="bg-blue-500/60" />
+            <h4 className="flex items-center gap-2 mt-4 font-semibold text-blue-100 text-xl">
+              <Info className="w-5 h-5 text-blue-300" /> Tournament Info
             </h4>
-            <InfoLine
-              label="Tournament Context"
-              value={item.tournament_context}
-              Icon={Info}
-            />
-
-            <Separator className="bg-blue-600" />
-            <h4 className="flex items-center gap-2 mt-6 mb-2 font-semibold text-white text-xl">
-              <Target className="w-5 h-5" /> Rounds
+            <InfoLine label="Tournament Context" value={item.tournament_context} Icon={Info} />
+            <Separator className="bg-blue-500/60" />
+            <h4 className="flex items-center gap-2 mt-4 font-semibold text-blue-100 text-xl">
+              <Target className="w-5 h-5 text-blue-300" /> Rounds
             </h4>
-
             {item.round_list && item.round_list.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {item.round_list.map((round) => (
                   <RoundSection
                     key={round.round_id}
                     round={round}
                     isOpen={openRoundId === round.round_id}
-                    onToggle={() =>
-                      setOpenRoundId((prev) =>
-                        prev === round.round_id ? null : round.round_id
-                      )
-                    }
+                    onToggle={() => setOpenRoundId((prev) => (prev === round.round_id ? null : round.round_id))}
                   />
                 ))}
               </div>
             ) : (
-              <p className="text-white/80 italic">
-                No rounds in tournament yet
-              </p>
+              <p className="text-slate-300 italic">No rounds in tournament yet</p>
             )}
           </CardContent>
         </Card>
