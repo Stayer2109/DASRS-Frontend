@@ -106,7 +106,7 @@ const Footer = () => {
           <img
             src={Logo}
             alt="DASRS Logo"
-            className="bg-blue-500 shadow-md p-2 rounded-full w-14 h-14"
+            className="bg-blue-500 shadow-md p-1.5 rounded-full w-16 h-16"
           />
           <span className="text-gray-300 text-sm">
             © 2025 DASRS — All rights reserved.
