@@ -8,7 +8,8 @@ import {
   CardFooter,
 } from "@/AtomicComponents/atoms/shadcn/card";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
-import { Calendar, Map, Users, Flag } from "lucide-react";
+import { Calendar, Map, Users, Flag, Info } from "lucide-react";
+import { Tooltip } from "react-tooltip";
 import { formatDateString } from "@/utils/dateUtils";
 import { RoundStatusBadge } from "@/AtomicComponents/atoms/RoundStatusBadge/RoundStatusBadge";
 import { EnvironmentDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/EnvironmentDetails";
@@ -263,8 +264,16 @@ const PlayerRounds = () => {
                           Finish Type:
                         </span>
                       </div>
-                      <span className="font-medium text-right truncate">
+                      <span className="font-medium text-right truncate flex items-center justify-end">
                         {round.finish_type}
+                        <Info 
+                          className="ml-1 w-4 h-4 text-blue-500 cursor-help" 
+                          data-tooltip-id={`tiebreaker-${round.round_id}`}
+                          data-tooltip-content={round.finish_type === "LAP" 
+                            ? "Tiebreaker: If all players have same score, the result will be determined by the fastest lap time."
+                            : "Tiebreaker: If all players have same score, the result will be determined by the distance traveled."}
+                        />
+                        <Tooltip id={`tiebreaker-${round.round_id}`} />
                       </span>
 
                       <div className="flex items-center">

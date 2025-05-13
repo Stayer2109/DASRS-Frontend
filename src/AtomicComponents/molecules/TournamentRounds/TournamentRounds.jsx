@@ -10,7 +10,7 @@
  *
  */
 
-import { Calendar, Flag, Plus, Users } from "lucide-react";
+import { Calendar, Flag, Plus, Users, Info } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -895,8 +895,18 @@ export const TournamentRounds = () => {
                         Finish Type:
                       </span>
                     </div>
-                    <span className="font-medium text-right truncate">
+                    <span className="font-medium text-right truncate flex items-center justify-end">
                       {round.finish_type}
+                      <Info
+                        className="ml-1 w-4 h-4 text-blue-500 cursor-help"
+                        data-tooltip-id={`tiebreaker-${round.round_id}`}
+                        data-tooltip-content={
+                          round.finish_type === "LAP"
+                            ? "Tiebreaker: If all players have same score, the result will be determined by the fastest lap time."
+                            : "Tiebreaker: If all players have same score, the result will be determined by the distance traveled."
+                        }
+                      />
+                      <Tooltip id={`tiebreaker-${round.round_id}`} />
                     </span>
 
                     <div className="flex items-center">
@@ -1118,6 +1128,14 @@ export const TournamentRounds = () => {
                       {roundManagementErrors.finish_type}
                     </p>
                   )}
+                  <div className="mt-2 p-3 border rounded-md bg-blue-50 border-blue-200">
+                    <p className="text-sm font-medium text-blue-800">
+                      <strong>Tiebreaker Rule:</strong>{" "}
+                      {formData?.finish_type === "LAP"
+                        ? "If all players have same score, the result will be determined by the fastest lap time."
+                        : "If all players have same score, the result will be determined by the distance traveled."}
+                    </p>
+                  </div>
                 </div>
 
                 {/* If Match Type Is Lap */}
