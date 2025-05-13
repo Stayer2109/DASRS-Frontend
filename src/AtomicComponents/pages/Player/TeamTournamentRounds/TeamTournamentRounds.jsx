@@ -14,13 +14,11 @@ import { toast } from "sonner";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
 import DasrsPagination from "@/AtomicComponents/molecules/DasrsPagination/DasrsPagination";
-import { Map } from "lucide-react";
-import { Flag } from "lucide-react";
-import { Users } from "lucide-react";
+import { Map, Flag, Users, Trophy, Info } from "lucide-react";
+import { Tooltip } from "react-tooltip";
 import { EnvironmentDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/EnvironmentDetails";
 import { MapDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/MapDetails";
 import { ScoreMethodDetails } from "@/AtomicComponents/molecules/CollapsibleDetails/ScoreMethodDetails";
-import { Trophy } from "lucide-react";
 import Toast from "@/AtomicComponents/molecules/Toaster/Toaster";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
 import RoundLeaderboardCard from "@/AtomicComponents/molecules/LeaderboardCard/RoundLeaderboardCard/RoundLeaderboardCard";
@@ -223,8 +221,16 @@ export const TeamTournamentRounds = () => {
                         Finish Type:
                       </span>
                     </div>
-                    <span className="font-medium text-right truncate">
+                    <span className="font-medium text-right truncate flex items-center justify-end">
                       {round.finish_type}
+                      <Info 
+                        className="ml-1 w-4 h-4 text-blue-500 cursor-help" 
+                        data-tooltip-id={`tiebreaker-${round.round_id}`}
+                        data-tooltip-content={round.finish_type === "LAP" 
+                          ? "Tiebreaker: If all players have same score, the result will be determined by the fastest lap time."
+                          : "Tiebreaker: If all players have same score, the result will be determined by the distance traveled."}
+                      />
+                      <Tooltip id={`tiebreaker-${round.round_id}`} />
                     </span>
 
                     <div className="flex items-center">
