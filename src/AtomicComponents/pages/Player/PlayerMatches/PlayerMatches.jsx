@@ -10,7 +10,7 @@ import {
 import { apiClient } from "@/config/axios/axios";
 import { formatDateString } from "@/utils/dateUtils";
 import { Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import useAuth from "@/hooks/useAuth";
@@ -27,6 +27,7 @@ import { ChevronDown } from "lucide-react";
 import { LoadingIndicator } from "@/AtomicComponents/atoms/LoadingIndicator/LoadingIndicator";
 import { Button as ButtonShadcn } from "@/AtomicComponents/atoms/shadcn/button";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import { Info } from "lucide-react";
 
 const PlayerMatches = () => {
   const { roundId } = useParams();
@@ -53,6 +54,10 @@ const PlayerMatches = () => {
     title: "",
     description: "",
   });
+  const [matchFilter, setMatchFilter] = useState("ALL");
+  const [rematchModalShow, setRematchModalShow] = useState(false);
+  const [rematchInfo, setRematchInfo] = useState(null);
+  const [loadingRematchInfo, setLoadingRematchInfo] = useState(false);
 
   // HANDLE SELECT MATCH
   const handleSelectMatch = (match) => {
@@ -152,12 +157,22 @@ const PlayerMatches = () => {
       }));
     } catch (error) {
       console.error("Error fetching score details:", error);
+      Toast({
+        title: "Error",
+        message: error.response?.data?.message || "Failed to fetch scores",
+        type: "error",
+      });
     } finally {
       setLoadingScores((prev) => ({
         ...prev,
         [`${matchId}-${teamId}`]: false,
       }));
     }
+  };
+
+  const formatFloat = (value) => {
+    if (value === undefined || value === null) return "N/A";
+    return typeof value === "number" ? value.toFixed(3) : value;
   };
 
   const handleComplaintModalShow = (match) => {
@@ -273,42 +288,108 @@ const PlayerMatches = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const filteredMatchesList = useMemo(() => {
+    if (matchFilter === "ALL") return matchesList;
+    return matchesList.filter((match) => match.match_form === matchFilter);
+  }, [matchesList, matchFilter]);
+
+  // Function to fetch rematch information
+  const fetchRematchInfo = async (matchId) => {
+    setLoadingRematchInfo(true);
+    try {
+      const response = await apiClient.get(`/matches/rematch/${matchId}`);
+      if (response.data.http_status === 200) {
+        setRematchInfo(response.data.data);
+      }
+    } catch (error) {
+      Toast({
+        title: "Error",
+        message: "Failed to fetch rematch information",
+        type: "error",
+      });
+    } finally {
+      setLoadingRematchInfo(false);
+    }
+  };
+
+  // Handle opening rematch modal
+  const handleOpenRematchModal = (match) => {
+    fetchRematchInfo(match.match_id);
+    setRematchModalShow(true);
+  };
+
+  // Handle closing rematch modal
+  const handleCloseRematchModal = () => {
+    setRematchModalShow(false);
+    setTimeout(() => {
+      setRematchInfo(null);
+    }, 300);
+  };
+
   return (
     <>
       {isLoading && <Spinner />}
 
-      {/* Switch button for different render mode */}
-      {/* <div className="mb-5 w-full">
-        <div className="inline-flex items-center gap-4 p-4 border border-gray-600 rounded-md">
-          <Switch
-            id="assigned-toggle"
-            checked={assignedModeToggle}
-            onCheckedChange={setAssignedModeToggle}
-          />
-          <Label
-            htmlFor="assigned-toggle"
-            className="text-muted-foreground text-sm"
-          >
-            Assigned Mode
-          </Label>
-        </div>
-      </div> */}
+      {/* Add filter tabs */}
+      <div className="flex space-x-2 mb-4">
+        <ButtonShadcn
+          variant={matchFilter === "ALL" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMatchFilter("ALL")}
+          className="text-sm"
+        >
+          All Matches
+        </ButtonShadcn>
+        <ButtonShadcn
+          variant={matchFilter === "OFFICIAL" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMatchFilter("OFFICIAL")}
+          className="text-sm"
+        >
+          Official Matches
+        </ButtonShadcn>
+        <ButtonShadcn
+          variant={matchFilter === "REMATCH" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setMatchFilter("REMATCH")}
+          className="text-sm"
+        >
+          Rematch Matches
+        </ButtonShadcn>
+      </div>
+
+      {/* Match count summary */}
+      <div className="text-sm text-gray-500 mb-4">
+        Showing {filteredMatchesList.length}{" "}
+        {matchFilter !== "ALL" ? matchFilter.toLowerCase() : ""} matches
+      </div>
 
       {/* Match card render */}
       <div className="gap-6 grid md:grid-cols-2 lg:grid-cols-3 mb-4">
-        {matchesList.length === 0 ? (
+        {filteredMatchesList.length === 0 ? (
           <Card className="col-span-full">
             <CardContent className="flex flex-col justify-center items-center p-6">
-              <p className="mb-4 text-muted-foreground">No matches found.</p>
+              <p className="mb-4 text-muted-foreground">
+                No {matchFilter !== "ALL" ? matchFilter.toLowerCase() : ""}{" "}
+                matches found.
+              </p>
             </CardContent>
           </Card>
         ) : (
-          matchesList.map((match) => (
+          filteredMatchesList.map((match) => (
             <Card
               key={match.match_id}
-              className="self-start hover:shadow-xl min-h-[300px] overflow-hidden transition-shadow"
+              className={`self-start hover:shadow-xl min-h-[300px] overflow-hidden transition-shadow ${
+                match.match_form === "REMATCH"
+                  ? "border-l-4 border-l-amber-400"
+                  : "border-l-4 border-l-blue-400"
+              }`}
             >
-              <CardHeader className="bg-gray-50 p-4 pb-3 border-b">
+              <CardHeader
+                className={`p-4 pb-3 border-b ${
+                  match.match_form === "REMATCH" ? "bg-amber-50" : "bg-gray-50"
+                }`}
+              >
                 <div className="flex justify-between items-start gap-3">
                   <CardTitle className="font-bold text-lg">
                     {match.match_name}
@@ -323,8 +404,37 @@ const PlayerMatches = () => {
                     {match.status}
                   </Badge>
                 </div>
-                <div className="text-gray-500 text-sm">
-                  Code: {match.match_code}
+                <div className="flex items-center justify-between mt-1">
+                  <div className="flex items-center gap-2">
+                    <div className="text-gray-500 text-sm">
+                      Code: {match.match_code}
+                    </div>
+                    {match.match_form && (
+                      <Badge
+                        variant="outline"
+                        className={
+                          match.match_form === "REMATCH"
+                            ? "bg-amber-100 text-amber-800 border-amber-200"
+                            : "bg-blue-100 text-blue-800 border-blue-200"
+                        }
+                      >
+                        {match.match_form}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Add rematch information button in the header */}
+                  {match.match_form === "REMATCH" && (
+                    <ButtonShadcn
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOpenRematchModal(match)}
+                      className="text-amber-700 hover:text-amber-900 hover:bg-amber-100 p-1 h-auto"
+                    >
+                      <Info className="h-4 w-4 mr-1" />
+                      <span className="text-xs">View Original Match</span>
+                    </ButtonShadcn>
+                  )}
                 </div>
               </CardHeader>
 
@@ -377,7 +487,7 @@ const PlayerMatches = () => {
                                         {player.player_name}
                                       </div>
                                       <Badge variant="secondary">
-                                        Score: {player.team_score}
+                                        Score: {formatFloat(player.team_score)}
                                       </Badge>
                                     </div>
 
@@ -391,7 +501,7 @@ const PlayerMatches = () => {
                                         Fastest Lap:
                                       </div>
                                       <div className="text-right">
-                                        {player.fastest_lap_time}s
+                                        {formatFloat(player.fastest_lap_time)}s
                                       </div>
 
                                       <div className="text-gray-600">
@@ -419,21 +529,21 @@ const PlayerMatches = () => {
                                         Top Speed:
                                       </div>
                                       <div className="text-right">
-                                        {player.top_speed} km/h
+                                        {formatFloat(player.top_speed)} km/h
                                       </div>
 
                                       <div className="text-gray-600">
                                         Avg Speed:
                                       </div>
                                       <div className="text-right">
-                                        {player.average_speed} km/h
+                                        {formatFloat(player.average_speed)} km/h
                                       </div>
 
                                       <div className="text-gray-600">
                                         Distance:
                                       </div>
                                       <div className="text-right">
-                                        {player.total_distance} m
+                                        {formatFloat(player.total_distance)} m
                                       </div>
                                     </div>
                                   </div>
@@ -706,6 +816,56 @@ const PlayerMatches = () => {
               />
             </div>
           </form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Add Rematch Modal */}
+      <Modal size="md" show={rematchModalShow} onHide={handleCloseRematchModal}>
+        <Modal.Header content="Rematch Information" />
+        <Modal.Body>
+          {loadingRematchInfo ? (
+            <div className="flex justify-center py-4">
+              <LoadingIndicator size="medium" />
+            </div>
+          ) : rematchInfo ? (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Original Match Details</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Match Name:</span>
+                  <span>{rematchInfo?.match_name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Match Code:</span>
+                  <span>{rematchInfo?.match_code}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Date:</span>
+                  <span>{formatDateString(rematchInfo?.time_start)}</span>
+                </div>
+              </div>
+
+              <h3 className="font-semibold text-lg mt-4">
+                Complaint Information
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Complaint Title:</span>
+                  <span>{rematchInfo?.complaint_title}</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-gray-600">Description:</span>
+                  <p className="mt-1 text-sm border p-2 rounded bg-gray-50">
+                    {rematchInfo?.complaint_description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              No rematch information available.
+            </div>
+          )}
         </Modal.Body>
       </Modal>
     </>
