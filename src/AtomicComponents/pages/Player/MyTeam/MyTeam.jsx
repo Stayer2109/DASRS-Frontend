@@ -184,7 +184,7 @@ export const MyTeam = () => {
       }));
 
       // Navigate to teams page
-      navigate(`${role}/teams`, { replace: true });
+      navigate(`/${role}/teams`, { replace: true });
     } catch (error) {
       console.error("Error leaving team:", error);
       Toast({
