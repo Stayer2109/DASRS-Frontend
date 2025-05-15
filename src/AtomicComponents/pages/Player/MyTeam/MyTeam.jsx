@@ -117,7 +117,7 @@ export const MyTeam = () => {
       console.error("Error removing member:", error);
       Toast({
         title: "Error",
-        message: "Failed to remove team member.",
+        message: error.response?.data?.error || "Failed to remove member.",
         type: "error",
       });
     }
