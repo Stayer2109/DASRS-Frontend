@@ -233,7 +233,7 @@ export const MyTeam = () => {
       }));
 
       // Navigate to teams page
-      navigate("/teams", { replace: true });
+      navigate(`/${role}/teams`, { replace: true });
     } catch (error) {
       console.error("Error deleting team:", error);
       Toast({
