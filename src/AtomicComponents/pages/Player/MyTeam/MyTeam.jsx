@@ -37,6 +37,7 @@ export const MyTeam = () => {
   const [newLeader, setNewLeader] = useState(null);
   const [leaveTeamDialogOpen, setLeaveTeamDialogOpen] = useState(false);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
+  const role = auth?.role?.toString().toLowerCase();
 
   const fetchTeamData = async () => {
     // Use either the auth teamId or the one from navigation state
@@ -183,12 +184,12 @@ export const MyTeam = () => {
       }));
 
       // Navigate to teams page
-      navigate("/teams", { replace: true });
+      navigate(`${role}/teams`, { replace: true });
     } catch (error) {
       console.error("Error leaving team:", error);
       Toast({
         title: "Error",
-        message: "Failed to leave the team.",
+        message: error.response?.data?.error || "Failed to leave the team.",
         type: "error",
       });
 
