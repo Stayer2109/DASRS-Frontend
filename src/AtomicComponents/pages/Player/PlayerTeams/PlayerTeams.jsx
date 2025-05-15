@@ -12,12 +12,15 @@ import { Button } from "@/AtomicComponents/atoms/shadcn/button";
 import { Badge } from "@/AtomicComponents/atoms/shadcn/badge";
 import Spinner from "@/AtomicComponents/atoms/Spinner/Spinner";
 import Modal from "@/AtomicComponents/organisms/Modal/Modal";
+import useAuth from "@/hooks/useAuth";
 
 export const PlayerTeams = () => {
+  const { auth } = useAuth();
   const { teams, isLoading, createTeam } = useTeamManagement();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", tag: "" });
   const navigate = useNavigate();
+  const role = auth?.role?.toString().toLowerCase();
 
   const handleCreateTeam = async (e) => {
     e.preventDefault();
@@ -31,7 +34,7 @@ export const PlayerTeams = () => {
   };
 
   const handleViewTeam = (teamId) => {
-    navigate(`/teams/${teamId}`);
+    navigate(`${role}/teams/${teamId}`);
   };
 
   const renderTeamStatusBadge = (memberCount) => {
