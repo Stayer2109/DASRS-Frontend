@@ -27,14 +27,14 @@ export const PlayerTeams = () => {
     const newTeamId = await createTeam(formData.name, formData.tag);
     if (newTeamId) {
       // Navigate to my-team page with replace to prevent back navigation
-      navigate(`${role}/my-team`, { replace: true });
+      navigate(`/${role}/my-team`, { replace: true });
     }
     setIsModalOpen(false);
     setFormData({ name: "", tag: "" });
   };
 
   const handleViewTeam = (teamId) => {
-    navigate(`${role}/teams/${teamId}`);
+    navigate(`/${role}/teams/${teamId}`);
   };
 
   const renderTeamStatusBadge = (memberCount) => {
