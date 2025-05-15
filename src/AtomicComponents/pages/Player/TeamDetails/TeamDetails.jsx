@@ -126,7 +126,7 @@ export const TeamDetails = () => {
       <div className="mx-auto p-4 container">
         <Button
           variant="outline"
-          onClick={() => navigate("/teams")}
+          onClick={() => navigate(`/${role}/teams`)}
           className="mb-4"
         >
           Back to Teams
