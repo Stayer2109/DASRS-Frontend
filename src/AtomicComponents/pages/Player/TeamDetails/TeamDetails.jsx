@@ -32,6 +32,7 @@ export const TeamDetails = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [showJoinConfirm, setShowJoinConfirm] = useState(false);
   const navigate = useNavigate();
+  const role = auth?.role?.toString().toLowerCase();
 
   const fetchTeamData = async () => {
     try {
@@ -80,7 +81,7 @@ export const TeamDetails = () => {
       setShowJoinConfirm(false);
 
       // Navigate to my team page
-      navigate("/my-team", { replace: true });
+      navigate(`/${role}/my-team`, { replace: true });
     } catch (error) {
       console.error("Error joining team:", error);
       toast.error(error.response?.data?.message || "Failed to join team");
@@ -122,7 +123,7 @@ export const TeamDetails = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4">
+      <div className="mx-auto p-4 container">
         <Button
           variant="outline"
           onClick={() => navigate("/teams")}
@@ -138,7 +139,7 @@ export const TeamDetails = () => {
                 <CardTitle className="text-2xl">{team.name}</CardTitle>
                 <span className="text-gray-500">Tag: {team.tag}</span>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2">
                 {renderTeamStatusBadge(team.member_count)}
                 {team.status && (
                   <Badge variant={team.status === "ACTIVE" ? "success" : "destructive"}>
@@ -154,7 +155,7 @@ export const TeamDetails = () => {
                     disabled={isJoining}
                     className="ml-2"
                   >
-                    <UserPlus className="h-4 w-4 mr-2" />
+                    <UserPlus className="mr-2 w-4 h-4" />
                     {isJoining ? "Joining..." : "Join Team"}
                   </Button>
                 )}
@@ -164,7 +165,7 @@ export const TeamDetails = () => {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold text-lg mb-2">Team Members ({team.member_count}/5)</h3>
+                <h3 className="mb-2 font-semibold text-lg">Team Members ({team.member_count}/5)</h3>
                 <div className="space-y-2">
                   {members.map((member) => (
                     <div
@@ -177,7 +178,7 @@ export const TeamDetails = () => {
                     >
                       <div className="flex items-center gap-2">
                         {member.is_leader && (
-                          <Crown className="h-5 w-5 text-yellow-500" />
+                          <Crown className="w-5 h-5 text-yellow-500" />
                         )}
                         <span className={`font-medium ${member.is_leader ? 'text-yellow-700' : ''}`}>
                           {member.full_name}
@@ -208,7 +209,7 @@ export const TeamDetails = () => {
               Are you sure you want to join team{" "}
               <span className="font-semibold">{team?.name}</span>?
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="mt-2 text-gray-500 text-sm">
               You can only be a member of one team at a time.
             </p>
           </div>
