@@ -12,6 +12,7 @@ export const useTeamManagement = () => {
   const [error, setError] = useState(null);
   const { auth } = useAuth();
   const refresh = useRefreshToken();
+  const role = auth?.role?.toString().toLowerCase();
 
   const fetchTeams = async () => {
     try {
@@ -46,7 +47,7 @@ export const useTeamManagement = () => {
       });
 
       // Go to page my team use windows
-      window.location.href = `/my-team`;
+      window.location.href = `/${role}/my-team`;
 
       // Return the new team ID
       return newTeamId;
